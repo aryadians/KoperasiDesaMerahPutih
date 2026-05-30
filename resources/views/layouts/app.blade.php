@@ -150,25 +150,25 @@
                 <div class="footer-column">
                     <h4>KDKMP Digital</h4>
                     <ul>
-                        <li><a href="#">Tentang Koperasi</a></li>
-                        <li><a href="#">Keanggotaan</a></li>
-                        <li><a href="#">Berita Desa</a></li>
+                        <li><a href="javascript:void(0)" onclick="window.showSweetAlert('Segera Hadir', 'Halaman Profil Koperasi sedang dalam tahap penyusunan.', 'info')">Tentang Koperasi</a></li>
+                        <li><a href="javascript:void(0)" onclick="window.showSweetAlert('Segera Hadir', 'Informasi Syarat Keanggotaan sedang dalam tahap penyusunan.', 'info')">Keanggotaan</a></li>
+                        <li><a href="javascript:void(0)" onclick="window.showSweetAlert('Segera Hadir', 'Portal Berita Desa sedang dalam tahap penyusunan.', 'info')">Berita Desa</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
                     <h4>Layanan</h4>
                     <ul>
                         <li><a href="{{ route('catalog.index') }}">Gerai Sembako</a></li>
-                        <li><a href="#">Tabungan Warga</a></li>
-                        <li><a href="#">Kredit Modal Panen</a></li>
+                        <li><a href="javascript:void(0)" onclick="window.showSweetAlert('Segera Hadir', 'Informasi lengkap Tabungan Warga sedang dalam tahap penyusunan.', 'info')">Tabungan Warga</a></li>
+                        <li><a href="javascript:void(0)" onclick="window.showSweetAlert('Segera Hadir', 'Informasi lengkap Kredit Modal Panen sedang dalam tahap penyusunan.', 'info')">Kredit Modal Panen</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">
                     <h4>Bantuan & Kontak</h4>
                     <ul>
-                        <li><a href="#">Hubungi Pengurus</a></li>
-                        <li><a href="#">Panduan Aplikasi</a></li>
-                        <li><a href="#">Syarat & Ketentuan</a></li>
+                        <li><a href="javascript:void(0)" onclick="window.showSweetAlert('Hubungi Pengurus', 'Anda dapat menghubungi pengurus desa di Balai Desa Merah Putih pada jam kerja.', 'info')">Hubungi Pengurus</a></li>
+                        <li><a href="javascript:void(0)" onclick="window.showSweetAlert('Segera Hadir', 'Buku Panduan Aplikasi sedang dalam tahap penyusunan.', 'info')">Panduan Aplikasi</a></li>
+                        <li><a href="javascript:void(0)" onclick="window.showSweetAlert('Segera Hadir', 'Dokumen Syarat & Ketentuan sedang dalam tahap penyusunan.', 'info')">Syarat & Ketentuan</a></li>
                     </ul>
                 </div>
             </div>
