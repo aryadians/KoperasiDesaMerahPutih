@@ -1137,3 +1137,68 @@ footer.footer-light {
     opacity: 1;
     transform: translateX(-50%) scale(1) translateY(0);
 }
+
+/* ================================================================
+   27. MOBILE BOTTOM NAVIGATION BAR
+   ================================================================ */
+.mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 64px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--hairline);
+    z-index: 900;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.04);
+}
+.mobile-bottom-nav-inner {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+.mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    flex: 1;
+    height: 100%;
+    transition: color var(--t-fast);
+}
+.mobile-nav-item svg {
+    stroke: currentColor;
+    transition: transform var(--t-base) var(--ease-bounce);
+}
+.mobile-nav-item:active svg {
+    transform: scale(0.85);
+}
+.mobile-nav-item.active {
+    color: var(--primary);
+}
+.mobile-nav-item.active svg {
+    fill: var(--primary-glow);
+    stroke-width: 2.5;
+}
+
+@media (max-width: 768px) {
+    /* Show bottom nav on mobile */
+    .mobile-bottom-nav { display: block; }
+    /* Hide top nav tabs & right menu on mobile */
+    header.top-nav .product-tabs,
+    header.top-nav .nav-right { display: none !important; }
+    /* Center logo on mobile */
+    header.top-nav .nav-container { justify-content: center; }
+    /* Add padding to body so content isn't hidden behind bottom nav */
+    body { padding-bottom: 76px; }
+}
+
