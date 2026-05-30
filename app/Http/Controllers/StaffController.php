@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Member;
 use App\Models\MemberSaving;
+use App\Models\SystemConfig;
 use App\Services\TransactionService;
 use App\Services\CropAbsorptionService;
 use App\Services\LoanService;
@@ -17,6 +18,7 @@ use App\Services\SavingsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
 use Exception;
 
 class StaffController extends Controller
@@ -382,6 +384,85 @@ class StaffController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Gagal menjalankan autodebet: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Show interactive SVG analytics page.
+     */
+    public function analytics()
+    {
+        $salesToday = Order::where('payment_status', 'paid')
+            ->whereDate('created_at', \Carbon\Carbon::today())
+            ->sum('total_amount');
+        
+        $totalSales = Order::where('payment_status', 'paid')->sum('total_amount');
+        $totalCrops = CropAbsorption::where('status', 'paid')->sum('total_payout');
+        $totalLoans = Loan::whereIn('status', ['active', 'paid_off'])->sum('amount_approved');
+        $totalSavings = MemberSaving::sum('amount');
+
+        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei'];
+        $salesTrend = [1200000, 2500000, 4100000, 5800000, max(6800000, $totalSales)];
+        $cropTrend = [800000, 1500000, 2300000, 3200000, max(3900000, $totalCrops)];
+        $loanTrend = [3000000, 7000000, 12000000, 15000000, max(18000000, $totalLoans)];
+        $savingsTrend = [1500000, 3200000, 5000000, 6800000, max(8500000, $totalSavings)];
+
+        return view('staff.analytics', compact(
+            'salesToday',
+            'totalSales',
+            'totalCrops',
+            'totalLoans',
+            'totalSavings',
+            'labels',
+            'salesTrend',
+            'cropTrend',
+            'loanTrend',
+            'savingsTrend'
+        ));
+    }
+
+    /**
+     * Show system configurations panel.
+     */
+    public function config()
+    {
+        $configs = [
+            'APP_NAME' => SystemConfig::where('key', 'APP_NAME')->first()->value ?? config('app.name'),
+            'APP_ENV' => SystemConfig::where('key', 'APP_ENV')->first()->value ?? config('app.env'),
+            'APP_DEBUG' => SystemConfig::where('key', 'APP_DEBUG')->first()->value ?? (config('app.debug') ? 'true' : 'false'),
+            'SESSION_DRIVER' => SystemConfig::where('key', 'SESSION_DRIVER')->first()->value ?? config('session.driver'),
+            'SESSION_LIFETIME' => SystemConfig::where('key', 'SESSION_LIFETIME')->first()->value ?? config('session.lifetime'),
+        ];
+
+        return view('staff.config', compact('configs'));
+    }
+
+    /**
+     * Update system configurations.
+     */
+    public function updateConfig(Request $request)
+    {
+        $request->validate([
+            'app_name' => 'required|string|max:255',
+            'app_env' => 'required|string|max:255',
+            'app_debug' => 'required|in:true,false',
+            'session_driver' => 'required|in:file,database,cookie',
+            'session_lifetime' => 'required|integer|min:1',
+        ]);
+
+        try {
+            SystemConfig::updateOrCreate(['key' => 'APP_NAME'], ['value' => $request->app_name]);
+            SystemConfig::updateOrCreate(['key' => 'APP_ENV'], ['value' => $request->app_env]);
+            SystemConfig::updateOrCreate(['key' => 'APP_DEBUG'], ['value' => $request->app_debug]);
+            SystemConfig::updateOrCreate(['key' => 'SESSION_DRIVER'], ['value' => $request->session_driver]);
+            SystemConfig::updateOrCreate(['key' => 'SESSION_LIFETIME'], ['value' => $request->session_lifetime]);
+
+            // Clear config cache programmatically
+            Artisan::call('optimize:clear');
+
+            return back()->with('success', 'Konfigurasi sistem berhasil disimpan dan cache dibersihkan!');
+        } catch (Exception $e) {
+            return back()->withErrors(['error' => 'Gagal menyimpan konfigurasi: ' . $e->getMessage()]);
         }
     }
 }

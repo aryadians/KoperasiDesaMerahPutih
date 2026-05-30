@@ -61,8 +61,17 @@
                         <a href="{{ route('staff.dashboard') }}" class="product-tab {{ Request::routeIs('staff.dashboard') ? 'active' : '' }}">
                             Dashboard Staf
                         </a>
+                        <a href="{{ route('staff.analytics') }}" class="product-tab {{ Request::routeIs('staff.analytics') ? 'active' : '' }}">
+                            Analitik
+                        </a>
+                        <a href="{{ route('staff.purchase-orders') }}" class="product-tab {{ Request::routeIs('staff.purchase-orders') ? 'active' : '' }}">
+                            Procurement (PO)
+                        </a>
                         <a href="{{ route('staff.pos') }}" class="product-tab {{ Request::routeIs('staff.pos') ? 'active' : '' }}" style="color: var(--primary); font-weight: 600;">
                             🏪 POS Kasir
+                        </a>
+                        <a href="{{ route('staff.config') }}" class="product-tab {{ Request::routeIs('staff.config') ? 'active' : '' }}">
+                            ⚙️ Konfigurasi
                         </a>
                     @endif
                 @endauth
@@ -397,5 +406,72 @@
         });
     });
     </script>
+
+    @if(session()->has('sms_notification'))
+        <!-- Phone WhatsApp/SMS Notification Simulator Widget -->
+        <div id="phone-sms-widget" class="no-print" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; max-width: 320px; width: 100%; transform: translateY(150%); opacity: 0; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.6s ease; font-family: var(--font);">
+            <div style="background: rgba(26, 26, 26, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); color: white; border-radius: var(--r-md); border: 1.5px solid rgba(255, 255, 255, 0.15); box-shadow: var(--shadow-xl); overflow: hidden;">
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.05);">
+                    <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: #1a7f5a; letter-spacing: 0.5px; text-transform: uppercase;">
+                        <span style="font-size: 14px;">💬</span> WhatsApp Desa
+                    </div>
+                    <div style="font-size: 10px; color: rgba(255, 255, 255, 0.5); font-weight: 600;">Baru saja</div>
+                </div>
+                <div style="padding: 14px; display: flex; flex-direction: column; gap: 6px;">
+                    <h4 style="font-size: 13px; font-weight: 700; color: white; margin: 0;">{{ session('sms_notification.title') }}</h4>
+                    <p style="font-size: 11px; color: rgba(255, 255, 255, 0.85); line-height: 1.5; margin: 0;">{{ session('sms_notification.message') }}</p>
+                </div>
+                <div onclick="dismissSMSWidget()" style="text-align: center; padding: 8px; font-size: 10px; color: rgba(255, 255, 255, 0.5); cursor: pointer; border-top: 1px solid rgba(255, 255, 255, 0.05); font-weight: 600;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255, 255, 255, 0.5)'">
+                    Sentuh untuk menutup
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const widget = document.getElementById('phone-sms-widget');
+                
+                try {
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    function playChime(freq, delay, duration) {
+                        setTimeout(() => {
+                            const osc = audioCtx.createOscillator();
+                            const gain = audioCtx.createGain();
+                            osc.type = 'sine';
+                            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                            gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                            osc.connect(gain);
+                            gain.connect(audioCtx.destination);
+                            osc.start();
+                            osc.stop(audioCtx.currentTime + duration);
+                        }, delay);
+                    }
+                    
+                    playChime(880, 200, 0.15);
+                    playChime(1046.5, 320, 0.25);
+                } catch (e) {}
+
+                setTimeout(() => {
+                    widget.style.transform = 'translateY(0)';
+                    widget.style.opacity = '1';
+                }, 600);
+
+                setTimeout(() => {
+                    dismissSMSWidget();
+                }, 8500);
+            });
+
+            function dismissSMSWidget() {
+                const widget = document.getElementById('phone-sms-widget');
+                if (widget) {
+                    widget.style.transform = 'translateY(150%)';
+                    widget.style.opacity = '0';
+                    setTimeout(() => widget.remove(), 600);
+                }
+            }
+        </script>
+    @endif
 </body>
 </html>

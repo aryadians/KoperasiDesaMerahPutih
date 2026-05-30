@@ -85,12 +85,22 @@ Route::middleware('auth')->group(function () {
     // ── STAFF / MANAGEMENT ROUTES ──────────────────────────────────
     Route::prefix('staff')->name('staff.')->group(function () {
         Route::get('/dashboard', [StaffController::class, 'dashboard'])->name('dashboard');
+        Route::get('/analytics', [StaffController::class, 'analytics'])->name('analytics');
         
         // POS Kasir Offline
         Route::get('/pos', [StaffController::class, 'pos'])->name('pos');
         Route::post('/pos/checkout', [StaffController::class, 'posCheckout'])->name('pos.checkout');
         Route::get('/pos/member/{nik}', [StaffController::class, 'posLookupMember'])->name('pos.member');
         Route::post('/autodebet', [StaffController::class, 'runAutodebet'])->name('autodebet');
+
+        // System Config Panel
+        Route::get('/config', [StaffController::class, 'config'])->name('config');
+        Route::post('/config', [StaffController::class, 'updateConfig'])->name('config.update');
+
+        // Procurement / Purchase Orders
+        Route::get('/purchase-orders', [\App\Http\Controllers\PurchaseOrderController::class, 'index'])->name('purchase-orders');
+        Route::post('/purchase-orders', [\App\Http\Controllers\PurchaseOrderController::class, 'store'])->name('purchase-orders.store');
+        Route::post('/purchase-orders/{id}/status/{status}', [\App\Http\Controllers\PurchaseOrderController::class, 'updateStatus'])->name('purchase-orders.update-status');
 
         // Order management (Kasir)
         Route::get('/orders', [StaffController::class, 'orders'])->name('orders');
