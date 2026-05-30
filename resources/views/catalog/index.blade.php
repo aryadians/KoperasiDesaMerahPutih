@@ -136,7 +136,7 @@
 @else
     <div class="grid-4" id="actual-product-grid" style="display: none; opacity: 0; transition: opacity 0.5s ease;">
         @foreach($products as $idx => $product)
-            <div class="property-card" onclick="navigateToDetail(event, '{{ route('catalog.show', $product->id) }}')" style="animation-delay: {{ min($idx * 0.06, 0.5) }}s;">
+            <div class="property-card reveal-scale delay-{{ ($idx % 4) + 1 }}" onclick="navigateToDetail(event, '{{ route('catalog.show', $product->id) }}')">
 
                 {{-- Product Image --}}
                 <div class="property-card-photo">

@@ -231,17 +231,18 @@
         if (scrollTopBtn) scrollTopBtn.classList.toggle('visible', y > 300);
     }, { passive: true });
 
-    // ── Scroll-Reveal (IntersectionObserver) ─────────────────────
+    // ── Scroll-Reveal (IntersectionObserver with Entrance & Exit) ──
     const revealObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('revealed');
-                revealObserver.unobserve(entry.target);
+            } else {
+                entry.target.classList.remove('revealed');
             }
         });
-    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
 
-    document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-rotate').forEach(el => {
         revealObserver.observe(el);
     });
 
