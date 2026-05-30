@@ -1030,10 +1030,17 @@ table.clean-table tbody tr:last-child td { border-bottom: none; }
 /* ================================================================
    22. SPLIT LAYOUT
    ================================================================ */
-.split-layout { display: flex; gap: 40px; }
-.main-column  { flex: 2; min-width: 0; }
-.sticky-rail  { flex: 1; position: sticky; top: 96px; height: fit-content; min-width: 0; }
-@media (max-width: 900px) { .split-layout { flex-direction: column; gap: 24px; } .sticky-rail { position: static; } }
+.split-layout { 
+    display: flex; 
+    gap: 24px; 
+    align-items: flex-start;
+}
+.main-column  { flex: 1; min-width: 0; }
+.sticky-rail  { flex: 0 0 380px; position: sticky; top: 96px; height: fit-content; }
+@media (max-width: 1024px) { 
+    .split-layout { flex-direction: column; gap: 24px; } 
+    .sticky-rail { position: static; flex: 1; width: 100%; } 
+}
 
 /* ================================================================
    23. FOOTER

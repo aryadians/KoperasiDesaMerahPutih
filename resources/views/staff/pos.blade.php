@@ -73,9 +73,9 @@
     </div>
 
     <!-- RIGHT: Cashier POS Cart -->
-    <div class="sticky-rail">
-        <div class="card" style="padding: 24px; height: calc(100vh - 120px); display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-lg); border: 1.5px solid var(--hairline);">
-            <div>
+    <div class="sticky-rail" style="align-self: start; top: 96px;">
+        <div class="card" style="padding: 20px; max-height: calc(100vh - 120px); display: flex; flex-direction: column; box-shadow: var(--shadow-lg); border: 1.5px solid var(--hairline);">
+            <div style="flex-shrink: 0;">
                 <h3 style="font-size: 16px; font-weight: 700; border-bottom: 1px solid var(--hairline); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; color: var(--ink);">
                     <span>🛒 Keranjang Kasir</span>
                     <button class="btn btn-ghost btn-sm" onclick="clearPOSCart()" style="height: 28px; font-size: 11px; padding: 0 10px; border-color: var(--danger); color: var(--danger);">Reset (F4)</button>
@@ -92,19 +92,19 @@
                         👤 <span id="pos-member-name">-</span>
                     </div>
                 </div>
+            </div>
 
-                <!-- Cart Items List -->
-                <div style="flex-grow: 1; max-height: calc(100vh - 480px); overflow-y: auto; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px dashed var(--hairline); padding-bottom: 12px; margin-bottom: 16px;" id="pos-cart-list">
-                    <div style="text-align: center; color: var(--muted); font-size: 13px; padding: 48px 0;" id="pos-cart-empty">
-                        <div style="font-size: 40px; margin-bottom: 12px; opacity: 0.5;">🛒</div>
-                        Keranjang kosong.<br>Scan barcode atau klik produk.
-                    </div>
+            <!-- Cart Items List: Scrollable -->
+            <div style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px dashed var(--hairline); padding-bottom: 12px; margin-bottom: 16px;" id="pos-cart-list">
+                <div style="text-align: center; color: var(--muted); font-size: 13px; padding: 32px 0;" id="pos-cart-empty">
+                    <div style="font-size: 40px; margin-bottom: 12px; opacity: 0.5;">🛒</div>
+                    Keranjang kosong.<br>Scan barcode atau klik produk.
                 </div>
             </div>
 
             <!-- Pricing Summary and Pay checkout -->
-            <div style="background: var(--surface-md); padding: 16px; border-radius: var(--r-md); border: 1px solid var(--hairline-soft);">
-                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; margin-bottom: 16px; color: var(--body);">
+            <div style="flex-shrink: 0; background: var(--surface-md); padding: 16px; border-radius: var(--r-md); border: 1px solid var(--hairline-soft);">
+                <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; margin-bottom: 12px; color: var(--body);">
                     <div style="display: flex; justify-content: space-between;">
                         <span>Jumlah Barang</span>
                         <strong id="pos-total-items" style="color: var(--ink);">0 Barang</strong>
@@ -113,26 +113,26 @@
                         <span>Potongan Member</span>
                         <strong id="pos-total-discount" style="color: var(--success); font-weight: 700;">- Rp 0</strong>
                     </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 16px; border-top: 1px dashed var(--hairline); padding-top: 8px; margin-top: 4px; font-weight: 700; color: var(--ink);">
+                    <div style="display: flex; justify-content: space-between; font-size: 15px; border-top: 1px dashed var(--hairline); padding-top: 8px; margin-top: 4px; font-weight: 700; color: var(--ink);">
                         <span>Total Bayar</span>
-                        <strong style="font-size: 24px; color: var(--primary); line-height: 1;" id="pos-total-pay">Rp 0</strong>
+                        <strong style="font-size: 20px; color: var(--primary);" id="pos-total-pay">Rp 0</strong>
                     </div>
                 </div>
 
-                <div style="background: var(--canvas); padding: 12px; border-radius: var(--r-md); margin-bottom: 16px; border: 1px solid var(--hairline);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <span style="font-size: 12px; font-weight: 700; color: var(--ink);">TUNAI DITERIMA</span>
-                        <span style="font-size: 11px; font-weight: 600; color: var(--primary); cursor: pointer; background: var(--primary-light); padding: 2px 8px; border-radius: 100px;" onclick="posFillExactCash()">Uang Pas (F3)</span>
+                <div style="background: var(--canvas); padding: 10px; border-radius: var(--r-md); margin-bottom: 12px; border: 1px solid var(--hairline);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span style="font-size: 11px; font-weight: 700; color: var(--ink);">TUNAI DITERIMA</span>
+                        <span style="font-size: 10px; font-weight: 600; color: var(--primary); cursor: pointer; background: var(--primary-light); padding: 2px 8px; border-radius: 100px;" onclick="posFillExactCash()">Uang Pas (F3)</span>
                     </div>
-                    <input type="number" id="pos-cash-received" class="text-input" placeholder="Rp 0" oninput="calculatePOSChange()" style="height: 44px; font-weight: 800; font-size: 18px; color: var(--ink); text-align: right;">
+                    <input type="number" id="pos-cash-received" class="text-input" placeholder="Rp 0" oninput="calculatePOSChange()" style="height: 38px; font-weight: 800; font-size: 16px; color: var(--ink); text-align: right;">
                     
-                    <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 14px; font-weight: 700; border-top: 1px dashed var(--hairline-soft); padding-top: 8px;">
+                    <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px; font-weight: 700; border-top: 1px dashed var(--hairline-soft); padding-top: 6px;">
                         <span style="color: var(--muted);">KEMBALIAN</span>
-                        <strong id="pos-cash-change" style="color: var(--success); font-size: 18px;">Rp 0</strong>
+                        <strong id="pos-cash-change" style="color: var(--success); font-size: 16px;">Rp 0</strong>
                     </div>
                 </div>
 
-                <button class="btn btn-primary btn-full" id="btn-pos-checkout" onclick="submitPOSCheckout()" style="height: 52px; border-radius: 100px; font-weight: 800; font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px;" disabled>
+                <button class="btn btn-primary btn-full" id="btn-pos-checkout" onclick="submitPOSCheckout()" style="height: 44px; border-radius: 100px; font-weight: 800; font-size: 14px;" disabled>
                     Selesaikan Bayar (F2)
                 </button>
             </div>
