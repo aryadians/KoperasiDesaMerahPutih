@@ -28,7 +28,7 @@
 
         <!-- Product Hero Image -->
         <div style="width: 100%; height: 400px; border-radius: var(--rounded-md); overflow: hidden; background-color: var(--colors-surface-strong); margin-bottom: 32px;">
-            <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+            <img src="{{ $product->image_url ?? 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80' }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: cover;">
         </div>
 
         <div class="standard-card">

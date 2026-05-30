@@ -96,19 +96,33 @@
                     </div>
                 @endif
 
-                <form action="{{ route('cart.checkout') }}" method="POST" style="display: flex; flex-direction: column; gap: 16px; margin-top: 8px;">
-                    @csrf
-                    
-                    <div class="form-group">
-                        <label for="delivery_type">Metode Pengiriman</label>
-                        <select name="delivery_type" id="delivery_type" class="text-input" style="height: 48px; padding: 0 12px;" required>
-                            <option value="pickup">Ambil di Gerai KDKMP (Gratis)</option>
-                            <option value="delivery">Antar ke Rumah Warga (Kurir Desa)</option>
-                        </select>
-                    </div>
+                @if(auth()->check() && auth()->user()->role === 'anggota')
+                    <form action="{{ route('cart.checkout') }}" method="POST" style="display: flex; flex-direction: column; gap: 16px; margin-top: 8px;">
+                        @csrf
+                        
+                        <div class="form-group">
+                            <label for="delivery_type">Metode Pengiriman</label>
+                            <select name="delivery_type" id="delivery_type" class="text-input" style="height: 48px; padding: 0 12px;" required>
+                                <option value="pickup">Ambil di Gerai KDKMP (Gratis)</option>
+                                <option value="delivery">Antar ke Rumah Warga (Kurir Desa)</option>
+                            </select>
+                        </div>
 
-                    <button type="submit" class="button-primary">Buat Pesanan</button>
-                </form>
+                        <button type="submit" class="button-primary">Buat Pesanan</button>
+                    </form>
+                @else
+                    <div style="background-color: var(--colors-surface-soft); border: 1px solid var(--colors-hairline-soft); padding: 16px; border-radius: var(--rounded-md); margin-top: 12px; text-align: center; display: flex; flex-direction: column; gap: 10px;">
+                        <p style="font-size: 13px; color: var(--colors-muted); line-height: 1.45;">
+                            Anda belum masuk sebagai Anggota. Silakan masuk atau daftar sebagai anggota koperasi untuk melakukan pemesanan (checkout).
+                        </p>
+                        <a href="{{ route('login') }}" class="button-primary" style="display: flex; justify-content: center; align-items: center; height: 44px; border-radius: 100px; font-weight: 600;">
+                            🔐 Masuk ke Akun
+                        </a>
+                        <a href="{{ route('register') }}" class="button-secondary" style="display: flex; justify-content: center; align-items: center; height: 44px; border-radius: 100px; border-color: var(--colors-primary); color: var(--colors-primary); font-weight: 600;">
+                            ✨ Daftar Anggota Baru
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
 

@@ -57,7 +57,8 @@
                                 <td style="text-align: center;">
                                     <div style="display: flex; gap: 4px; justify-content: center;">
                                         <button type="button" class="button-secondary" style="height: 28px; font-size: 11px; padding: 0 8px; width: auto;" 
-                                            onclick="loadEditForm({{ json_encode($product) }})">
+                                            data-product="{{ json_encode($product) }}"
+                                            onclick="loadEditForm(this)">
                                             Edit
                                         </button>
                                         <form action="{{ route('staff.products.delete', $product->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?')" style="display: inline;">
@@ -106,6 +107,11 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="form-image-url">URL Gambar Produk (dari internet)</label>
+                    <input type="url" name="image_url" id="form-image-url" class="text-input" placeholder="https://images.unsplash.com/photo-...">
+                </div>
+
+                <div class="form-group">
                     <label for="unit">Satuan Jual (UOM)</label>
                     <input type="text" name="unit" id="form-unit" class="text-input" placeholder="kg, pcs, liter, bungkus" required>
                 </div>
@@ -142,7 +148,8 @@
 </div>
 
 <script>
-    function loadEditForm(product) {
+    function loadEditForm(btn) {
+        const product = JSON.parse(btn.getAttribute('data-product'));
         document.getElementById('panel-title').textContent = 'Edit Produk';
         document.getElementById('form-submit-btn').textContent = 'Perbarui Produk';
         document.getElementById('form-cancel-btn').style.display = 'block';
@@ -154,6 +161,7 @@
         document.getElementById('form-name').value = product.name;
         document.getElementById('form-category-id').value = product.category_id;
         document.getElementById('form-description').value = product.description || '';
+        document.getElementById('form-image-url').value = product.image_url || '';
         document.getElementById('form-unit').value = product.unit;
         document.getElementById('form-price-member').value = Math.round(product.price_member);
         document.getElementById('form-price-non-member').value = Math.round(product.price_non_member);

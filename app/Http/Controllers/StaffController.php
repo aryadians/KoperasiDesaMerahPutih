@@ -171,6 +171,7 @@ class StaffController extends Controller
             'current_stock' => 'required|integer|min:0',
             'unit' => 'required|string',
             'is_local_product' => 'nullable|boolean',
+            'image_url' => 'nullable|url|max:2048',
         ]);
 
         Product::create([
@@ -182,6 +183,7 @@ class StaffController extends Controller
             'current_stock' => $request->current_stock,
             'unit' => $request->unit,
             'is_local_product' => $request->has('is_local_product'),
+            'image_url' => $request->image_url,
         ]);
 
         return back()->with('success', 'Produk berhasil ditambahkan ke inventaris.');
@@ -198,6 +200,7 @@ class StaffController extends Controller
             'current_stock' => 'required|integer|min:0',
             'unit' => 'required|string',
             'is_local_product' => 'nullable|boolean',
+            'image_url' => 'nullable|url|max:2048',
         ]);
 
         $product = Product::findOrFail($id);
@@ -210,6 +213,7 @@ class StaffController extends Controller
             'current_stock' => $request->current_stock,
             'unit' => $request->unit,
             'is_local_product' => $request->has('is_local_product'),
+            'image_url' => $request->image_url,
         ]);
 
         return back()->with('success', 'Produk berhasil diperbarui.');

@@ -1,152 +1,191 @@
 @extends('layouts.app')
-
-@section('title', 'Dashboard Anggota - KDKMP')
-
+@section('title', 'Dashboard Anggota — KDKMP Digital')
 @section('content')
-<div style="border-bottom: 1px solid var(--colors-hairline-soft); padding-bottom: 24px; margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
-    <div>
-        <h1 style="font-size: 28px; font-weight: 600;">Halo, {{ $member->user->name }}!</h1>
-        <p style="color: var(--colors-muted); font-size: 14px; margin-top: 4px;">
-            Nomor Anggota: <strong style="color: var(--colors-ink);">{{ $member->nomor_anggota }}</strong> | NIK: {{ $member->nik }}
-        </p>
+
+{{-- HERO MEMBER CARD --}}
+<div class="reveal" style="
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 55%, #0f3460 100%);
+    border-radius: 20px; padding: 36px 40px; margin-bottom: 28px;
+    position: relative; overflow: hidden; color: white;
+    box-shadow: 0 16px 48px rgba(15,52,96,0.25);
+">
+    {{-- decorative circles --}}
+    <div style="position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none;"></div>
+    <div style="position:absolute;bottom:-40px;right:80px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.03);pointer-events:none;"></div>
+
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:20px;position:relative;z-index:1;">
+        <div>
+            <div class="pulse-ring" style="font-size:12px;font-weight:600;opacity:0.7;margin-bottom:10px;letter-spacing:0.3px;">Anggota Aktif</div>
+            <h1 style="font-size:28px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;">
+                Halo, {{ $member->user->name }}! 👋
+            </h1>
+            <p style="opacity:0.7;font-size:14px;">
+                No. Anggota: <strong style="opacity:1;">{{ $member->nomor_anggota }}</strong>
+                &nbsp;·&nbsp; NIK: {{ $member->nik }}
+            </p>
+        </div>
+        <div style="background:rgba(255,255,255,0.1);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:18px 28px;text-align:center;min-width:160px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;opacity:0.7;margin-bottom:6px;">Poin Loyalitas</div>
+            <div style="font-size:28px;font-weight:800;letter-spacing:-0.5px;">⭐ {{ number_format($member->total_poin) }}</div>
+            <div style="font-size:11px;opacity:0.6;margin-top:4px;">Poin Aktif</div>
+        </div>
     </div>
-    <div style="background-color: var(--colors-surface-soft); border: 1px solid var(--colors-hairline); border-radius: var(--rounded-md); padding: 12px 24px; text-align: center;">
-        <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--colors-muted);">Total Poin Loyalitas</span>
-        <div style="font-size: 24px; font-weight: 700; color: var(--colors-primary);">⭐ {{ $member->total_poin }} Poin</div>
+
+    {{-- Quick action strip --}}
+    <div style="display:flex;gap:10px;margin-top:28px;flex-wrap:wrap;position:relative;z-index:1;">
+        <a href="{{ route('catalog.index') }}" style="display:inline-flex;align-items:center;gap:6px;background:white;color:#1a1a2e;font-size:13px;font-weight:700;padding:8px 18px;border-radius:100px;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+            🛒 Belanja Sembako
+        </a>
+        <a href="{{ route('member.savings') }}" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);color:white;font-size:13px;font-weight:600;padding:8px 18px;border-radius:100px;border:1px solid rgba(255,255,255,0.2);transition:background 0.2s,transform 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(255,255,255,0.12)';this.style.transform=''">
+            💰 Setor Tabungan
+        </a>
+        <a href="{{ route('member.loans') }}" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);color:white;font-size:13px;font-weight:600;padding:8px 18px;border-radius:100px;border:1px solid rgba(255,255,255,0.2);transition:background 0.2s,transform 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(255,255,255,0.12)';this.style.transform=''">
+            🏦 Pinjaman Mikro
+        </a>
     </div>
 </div>
 
-<!-- Dashboard Grid Links (Airbnb cards) -->
-<div class="dashboard-nav-grid">
+{{-- NAVIGATION CARDS --}}
+<div class="dashboard-nav-grid reveal">
     <div class="dashboard-nav-card" onclick="window.location.href='{{ route('member.savings') }}'">
-        <span style="font-size: 24px; margin-bottom: 8px;">💰</span>
+        <span class="nav-card-icon">💰</span>
         <h3>Tabungan Saku</h3>
-        <p>Lihat mutasi simpanan pokok, wajib, dan sukarela Anda.</p>
+        <p>Lihat mutasi simpanan pokok, wajib, dan sukarela.</p>
     </div>
-    
     <div class="dashboard-nav-card" onclick="window.location.href='{{ route('member.loans') }}'">
-        <span style="font-size: 24px; margin-bottom: 8px;">🏦</span>
+        <span class="nav-card-icon">🏦</span>
         <h3>Pinjaman Mikro</h3>
-        <p>Ajukan modal usaha UMKM desa atau bayar cicilan pinjaman.</p>
+        <p>Ajukan modal usaha UMKM atau bayar cicilan.</p>
     </div>
-
     <div class="dashboard-nav-card" onclick="window.location.href='{{ route('member.crops') }}'">
-        <span style="font-size: 24px; margin-bottom: 8px;">🌾</span>
+        <span class="nav-card-icon">🌾</span>
         <h3>Penyerapan Tani</h3>
-        <p>Jual hasil panen cabai, bawang, padi langsung ke koperasi.</p>
+        <p>Jual hasil panen langsung ke koperasi desa.</p>
     </div>
-
     <div class="dashboard-nav-card" onclick="window.location.href='{{ route('member.orders') }}'">
-        <span style="font-size: 24px; margin-bottom: 8px;">🛍️</span>
+        <span class="nav-card-icon">🛍️</span>
         <h3>Belanja Saya</h3>
-        <p>Pantau status pesanan sembako dan riwayat transaksi belanja.</p>
+        <p>Pantau status pesanan dan riwayat transaksi.</p>
     </div>
 </div>
 
-<!-- Core Info Rows -->
+{{-- MAIN CONTENT SPLIT --}}
 <div class="split-layout">
-    <!-- Left: Savings & Loans Summary -->
-    <div class="main-column" style="display: flex; flex-direction: column; gap: 24px;">
-        
-        <!-- Savings Balances -->
-        <div class="standard-card">
-            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; border-bottom: 1px solid var(--colors-hairline-soft); padding-bottom: 12px;">
-                Ringkasan Simpanan Koperasi
-            </h3>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px;">
-                <div style="padding: 12px; background-color: var(--colors-surface-soft); border-radius: var(--rounded-sm);">
-                    <span style="font-size: 12px; color: var(--colors-muted);">Simpanan Pokok</span>
-                    <div style="font-size: 16px; font-weight: 600; margin-top: 4px;">Rp {{ number_format($savingsBalances['pokok'], 0, ',', '.') }}</div>
+    <div class="main-column" style="display:flex;flex-direction:column;gap:20px;">
+
+        {{-- Savings Summary --}}
+        <div class="card reveal-left">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--hairline-soft);">
+                <div>
+                    <h3 style="font-size:16px;font-weight:700;">Ringkasan Simpanan</h3>
+                    <p style="font-size:12px;color:var(--muted);margin-top:2px;">Posisi saldo per hari ini</p>
                 </div>
-                <div style="padding: 12px; background-color: var(--colors-surface-soft); border-radius: var(--rounded-sm);">
-                    <span style="font-size: 12px; color: var(--colors-muted);">Simpanan Wajib</span>
-                    <div style="font-size: 16px; font-weight: 600; margin-top: 4px;">Rp {{ number_format($savingsBalances['wajib'], 0, ',', '.') }}</div>
-                </div>
-                <div style="padding: 12px; background-color: var(--colors-surface-soft); border-radius: var(--rounded-sm);">
-                    <span style="font-size: 12px; color: var(--colors-muted);">Simpanan Sukarela</span>
-                    <div style="font-size: 16px; font-weight: 600; margin-top: 4px;">Rp {{ number_format($savingsBalances['sukarela'], 0, ',', '.') }}</div>
-                </div>
+                <a href="{{ route('member.savings') }}" style="font-size:13px;font-weight:600;color:var(--primary);" class="animated-link">Lihat Detail →</a>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--colors-hairline-soft); padding-top: 16px;">
-                <span>Total Saldo Tabungan: <strong>Rp {{ number_format($savingsBalances['total'], 0, ',', '.') }}</strong></span>
-                <a href="{{ route('member.savings') }}" style="color: var(--colors-primary); font-weight: 600; font-size: 14px;">Setor Tabungan →</a>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+                @php
+                    $savingItems = [
+                        ['label'=>'Simpanan Pokok','val'=>$savingsBalances['pokok'],'color'=>'var(--info)','icon'=>'🔒'],
+                        ['label'=>'Simpanan Wajib','val'=>$savingsBalances['wajib'],'color'=>'var(--warning)','icon'=>'📅'],
+                        ['label'=>'Simpanan Sukarela','val'=>$savingsBalances['sukarela'],'color'=>'var(--success)','icon'=>'💸'],
+                    ];
+                @endphp
+                @foreach($savingItems as $item)
+                    <div style="background:var(--surface);border-radius:12px;padding:16px;transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+                        <div style="font-size:20px;margin-bottom:8px;">{{ $item['icon'] }}</div>
+                        <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px;">{{ $item['label'] }}</div>
+                        <div style="font-size:16px;font-weight:800;color:{{ $item['color'] }};">Rp {{ number_format($item['val'], 0, ',', '.') }}</div>
+                    </div>
+                @endforeach
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border-radius:12px;padding:14px 18px;">
+                <div>
+                    <div style="font-size:12px;color:var(--muted);margin-bottom:2px;">Total Saldo Tabungan</div>
+                    <div style="font-size:20px;font-weight:800;color:var(--ink);">Rp {{ number_format($savingsBalances['total'], 0, ',', '.') }}</div>
+                </div>
+                <a href="{{ route('member.savings') }}" class="btn btn-primary btn-sm btn-pill">Setor Sekarang</a>
             </div>
         </div>
 
-        <!-- Loans Summary -->
-        <div class="standard-card">
-            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; border-bottom: 1px solid var(--colors-hairline-soft); padding-bottom: 12px;">
-                Status Pinjaman Aktif
-            </h3>
+        {{-- Active Loan --}}
+        <div class="card reveal-left delay-2">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--hairline-soft);">
+                <h3 style="font-size:16px;font-weight:700;">Status Pinjaman</h3>
+                <a href="{{ route('member.loans') }}" style="font-size:13px;font-weight:600;color:var(--primary);" class="animated-link">Kelola Pinjaman →</a>
+            </div>
             @if($activeLoan)
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--colors-muted);">Kode Pinjaman</span>
-                        <strong style="color: var(--colors-ink);">{{ $activeLoan->loan_code }}</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--colors-muted);">Nominal Diajukan</span>
-                        <strong>Rp {{ number_format($activeLoan->amount_requested, 0, ',', '.') }}</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--colors-muted);">Bunga Flat</span>
-                        <strong>{{ $activeLoan->interest_rate }}%</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--colors-muted);">Status Persetujuan</span>
-                        <span style="font-weight: 600; text-transform: uppercase; font-size: 12px; padding: 2px 8px; border-radius: 4px; 
-                            {{ $activeLoan->status === 'active' ? 'background-color:#e6f6f0; color:#1a7f5a;' : '' }}
-                            {{ $activeLoan->status === 'draft' ? 'background-color:#fff9e6; color:#b28900;' : '' }}
-                            {{ $activeLoan->status === 'approved' ? 'background-color:#e6f2ff; color:#0052cc;' : '' }}
-                            {{ $activeLoan->status === 'rejected' ? 'background-color:#ffebeb; color:#c13515;' : '' }}
-                        ">
-                            {{ $activeLoan->status }}
-                        </span>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    @php
+                        $loanRows = [
+                            ['Kode Pinjaman', $activeLoan->loan_code],
+                            ['Nominal', 'Rp ' . number_format($activeLoan->amount_requested, 0, ',', '.')],
+                            ['Bunga Flat', $activeLoan->interest_rate . '% / tahun'],
+                        ];
+                        $statusMap = [
+                            'active'   => ['badge-success', '✅ Aktif'],
+                            'approved' => ['badge-info',    '✔ Disetujui'],
+                            'draft'    => ['badge-warning', '⏳ Menunggu'],
+                            'rejected' => ['badge-danger',  '✕ Ditolak'],
+                        ];
+                        $statusCls = $statusMap[$activeLoan->status] ?? ['badge-neutral', $activeLoan->status];
+                    @endphp
+                    @foreach($loanRows as $row)
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--hairline-soft);">
+                            <span style="font-size:13px;color:var(--muted);">{{ $row[0] }}</span>
+                            <strong style="font-size:14px;">{{ $row[1] }}</strong>
+                        </div>
+                    @endforeach
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;">
+                        <span style="font-size:13px;color:var(--muted);">Status</span>
+                        <span class="badge {{ $statusCls[0] }}">{{ $statusCls[1] }}</span>
                     </div>
                 </div>
             @else
-                <div style="text-align: center; padding: 16px; color: var(--colors-muted);">
-                    <p style="font-size: 14px;">Anda tidak memiliki pinjaman aktif saat ini.</p>
-                    <a href="{{ route('member.loans') }}" style="color: var(--colors-primary); font-weight: 600; font-size: 14px; margin-top: 8px; display: inline-block;">Ajukan Pinjaman Mikro →</a>
+                <div style="text-align:center;padding:28px 16px;">
+                    <div style="font-size:40px;margin-bottom:12px;">🏦</div>
+                    <p style="font-size:14px;color:var(--muted);margin-bottom:16px;">Tidak ada pinjaman aktif saat ini.</p>
+                    <a href="{{ route('member.loans') }}" class="btn btn-primary btn-sm btn-pill">Ajukan Pinjaman Mikro</a>
                 </div>
             @endif
         </div>
 
     </div>
 
-    <!-- Right: Recent Orders -->
-    <div class="sticky-rail" style="flex: 1.2;">
-        <div class="standard-card" style="box-shadow: var(--shadow-tier);">
-            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; border-bottom: 1px solid var(--colors-hairline-soft); padding-bottom: 12px;">
-                Belanjaan Terakhir
-            </h3>
+    {{-- RIGHT: Recent orders --}}
+    <div class="sticky-rail">
+        <div class="card reveal-right">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--hairline-soft);">
+                <h3 style="font-size:16px;font-weight:700;">Belanjaan Terakhir</h3>
+                <a href="{{ route('member.orders') }}" style="font-size:13px;font-weight:600;color:var(--primary);" class="animated-link">Lihat Semua →</a>
+            </div>
             @if($recentOrders->isEmpty())
-                <p style="font-size: 14px; color: var(--colors-muted); text-align: center; padding: 16px;">Belum ada riwayat pemesanan belanja.</p>
+                <div style="text-align:center;padding:32px 16px;">
+                    <div style="font-size:40px;margin-bottom:12px;">🛒</div>
+                    <p style="font-size:14px;color:var(--muted);margin-bottom:16px;">Belum ada riwayat pemesanan.</p>
+                    <a href="{{ route('catalog.index') }}" class="btn btn-primary btn-sm btn-pill">Mulai Belanja</a>
+                </div>
             @else
-                <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div style="display:flex;flex-direction:column;gap:2px;">
                     @foreach($recentOrders as $order)
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--colors-hairline-soft); padding-bottom: 12px; cursor: pointer;" onclick="window.location.href='{{ route('orders.show', $order->id) }}'">
+                        @php
+                            $pstyle = ['paid'=>'badge-success','pending'=>'badge-warning','cancelled'=>'badge-danger'];
+                            $ptext  = ['paid'=>'Lunas','pending'=>'Belum Bayar','cancelled'=>'Dibatalkan'];
+                        @endphp
+                        <a href="{{ route('orders.show', $order->id) }}" style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--hairline-soft);transition:background 0.15s,padding 0.15s;border-radius:8px;" onmouseover="this.style.background='var(--surface)';this.style.padding='12px 8px'" onmouseout="this.style.background='';this.style.padding='12px 0'">
                             <div>
-                                <strong style="font-size: 14px; color: var(--colors-ink);">{{ $order->order_number }}</strong>
-                                <div style="font-size: 12px; color: var(--colors-muted); margin-top: 2px;">
-                                    {{ $order->created_at->format('d M Y') }} • {{ ucfirst($order->delivery_type) }}
-                                </div>
+                                <div style="font-size:13px;font-weight:700;color:var(--ink);">{{ $order->order_number }}</div>
+                                <div style="font-size:11px;color:var(--muted);margin-top:2px;">{{ $order->created_at->format('d M Y') }} · {{ ucfirst($order->delivery_type) }}</div>
                             </div>
-                            <div style="text-align: right;">
-                                <strong style="font-size: 14px; color: var(--colors-ink);">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</strong>
-                                <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; margin-top: 2px;
-                                    {{ $order->payment_status === 'paid' ? 'color:#1a7f5a;' : '' }}
-                                    {{ $order->payment_status === 'pending' ? 'color:#b28900;' : '' }}
-                                    {{ $order->payment_status === 'cancelled' ? 'color:var(--colors-primary-error-text);' : '' }}
-                                ">
-                                    {{ $order->payment_status }}
-                                </div>
+                            <div style="text-align:right;">
+                                <div style="font-size:13px;font-weight:700;">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</div>
+                                <span class="badge {{ $pstyle[$order->payment_status] ?? 'badge-neutral' }}" style="margin-top:4px;">{{ $ptext[$order->payment_status] ?? $order->payment_status }}</span>
                             </div>
-                        </div>
+                        </a>
                     @endforeach
                 </div>
             @endif
         </div>
     </div>
 </div>
+
 @endsection
