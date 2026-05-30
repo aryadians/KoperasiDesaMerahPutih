@@ -3,7 +3,14 @@
 @section('title', 'Kalkulator SHU Anggota - KDKMP')
 
 @section('content')
-<div style="margin-bottom: 24px;">
+{{-- Printable Header (Visible only when printing) --}}
+<div class="print-header">
+    <h1>KOPERASI DESA MERAH PUTIH (KDKMP)</h1>
+    <p>Laporan Estimasi Pembagian Sisa Hasil Usaha (SHU) Anggota Aktif</p>
+    <p style="font-size: 11px; color: #555;">Tanggal Cetak: {{ \Carbon\Carbon::now()->translatedFormat('d F Y H:i') }}</p>
+</div>
+
+<div style="margin-bottom: 24px;" class="no-print">
     <a href="{{ route('staff.dashboard') }}" style="font-size: 14px; font-weight: 600; color: var(--colors-ink); display: flex; align-items: center; gap: 8px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -13,14 +20,21 @@
     </a>
 </div>
 
-<h1 style="font-size: 28px; font-weight: 600; margin-bottom: 24px;">Kalkulator Pembagian SHU Ke Anggota</h1>
+<h1 style="font-size: 28px; font-weight: 600; margin-bottom: 24px;" class="no-print">Kalkulator Pembagian SHU Ke Anggota</h1>
 
 <div class="split-layout">
     
     <!-- Left: Calculations Table -->
     <div class="main-column">
         <div class="standard-card" style="padding: 0; overflow: hidden;">
-            <h3 style="font-size: 18px; font-weight: 600; padding: 20px; border-bottom: 1px solid var(--colors-hairline);">Hasil Estimasi Pembagian SHU</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--colors-hairline);">
+                <h3 style="font-size: 18px; font-weight: 600; margin: 0;">Hasil Estimasi Pembagian SHU</h3>
+                @if(!empty($distribution))
+                    <button onclick="window.print()" class="btn btn-sm btn-ghost no-print" style="display: inline-flex; align-items: center; gap: 6px; font-weight: 600;">
+                        🖨️ Cetak Laporan / PDF
+                    </button>
+                @endif
+            </div>
             
             @if(empty($distribution))
                 <div style="padding: 48px; text-align: center; color: var(--colors-muted);">

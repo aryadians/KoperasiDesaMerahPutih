@@ -37,8 +37,8 @@ Route::middleware('guest')->group(function () {
 
 // =====================================================================
 // PUBLIC STOREFRONT — Semua warga bisa browse tanpa login
-// =====================================================================
 Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
+Route::get('/catalog/agro-dashboard', [CatalogController::class, 'agroDashboard'])->name('catalog.agro');
 Route::get('/catalog/product/{id}', [CatalogController::class, 'show'])->name('catalog.show');
 
 // Keranjang belanja — guest bisa tambah cart (tapi checkout butuh login anggota)
@@ -85,6 +85,12 @@ Route::middleware('auth')->group(function () {
     // ── STAFF / MANAGEMENT ROUTES ──────────────────────────────────
     Route::prefix('staff')->name('staff.')->group(function () {
         Route::get('/dashboard', [StaffController::class, 'dashboard'])->name('dashboard');
+        
+        // POS Kasir Offline
+        Route::get('/pos', [StaffController::class, 'pos'])->name('pos');
+        Route::post('/pos/checkout', [StaffController::class, 'posCheckout'])->name('pos.checkout');
+        Route::get('/pos/member/{nik}', [StaffController::class, 'posLookupMember'])->name('pos.member');
+        Route::post('/autodebet', [StaffController::class, 'runAutodebet'])->name('autodebet');
 
         // Order management (Kasir)
         Route::get('/orders', [StaffController::class, 'orders'])->name('orders');

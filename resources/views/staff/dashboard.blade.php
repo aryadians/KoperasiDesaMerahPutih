@@ -178,6 +178,23 @@
             </a>
         </div>
 
+        {{-- Autodebet Setoran Wajib --}}
+        <div class="reservation-card" style="margin-top: 20px; border-color: var(--success-border); background: var(--success-bg);">
+            <div>
+                <div style="font-size: 32px; margin-bottom: 12px; animation: emoji-bounce 3s ease-in-out infinite;">🔄</div>
+                <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px; color: var(--success);">Autodebet Setoran Wajib</h3>
+                <p style="font-size: 13px; color: var(--muted); line-height: 1.6;">
+                    Jalankan pemotongan otomatis iuran wajib bulanan sebesar <strong>Rp 50.000</strong> dari saldo Simpanan Sukarela anggota yang aktif.
+                </p>
+            </div>
+            <form action="{{ route('staff.autodebet') }}" method="POST" onsubmit="this.querySelector('button').disabled=true; this.querySelector('button').innerText='Memproses...';">
+                @csrf
+                <button type="submit" class="button-primary" style="background: linear-gradient(135deg, var(--success), #165c42); font-size: 14px; height: 44px; border-radius: 100px; width: 100%; border: none; cursor: pointer; color: white;">
+                    Jalankan Autodebet ➔
+                </button>
+            </form>
+        </div>
+
         {{-- Quick links --}}
         <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
             <a href="{{ route('staff.loans') }}" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border: 1px solid var(--colors-hairline); border-radius: var(--rounded-md); font-size: 14px; font-weight: 500; transition: all 0.2s; background: var(--colors-canvas);" onmouseover="this.style.borderColor='var(--colors-ink)';this.style.transform='translateX(4px)'" onmouseout="this.style.borderColor='var(--colors-hairline)';this.style.transform=''">

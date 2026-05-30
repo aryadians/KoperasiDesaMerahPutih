@@ -23,7 +23,16 @@ class CartController extends Controller
     public function index()
     {
         $cart = session()->get('cart', []);
-        return view('cart.index', compact('cart'));
+        $sukarelaBalance = 0;
+        if (Auth::check() && Auth::user()->role === 'anggota') {
+            $member = Auth::user()->member;
+            if ($member) {
+                $sukarelaBalance = \App\Models\MemberSaving::where('member_id', $member->id)
+                    ->where('type', 'sukarela')
+                    ->sum('amount');
+            }
+        }
+        return view('cart.index', compact('cart', 'sukarelaBalance'));
     }
 
     /**
@@ -132,6 +141,7 @@ class CartController extends Controller
     {
         $request->validate([
             'delivery_type' => 'required|in:pickup,delivery',
+            'payment_method' => 'required|in:cash,saldo_sukarela,qris_desa',
         ]);
 
         $cart = session()->get('cart', []);
@@ -153,7 +163,8 @@ class CartController extends Controller
             $order = $this->transactionService->checkout(
                 Auth::id(),
                 $items,
-                $request->delivery_type
+                $request->delivery_type,
+                $request->payment_method
             );
 
             // Clear cart

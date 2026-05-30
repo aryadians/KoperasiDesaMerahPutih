@@ -108,6 +108,18 @@
                             </select>
                         </div>
 
+                        <div class="form-group">
+                            <label for="payment_method">Metode Pembayaran</label>
+                            <select name="payment_method" id="payment_method" class="text-input" style="height: 48px; padding: 0 12px;" required>
+                                <option value="cash">💵 Bayar Tunai di Gerai (COD)</option>
+                                <option value="saldo_sukarela" {{ $sukarelaBalance < $total ? 'disabled' : '' }}>
+                                    💳 Saldo Sukarela Koperasi (Rp {{ number_format($sukarelaBalance, 0, ',', '.') }}) 
+                                    @if($sukarelaBalance < $total) — Saldo Kurang ⚠️ @endif
+                                </option>
+                                <option value="qris_desa">⚡ QRIS Desa (Bayar Instan)</option>
+                            </select>
+                        </div>
+
                         <button type="submit" class="button-primary">Buat Pesanan</button>
                     </form>
                 @else

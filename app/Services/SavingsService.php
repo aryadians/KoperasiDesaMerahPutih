@@ -55,6 +55,53 @@ class SavingsService
     }
 
     /**
+     * Record a debit (withdrawal/payment) from a member's savings.
+     *
+     * @param int $memberId
+     * @param string $type
+     * @param float $amount
+     * @param string|null $notes
+     * @return MemberSaving
+     * @throws Exception
+     */
+    public function recordDebit(int $memberId, string $type, float $amount, ?string $notes = null): MemberSaving
+    {
+        if ($amount <= 0) {
+            throw new Exception("Jumlah nominal penarikan harus lebih besar dari nol.");
+        }
+
+        if (!in_array($type, ['pokok', 'wajib', 'sukarela'])) {
+            throw new Exception("Jenis simpanan tidak valid.");
+        }
+
+        return DB::transaction(function () use ($memberId, $type, $amount, $notes) {
+            $member = Member::find($memberId);
+            if (!$member) {
+                throw new Exception("Anggota tidak ditemukan.");
+            }
+
+            if (!$member->status_aktif) {
+                throw new Exception("Status anggota tidak aktif, tidak dapat memproses penarikan.");
+            }
+
+            $currentBalance = MemberSaving::where('member_id', $memberId)->where('type', $type)->sum('amount');
+            if ($currentBalance < $amount) {
+                throw new Exception("Saldo simpanan {$type} tidak mencukupi (Saldo saat ini: Rp " . number_format($currentBalance, 0, ',', '.') . ").");
+            }
+
+            $saving = MemberSaving::create([
+                'member_id' => $memberId,
+                'type' => $type,
+                'amount' => -$amount,
+                'transaction_date' => Carbon::now(),
+                'notes' => $notes ?? "Debet simpanan {$type}",
+            ]);
+
+            return $saving;
+        });
+    }
+
+    /**
      * Get savings balance by type for a member.
      *
      * @param int $memberId

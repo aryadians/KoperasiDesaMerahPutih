@@ -8,12 +8,15 @@ use App\Models\Loan;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Member;
+use App\Models\MemberSaving;
 use App\Services\TransactionService;
 use App\Services\CropAbsorptionService;
 use App\Services\LoanService;
 use App\Services\SHUService;
+use App\Services\SavingsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use Exception;
 
 class StaffController extends Controller
@@ -22,17 +25,20 @@ class StaffController extends Controller
     protected $cropService;
     protected $loanService;
     protected $shuService;
+    protected $savingsService;
 
     public function __construct(
         TransactionService $transactionService,
         CropAbsorptionService $cropService,
         LoanService $loanService,
-        SHUService $shuService
+        SHUService $shuService,
+        SavingsService $savingsService
     ) {
         $this->transactionService = $transactionService;
         $this->cropService = $cropService;
         $this->loanService = $loanService;
         $this->shuService = $shuService;
+        $this->savingsService = $savingsService;
     }
 
     /**
@@ -243,5 +249,139 @@ class StaffController extends Controller
         }
 
         return view('staff.shu', compact('distribution', 'totalSHUAmount'));
+    }
+
+    /**
+     * Show POS Cashier Panel.
+     */
+    public function pos()
+    {
+        $products = Product::with('category')->where('current_stock', '>', 0)->get();
+        $categories = Category::all();
+        return view('staff.pos', compact('products', 'categories'));
+    }
+
+    /**
+     * Process POS Cashier Checkout.
+     */
+    public function posCheckout(Request $request)
+    {
+        $request->validate([
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'member_nik' => 'nullable|string|max:30',
+        ]);
+
+        try {
+            $userId = auth()->id();
+            $isMember = false;
+
+            if ($request->filled('member_nik')) {
+                $member = Member::where('nik', $request->member_nik)->first();
+                if (!$member) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Anggota dengan NIK tersebut tidak ditemukan.'
+                    ], 422);
+                }
+                $userId = $member->user_id;
+                $isMember = true;
+            }
+
+            // Perform checkout
+            $order = $this->transactionService->checkout(
+                $userId,
+                $request->items,
+                'pickup',
+                'cash'
+            );
+
+            // Mark order as paid instantly for offline retail transaction
+            $this->transactionService->markAsPaid($order->id);
+
+            // Reload order with items to return to POS receipt printer
+            $order = Order::with(['items.product', 'user'])->findOrFail($order->id);
+
+            return response()->json([
+                'success' => true,
+                'order' => $order,
+                'is_member' => $isMember,
+                'message' => 'Transaksi POS berhasil diselesaikan!'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memproses transaksi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Look up member by NIK for POS panel.
+     */
+    public function posLookupMember($nik)
+    {
+        $member = Member::with('user')->where('nik', $nik)->first();
+        if ($member) {
+            return response()->json([
+                'success' => true,
+                'name' => $member->user->name,
+                'nomor_anggota' => $member->nomor_anggota
+            ]);
+        }
+        return response()->json([
+            'success' => false,
+            'message' => 'Anggota tidak ditemukan.'
+        ]);
+    }
+
+    /**
+     * Run monthly autodebet obligations (Obligatory Savings).
+     */
+    public function runAutodebet(Request $request)
+    {
+        try {
+            $members = Member::where('status_aktif', true)->get();
+            $successCount = 0;
+            $failCount = 0;
+            $amount = 50000.00; // Standard monthly obligated saving
+
+            DB::beginTransaction();
+            foreach ($members as $member) {
+                // Check current sukarela balance
+                $sukarelaBalance = MemberSaving::where('member_id', $member->id)
+                    ->where('type', 'sukarela')
+                    ->sum('amount');
+
+                if ($sukarelaBalance >= $amount) {
+                    // 1. Debit from Simpanan Sukarela
+                    $this->savingsService->recordDebit(
+                        $member->id,
+                        'sukarela',
+                        $amount,
+                        'Autodebet bulanan untuk Simpanan Wajib'
+                    );
+
+                    // 2. Deposit to Simpanan Wajib
+                    $this->savingsService->recordSaving(
+                        $member->id,
+                        'wajib',
+                        $amount,
+                        'Setoran Simpanan Wajib via Autodebet Sukarela'
+                    );
+
+                    $successCount++;
+                } else {
+                    $failCount++;
+                }
+            }
+            DB::commit();
+
+            return back()->with('success', "Autodebet berhasil diproses! Sukses: {$successCount} Anggota, Gagal (saldo tidak cukup): {$failCount} Anggota.");
+        } catch (Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Gagal menjalankan autodebet: ' . $e->getMessage()]);
+        }
     }
 }

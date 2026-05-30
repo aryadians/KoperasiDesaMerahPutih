@@ -18,6 +18,7 @@ return new class extends Migration
             $table->decimal('total_amount', 15, 2);
             $table->integer('points_earned')->default(0);
             $table->enum('payment_status', ['pending', 'paid', 'cancelled'])->default('pending');
+            $table->string('payment_method')->default('cash'); // cash, saldo_sukarela, qris_desa
             $table->enum('delivery_type', ['pickup', 'delivery'])->default('pickup');
             $table->softDeletes();
             $table->timestamps();

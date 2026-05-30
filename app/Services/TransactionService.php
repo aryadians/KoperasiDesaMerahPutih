@@ -6,27 +6,36 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Member;
+use App\Services\SavingsService;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
 class TransactionService
 {
+    protected $savingsService;
+
+    public function __construct(SavingsService $savingsService)
+    {
+        $this->savingsService = $savingsService;
+    }
+
     /**
      * Process a checkout order.
      *
      * @param int $userId
      * @param array $items Array of ['product_id' => int, 'quantity' => int]
      * @param string $deliveryType 'pickup'|'delivery'
+     * @param string $paymentMethod 'cash'|'saldo_sukarela'|'qris_desa'
      * @return Order
      * @throws Exception
      */
-    public function checkout(int $userId, array $items, string $deliveryType): Order
+    public function checkout(int $userId, array $items, string $deliveryType, string $paymentMethod = 'cash'): Order
     {
         if (empty($items)) {
             throw new Exception("Keranjang belanja kosong.");
         }
 
-        return DB::transaction(function () use ($userId, $items, $deliveryType) {
+        return DB::transaction(function () use ($userId, $items, $deliveryType, $paymentMethod) {
             $totalAmount = 0.00;
             $orderItemsData = [];
 
@@ -89,7 +98,28 @@ class TransactionService
                 'points_earned' => $pointsEarned,
                 'payment_status' => 'pending',
                 'delivery_type' => $deliveryType,
+                'payment_method' => $paymentMethod,
             ]);
+
+            // Debet Saldo Sukarela if payment method is e-wallet
+            if ($paymentMethod === 'saldo_sukarela') {
+                $member = Member::where('user_id', $userId)->first();
+                if (!$member) {
+                    throw new Exception("Akun Anda tidak terdaftar sebagai Anggota Koperasi. Saldo Sukarela hanya tersedia untuk anggota.");
+                }
+
+                // Deduct Simpanan Sukarela balance
+                $this->savingsService->recordDebit(
+                    $member->id,
+                    'sukarela',
+                    $totalAmount,
+                    "Pembayaran Order Gerai: {$orderNumber}"
+                );
+
+                // Instantly mark as paid
+                $order->payment_status = 'paid';
+                $order->save();
+            }
 
             // 4. Create Order Items
             foreach ($orderItemsData as $itemData) {

@@ -1,0 +1,167 @@
+/* ================================================================
+   KDKMP Print Stylesheet — Optimized for PDF & Paper Reports
+   ================================================================ */
+
+@media print {
+    /* Reset colors and backgrounds for ink saving */
+    * {
+        background: transparent !important;
+        color: #000000 !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+        transition: none !important;
+        animation: none !important;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 12pt;
+        line-height: 1.4;
+        background: #fff !important;
+        color: #000 !important;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Hide UI navigation, footer, back buttons and actions */
+    header.top-nav,
+    footer.footer-light,
+    #scroll-to-top,
+    .btn,
+    .button-primary,
+    .button-secondary,
+    .quick-buy-btn,
+    .search-bar-wrapper,
+    .category-strip,
+    .swal-overlay,
+    .no-print,
+    .back-link,
+    form,
+    .badge-count {
+        display: none !important;
+    }
+
+    /* Remove limits and stretch containers to full width */
+    .container {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    main {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Card styling adjustment for print */
+    .card,
+    .standard-card,
+    .reservation-card,
+    .stat-card {
+        border: 1px solid #ddd !important;
+        border-radius: 0 !important;
+        padding: 15px !important;
+        margin-bottom: 20px !important;
+        page-break-inside: avoid;
+    }
+
+    .stat-card::after {
+        display: none !important;
+    }
+
+    /* Grid adjustments for printable layout */
+    .grid-4,
+    .dashboard-nav-grid,
+    .split-layout {
+        display: block !important;
+    }
+
+    .dashboard-nav-card {
+        border: 1px solid #ddd !important;
+        border-radius: 0 !important;
+        margin-bottom: 15px !important;
+        page-break-inside: avoid;
+    }
+
+    /* Table styling for clean printable format */
+    table.clean-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-top: 15px !important;
+    }
+
+    table.clean-table th {
+        background: #eee !important;
+        color: #000 !important;
+        border: 1px solid #000 !important;
+        padding: 8px !important;
+        font-size: 10pt !important;
+        font-weight: bold !important;
+        text-transform: uppercase !important;
+    }
+
+    table.clean-table td {
+        border: 1px solid #ddd !important;
+        padding: 8px !important;
+        font-size: 10pt !important;
+        background: none !important;
+    }
+
+    table.clean-table tr {
+        page-break-inside: avoid !important;
+    }
+
+    /* Badges */
+    .badge {
+        border: 1px solid #000 !important;
+        background: transparent !important;
+        color: #000 !important;
+        padding: 2px 6px !important;
+        font-size: 8pt !important;
+        border-radius: 0 !important;
+        text-transform: uppercase !important;
+    }
+
+    /* Print Header Branding */
+    .print-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 2px double #000;
+        padding-bottom: 15px;
+    }
+
+    .print-header h1 {
+        font-size: 20pt;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .print-header p {
+        font-size: 10pt;
+        margin: 5px 0 0;
+        color: #555 !important;
+    }
+
+    /* Page margins and layout settings */
+    @page {
+        size: A4 portrait;
+        margin: 1.5cm;
+    }
+
+    /* Force showing important text/tables */
+    h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+        color: #000 !important;
+    }
+
+    p, address, table, img {
+        page-break-inside: avoid;
+    }
+}
+
+/* Screen defaults for print preview/header helper */
+.print-header {
+    display: none;
+}

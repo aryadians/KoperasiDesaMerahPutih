@@ -19,6 +19,7 @@ class Order extends Model
         'points_earned',
         'payment_status',
         'delivery_type',
+        'payment_method',
     ];
 
     protected $casts = [

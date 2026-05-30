@@ -8,6 +8,7 @@
     
     <!-- Design & Styling -->
     <link rel="stylesheet" href="{{ asset('css/airbnb.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/print.css') }}" media="print">
 </head>
 <body>
 
@@ -24,8 +25,11 @@
 
             <!-- Navigation Links (Centered) -->
             <nav class="product-tabs">
-                <a href="{{ route('catalog.index') }}" class="product-tab {{ Request::routeIs('catalog.*') ? 'active' : '' }}">
+                <a href="{{ route('catalog.index') }}" class="product-tab {{ Request::routeIs('catalog.index') ? 'active' : '' }}">
                     Gerai Retail
+                </a>
+                <a href="{{ route('catalog.agro') }}" class="product-tab {{ Request::routeIs('catalog.agro') ? 'active' : '' }}">
+                    Dasbor Agro Tani
                 </a>
                 @auth
                     @if(auth()->user()->role === 'anggota')
@@ -42,8 +46,11 @@
                             Belanja Saya
                         </a>
                     @else
-                        <a href="{{ route('staff.dashboard') }}" class="product-tab {{ Request::routeIs('staff.*') ? 'active' : '' }}">
-                            Dashboard Staf ({{ ucfirst(auth()->user()->role) }})
+                        <a href="{{ route('staff.dashboard') }}" class="product-tab {{ Request::routeIs('staff.dashboard') ? 'active' : '' }}">
+                            Dashboard Staf
+                        </a>
+                        <a href="{{ route('staff.pos') }}" class="product-tab {{ Request::routeIs('staff.pos') ? 'active' : '' }}" style="color: var(--primary); font-weight: 600;">
+                            🏪 POS Kasir
                         </a>
                     @endif
                 @endauth
