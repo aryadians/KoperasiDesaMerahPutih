@@ -605,5 +605,20 @@
     function closePOSReceipt() {
         document.getElementById('pos-receipt-overlay').classList.remove('active');
     }
+    // ── Real-time Stock Update (Echo) ──
+    window.Echo.channel('inventory')
+        .listen('ProductStockUpdated', (e) => {
+            console.log('Stock updated:', e);
+            const productCard = document.querySelector(`.pos-product-item[data-id="${e.id}"]`);
+            if (productCard) {
+                // Update stock in dataset
+                productCard.dataset.stock = e.current_stock;
+                // Update UI
+                const stockDisplay = productCard.querySelector('div[style*="font-size: 11px"]');
+                if (stockDisplay) {
+                    stockDisplay.textContent = 'Stok: ' + e.current_stock + ' ' + productCard.dataset.unit;
+                }
+            }
+        });
 </script>
 @endsection
