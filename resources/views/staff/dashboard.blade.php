@@ -1,79 +1,129 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard Staf Koperasi - KDKMP')
+@section('title', 'Dashboard Administrasi — KDKMP Digital')
 
 @section('content')
-<div style="border-bottom: 1px solid var(--colors-hairline-soft); padding-bottom: 24px; margin-bottom: 32px;">
-    <h1 style="font-size: 28px; font-weight: 600;">Dashboard Administrasi Koperasi</h1>
-    <p style="color: var(--colors-muted); font-size: 14px; margin-top: 4px;">Selamat bekerja, Anda masuk sebagai <strong>{{ ucfirst(auth()->user()->role) }}</strong>.</p>
+
+{{-- ═══════════════════════ HERO HEADER ═══════════════════════ --}}
+<div class="reveal" style="margin-bottom: 36px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <div class="pulse-ring" style="font-size: 12px; font-weight: 600; color: var(--colors-success); margin-bottom: 10px; letter-spacing: 0.3px;">
+                Sistem Aktif
+            </div>
+            <h1 style="font-size: 32px; font-weight: 800; letter-spacing: -0.5px; color: var(--colors-ink); margin-bottom: 6px;">
+                Dashboard Administrasi
+            </h1>
+            <p style="color: var(--colors-muted); font-size: 15px;">
+                Selamat bekerja, <strong style="color: var(--colors-ink);">{{ ucfirst(auth()->user()->name) }}</strong>
+                &nbsp;·&nbsp; <span style="background: var(--colors-surface-strong); padding: 2px 10px; border-radius: 100px; font-size: 12px; font-weight: 600;">{{ ucfirst(auth()->user()->role) }}</span>
+            </p>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="{{ route('staff.products') }}" class="button-secondary" style="width: auto; height: 42px; padding: 0 20px; font-size: 14px; border-radius: 100px;">
+                📦 Inventaris
+            </a>
+            <a href="{{ route('staff.orders') }}" class="button-primary" style="width: auto; height: 42px; padding: 0 20px; font-size: 14px; border-radius: 100px;">
+                🛍 Kelola Pesanan
+            </a>
+        </div>
+    </div>
+    <div style="height: 1px; background: var(--colors-hairline-soft); margin-top: 24px;"></div>
 </div>
 
-<!-- Cooperative Statistics Cards -->
-<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px;">
-    <div style="padding: 24px; border: 1px solid var(--colors-hairline); border-radius: var(--rounded-md); background-color: var(--colors-canvas); box-shadow: var(--shadow-tier);">
-        <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--colors-muted);">Total Omset Penjualan</span>
-        <div style="font-size: 24px; font-weight: 700; margin-top: 8px; color: #1a7f5a;">
+{{-- ═══════════════════════ STAT CARDS ═══════════════════════ --}}
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 36px;">
+
+    <div class="stat-card reveal delay-1">
+        <span class="stat-label">Total Omset Penjualan</span>
+        <div class="stat-value" style="color: var(--colors-success);"
+             data-counter data-target="{{ $totalSales }}" data-prefix="Rp " data-suffix="">
             Rp {{ number_format($totalSales, 0, ',', '.') }}
         </div>
-        <p style="font-size: 12px; color: var(--colors-muted); margin-top: 4px;">Dari pesanan gerai sembako lunas.</p>
+        <p class="stat-desc">Dari pesanan gerai sembako lunas</p>
+        <span class="stat-icon">💰</span>
     </div>
-    
-    <div style="padding: 24px; border: 1px solid var(--colors-hairline); border-radius: var(--rounded-md); background-color: var(--colors-canvas); box-shadow: var(--shadow-tier);">
-        <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--colors-muted);">Penyaluran Hasil Tani</span>
-        <div style="font-size: 24px; font-weight: 700; margin-top: 8px; color: #0052cc;">
+
+    <div class="stat-card reveal delay-2">
+        <span class="stat-label">Penyaluran Hasil Tani</span>
+        <div class="stat-value" style="color: var(--colors-info);"
+             data-counter data-target="{{ $totalCropPayout }}" data-prefix="Rp ">
             Rp {{ number_format($totalCropPayout, 0, ',', '.') }}
         </div>
-        <p style="font-size: 12px; color: var(--colors-muted); margin-top: 4px;">Total modal penyerapan lokal lunas.</p>
+        <p class="stat-desc">Total modal penyerapan lokal lunas</p>
+        <span class="stat-icon">🌾</span>
     </div>
 
-    <div style="padding: 24px; border: 1px solid var(--colors-hairline); border-radius: var(--rounded-md); background-color: var(--colors-canvas); box-shadow: var(--shadow-tier);">
-        <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--colors-muted);">Outstanding Kredit Mikro</span>
-        <div style="font-size: 24px; font-weight: 700; margin-top: 8px; color: var(--colors-primary);">
+    <div class="stat-card reveal delay-3">
+        <span class="stat-label">Outstanding Kredit Mikro</span>
+        <div class="stat-value" style="color: var(--colors-primary);"
+             data-counter data-target="{{ $activeLoansVolume }}" data-prefix="Rp ">
             Rp {{ number_format($activeLoansVolume, 0, ',', '.') }}
         </div>
-        <p style="font-size: 12px; color: var(--colors-muted); margin-top: 4px;">Modal usaha bergulir yang aktif.</p>
+        <p class="stat-desc">Modal usaha bergulir yang aktif</p>
+        <span class="stat-icon">🏦</span>
     </div>
+
 </div>
 
-<!-- Administration Links Grid -->
-<div class="dashboard-nav-grid" style="margin-bottom: 32px;">
+{{-- ═══════════════════════ NAV CARDS ═══════════════════════ --}}
+<div class="dashboard-nav-grid reveal">
     <div class="dashboard-nav-card" onclick="window.location.href='{{ route('staff.products') }}'">
-        <span style="font-size: 24px; margin-bottom: 8px;">📦</span>
+        <span class="nav-card-icon">📦</span>
         <h3>Kelola Inventaris</h3>
         <p>Atur katalog sembako, stok barang, dan harga khusus anggota.</p>
     </div>
 
     <div class="dashboard-nav-card" onclick="window.location.href='{{ route('staff.orders') }}'">
-        <span style="font-size: 24px; margin-bottom: 8px;">🛍️</span>
-        <h3>Pesanan Gerai ({{ $pendingOrdersCount }})</h3>
+        <span class="nav-card-icon">🛍️</span>
+        <h3>Pesanan Gerai
+            @if($pendingOrdersCount > 0)
+                <span class="badge-count" style="margin-left: 6px;">{{ $pendingOrdersCount }}</span>
+            @endif
+        </h3>
         <p>Proses pembayaran kasir dan pengantaran belanjaan warga.</p>
     </div>
 
     <div class="dashboard-nav-card" onclick="window.location.href='{{ route('staff.crops') }}'">
-        <span style="font-size: 24px; margin-bottom: 8px;">🌾</span>
-        <h3>Hasil Panen Tani ({{ $pendingCropsCount }})</h3>
+        <span class="nav-card-icon">🌾</span>
+        <h3>Hasil Panen Tani
+            @if($pendingCropsCount > 0)
+                <span class="badge-count" style="margin-left: 6px;">{{ $pendingCropsCount }}</span>
+            @endif
+        </h3>
         <p>Verifikasi barang masuk dan pelunasan pembayaran petani desa.</p>
     </div>
 
     <div class="dashboard-nav-card" onclick="window.location.href='{{ route('staff.loans') }}'">
-        <span style="font-size: 24px; margin-bottom: 8px;">🏦</span>
-        <h3>Underwriting Kredit ({{ $pendingLoansCount }})</h3>
+        <span class="nav-card-icon">🏦</span>
+        <h3>Underwriting Kredit
+            @if($pendingLoansCount > 0)
+                <span class="badge-count" style="margin-left: 6px;">{{ $pendingLoansCount }}</span>
+            @endif
+        </h3>
         <p>Review pengajuan pinjaman UMKM dan catat pembayaran cicilan.</p>
     </div>
 </div>
 
+{{-- ═══════════════════════ SPLIT: Stok & SHU ═══════════════════════ --}}
 <div class="split-layout">
-    
-    <!-- Left: Low stock alerts -->
-    <div class="main-column">
-        <div class="standard-card" style="padding: 0; overflow: hidden; border-color: #fde2e2;">
-            <h3 style="font-size: 16px; font-weight: 600; padding: 20px; background-color: #fdf2f2; color: var(--colors-primary-error-text); border-bottom: 1px solid var(--colors-primary-disabled); display: flex; align-items: center; gap: 8px;">
-                ⚠️ Peringatan Stok Menipis (< 5 Unit)
-            </h3>
-            
+
+    {{-- Low Stock Alert --}}
+    <div class="main-column reveal-left">
+        <div class="standard-card" style="padding: 0; overflow: hidden; border-color: #fde2e2; box-shadow: 0 4px 16px rgba(193,53,21,0.06);">
+            <div style="padding: 18px 24px; background: linear-gradient(135deg, #fdf2f2, #fef6f6); border-bottom: 1px solid #fde8e8; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 20px; animation: badge-float 2s ease-in-out infinite;">⚠️</span>
+                <div>
+                    <h3 style="font-size: 15px; font-weight: 700; color: var(--colors-primary-error-text);">Peringatan Stok Menipis</h3>
+                    <p style="font-size: 12px; color: #c13515; opacity: 0.8; margin-top: 2px;">Produk dengan stok &lt; 5 unit</p>
+                </div>
+            </div>
+
             @if($lowStockProducts->isEmpty())
-                <div style="padding: 24px; text-align: center; color: var(--colors-muted); font-size: 14px;">
-                    Semua stok produk gerai aman.
+                <div style="padding: 40px; text-align: center; color: var(--colors-muted);">
+                    <div style="font-size: 40px; margin-bottom: 12px;">✅</div>
+                    <p style="font-weight: 600; margin-bottom: 4px;">Semua Stok Aman</p>
+                    <p style="font-size: 13px;">Tidak ada produk yang menipis saat ini.</p>
                 </div>
             @else
                 <table class="clean-table" style="margin-top: 0;">
@@ -81,20 +131,29 @@
                         <tr>
                             <th>Nama Barang</th>
                             <th>Kategori</th>
-                            <th>Stok Saat Ini</th>
+                            <th>Stok</th>
                             <th style="text-align: right;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($lowStockProducts as $product)
-                            <tr>
+                        @foreach($lowStockProducts as $idx => $product)
+                            <tr style="animation-delay: {{ $idx * 0.05 }}s;">
                                 <td style="font-weight: 600;">{{ $product->name }}</td>
-                                <td>{{ $product->category->name }}</td>
-                                <td style="color: var(--colors-primary-error-text); font-weight: 700;">
-                                    {{ $product->current_stock }} {{ $product->unit }}
+                                <td>
+                                    <span style="background: var(--colors-surface-strong); padding: 2px 8px; border-radius: 100px; font-size: 12px;">
+                                        {{ $product->category->name }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="color: var(--colors-primary-error-text); font-weight: 700; font-size: 15px;">
+                                        {{ $product->current_stock }}
+                                    </span>
+                                    <span style="color: var(--colors-muted); font-size: 12px;"> {{ $product->unit }}</span>
                                 </td>
                                 <td style="text-align: right;">
-                                    <a href="{{ route('staff.products', ['search' => $product->name]) }}" style="color: var(--colors-primary); font-weight: 600; font-size: 13px;">Tambah Stok</a>
+                                    <a href="{{ route('staff.products') }}" class="animated-link" style="color: var(--colors-primary); font-weight: 600; font-size: 13px;">
+                                        + Tambah Stok
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
@@ -104,18 +163,34 @@
         </div>
     </div>
 
-    <!-- Right: Calculation Tools (SHU share) -->
-    <div class="sticky-rail">
-        <div class="standard-card">
-            <h3 style="font-size: 18px; font-weight: 600; border-bottom: 1px solid var(--colors-hairline-soft); padding-bottom: 12px; margin-bottom: 16px;">
-                Kalkulator SHU Koperasi
-            </h3>
-            <p style="font-size: 13px; color: var(--colors-muted); line-height: 1.5; margin-bottom: 20px;">
-                Hitung estimasi pembagian Sisa Hasil Usaha (SHU) tahunan untuk anggota aktif secara merata berdasarkan poin loyalitas.
-            </p>
-            <a href="{{ route('staff.shu') }}" class="button-secondary" style="font-size: 14px; height: 40px;">Buka Kalkulator SHU</a>
+    {{-- SHU Calculator --}}
+    <div class="sticky-rail reveal-right">
+        <div class="reservation-card">
+            <div>
+                <div style="font-size: 32px; margin-bottom: 12px; animation: emoji-bounce 3s ease-in-out infinite;">📊</div>
+                <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Kalkulator SHU</h3>
+                <p style="font-size: 13px; color: var(--colors-muted); line-height: 1.6;">
+                    Hitung estimasi pembagian Sisa Hasil Usaha (SHU) tahunan untuk anggota aktif secara merata berdasarkan poin loyalitas transaksi.
+                </p>
+            </div>
+            <a href="{{ route('staff.shu') }}" class="button-primary" style="font-size: 14px; height: 44px; border-radius: 100px;">
+                Buka Kalkulator SHU →
+            </a>
+        </div>
+
+        {{-- Quick links --}}
+        <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <a href="{{ route('staff.loans') }}" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border: 1px solid var(--colors-hairline); border-radius: var(--rounded-md); font-size: 14px; font-weight: 500; transition: all 0.2s; background: var(--colors-canvas);" onmouseover="this.style.borderColor='var(--colors-ink)';this.style.transform='translateX(4px)'" onmouseout="this.style.borderColor='var(--colors-hairline)';this.style.transform=''">
+                <span>🏦 Manajemen Pinjaman</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+            <a href="{{ route('staff.crops') }}" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border: 1px solid var(--colors-hairline); border-radius: var(--rounded-md); font-size: 14px; font-weight: 500; transition: all 0.2s; background: var(--colors-canvas);" onmouseover="this.style.borderColor='var(--colors-ink)';this.style.transform='translateX(4px)'" onmouseout="this.style.borderColor='var(--colors-hairline)';this.style.transform=''">
+                <span>🌾 Penyerapan Tani</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
         </div>
     </div>
 
 </div>
+
 @endsection

@@ -1,41 +1,60 @@
 @extends('layouts.app')
 
-@section('title', 'KDKMP Digital Sembako Desa - Ekosistem Retail Rakyat')
+@section('title', 'KDKMP — Gerai Sembako Digital Desa Merah Putih')
 
 @section('content')
 
-<!-- Promo Hero Banner Carousel (Indomaret/Alfamart style) -->
-<div class="promo-banner" id="promo-banner-slide">
+{{-- ═══════════════════════ HERO PROMO BANNER ═══════════════════════ --}}
+<div class="promo-banner" id="promo-banner">
     <div class="promo-content">
-        <span class="promo-badge">PROMO JSM DESA</span>
-        <h2>Belanja Hemat Warga Desa Merah Putih</h2>
-        <p>Diskon khusus hingga 15% untuk anggota koperasi aktif. Belanja sembako murah, untung melimpah, sisa hasil usaha dibagi rata!</p>
-        <div style="margin-top: 20px; display: flex; gap: 12px;">
-            <a href="#retail-section" class="button-primary" style="background-color: white; color: var(--colors-primary); font-size: 14px; height: 38px; width: auto; padding: 0 20px;">
-                Belanja Sekarang
+        <span class="promo-badge">🔥 PROMO MINGGU INI</span>
+        <h2>Belanja Sembako Hemat<br>Langsung dari Koperasi Desa!</h2>
+        <p>Harga khusus anggota hingga <strong>20% lebih murah</strong>. Dukung petani lokal, belanja cerdas, sisa hasil usaha dibagi bersama warga.</p>
+        <div style="margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href="#retail-section" class="button-primary" style="background: rgba(255,255,255,0.95); color: var(--colors-primary); width: auto; height: 44px; padding: 0 24px; font-size: 14px; border-radius: 100px; box-shadow: 0 4px 16px rgba(0,0,0,0.15);">
+                🛒 Belanja Sekarang
             </a>
             @guest
-                <a href="{{ route('register') }}" class="button-secondary" style="border-color: white; color: white; background: transparent; font-size: 14px; height: 38px; width: auto; padding: 0 20px;">
-                    Daftar Anggota
+                <a href="{{ route('register') }}" class="button-secondary" style="border-color: rgba(255,255,255,0.5); color: white; background: rgba(255,255,255,0.12); width: auto; height: 44px; padding: 0 24px; font-size: 14px; border-radius: 100px; backdrop-filter: blur(8px);">
+                    Daftar Anggota →
                 </a>
             @endguest
         </div>
+        @guest
+            <p style="margin-top: 16px; font-size: 13px; opacity: 0.75;">
+                💡 Anggota koperasi mendapat harga khusus + bagi SHU tahunan
+            </p>
+        @endguest
     </div>
-    <div style="font-size: 80px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15)); user-select: none;">
-        🛒
-    </div>
+    <div class="promo-emoji">🛒</div>
 </div>
 
-<!-- Global Pill Search Bar (DESIGN.md search-bar-pill) -->
-<div class="search-bar-wrapper">
+{{-- ═══════════════════════ TRUST BADGES ═══════════════════════ --}}
+<div class="reveal" style="display: flex; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; justify-content: center;">
+    @php
+    $badges = [
+        ['icon' => '🏪', 'text' => 'Produk Terverifikasi'],
+        ['icon' => '🌾', 'text' => 'Komoditas Lokal Desa'],
+        ['icon' => '💳', 'text' => 'Harga Transparan'],
+        ['icon' => '🤝', 'text' => 'SHU Bagi Anggota'],
+        ['icon' => '⚡', 'text' => 'Pengiriman Cepat'],
+    ];
+    @endphp
+    @foreach($badges as $b)
+        <div style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--colors-surface-soft); border: 1px solid var(--colors-hairline-soft); border-radius: 100px; font-size: 13px; font-weight: 500; color: var(--colors-body); transition: all 0.2s;" onmouseover="this.style.background='var(--colors-canvas)';this.style.borderColor='var(--colors-hairline)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='var(--colors-surface-soft)';this.style.borderColor='var(--colors-hairline-soft)';this.style.transform=''">
+            <span>{{ $b['icon'] }}</span>
+            <span>{{ $b['text'] }}</span>
+        </div>
+    @endforeach
+</div>
+
+{{-- ═══════════════════════ SEARCH BAR ═══════════════════════ --}}
+<div class="search-bar-wrapper reveal">
     <form action="{{ route('catalog.index') }}" method="GET" class="search-bar-pill">
-        <!-- Segment 1: Search Name -->
         <div class="search-field-segment">
             <label for="search">Cari Barang</label>
-            <input type="text" name="search" id="search" placeholder="Indomie, beras, minyak, sabun..." value="{{ request('search') }}">
+            <input type="text" name="search" id="search" placeholder="Indomie, beras, minyak, sabun..." value="{{ request('search') }}" autocomplete="off">
         </div>
-        
-        <!-- Segment 2: Category Filter -->
         <div class="search-field-segment">
             <label for="category">Kategori</label>
             <select name="category" id="category" onchange="this.form.submit()">
@@ -47,19 +66,15 @@
                 @endforeach
             </select>
         </div>
-        
-        <!-- Segment 3: Local Commodities filter -->
         <div class="search-field-segment">
             <label for="local">Asal Komoditas</label>
             <select name="local" id="local" onchange="this.form.submit()">
                 <option value="">Semua Komoditas</option>
-                <option value="1" {{ request('local') == '1' ? 'selected' : '' }}>Hasil Tani Lokal Desa</option>
+                <option value="1" {{ request('local') == '1' ? 'selected' : '' }}>🌾 Hasil Tani Lokal Desa</option>
             </select>
         </div>
-        
-        <!-- Search Orb -->
-        <button type="submit" class="search-orb">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+        <button type="submit" class="search-orb" aria-label="Cari">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
@@ -67,10 +82,10 @@
     </form>
 </div>
 
-<!-- Category Strip (DESIGN.md category-strip) -->
-<div class="category-strip" id="retail-section">
+{{-- ═══════════════════════ CATEGORY STRIP ═══════════════════════ --}}
+<div class="category-strip reveal" id="retail-section">
     <a href="{{ route('catalog.index') }}" class="category-tab {{ !request('category') && !request('local') ? 'active' : '' }}">
-        <span>Semua Kategori</span>
+        <span>🏪 Semua</span>
     </a>
     @foreach($categories as $category)
         <a href="{{ route('catalog.index', ['category' => $category->id]) }}" class="category-tab {{ request('category') == $category->id ? 'active' : '' }}">
@@ -82,7 +97,20 @@
     </a>
 </div>
 
-<!-- SKELETON LOADERS (Shown initially) -->
+{{-- ═══════════════════════ RESULTS HEADER ═══════════════════════ --}}
+@if(request('search') || request('category') || request('local'))
+    <div class="reveal" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding: 14px 20px; background: var(--colors-surface-soft); border-radius: var(--rounded-md);">
+        <div style="font-size: 14px; font-weight: 600; color: var(--colors-ink);">
+            📦 Menampilkan <span style="color: var(--colors-primary);">{{ $products->count() }}</span> produk
+            @if(request('search')) untuk "<em>{{ request('search') }}</em>" @endif
+        </div>
+        <a href="{{ route('catalog.index') }}" style="font-size: 13px; color: var(--colors-muted); font-weight: 500; padding: 6px 14px; border: 1px solid var(--colors-hairline); border-radius: 100px; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--colors-ink)'" onmouseout="this.style.borderColor='var(--colors-hairline)'">
+            ✕ Reset Filter
+        </a>
+    </div>
+@endif
+
+{{-- ═══════════════════════ SKELETON LOADER ═══════════════════════ --}}
 <div class="grid-4" id="skeleton-grid">
     @for($i = 0; $i < 8; $i++)
         <div class="skeleton-card">
@@ -90,42 +118,51 @@
             <div class="skeleton-title"></div>
             <div class="skeleton-desc"></div>
             <div class="skeleton-price"></div>
+            <div class="skeleton-btn"></div>
         </div>
     @endfor
 </div>
 
-<!-- ACTUAL E-COMMERCE PRODUCT GRID (Revealed by JS) -->
+{{-- ═══════════════════════ PRODUCT GRID ═══════════════════════ --}}
 @if($products->isEmpty())
-    <div id="product-results-empty" style="display: none; text-align: center; padding: 48px; border: 1px dashed var(--colors-hairline); border-radius: var(--rounded-md); color: var(--colors-muted);">
-        <p style="font-size: 16px;">Produk sembako tidak ditemukan.</p>
-        <a href="{{ route('catalog.index') }}" style="color: var(--colors-primary); font-weight: 600; text-decoration: underline; margin-top: 12px; display: inline-block;">Reset Pencarian</a>
+    <div id="product-results-empty" style="display: none; text-align: center; padding: 72px 32px; border: 2px dashed var(--colors-hairline); border-radius: var(--rounded-lg); color: var(--colors-muted); animation: page-enter 0.5s var(--ease-decel);">
+        <div style="font-size: 64px; margin-bottom: 16px; animation: emoji-bounce 3s ease-in-out infinite;">🔍</div>
+        <h3 style="font-size: 20px; font-weight: 700; color: var(--colors-ink); margin-bottom: 8px;">Produk Tidak Ditemukan</h3>
+        <p style="margin-bottom: 24px;">Coba ubah kata kunci pencarian atau pilih kategori yang berbeda.</p>
+        <a href="{{ route('catalog.index') }}" class="button-primary" style="width: auto; padding: 0 28px; border-radius: 100px;">
+            Tampilkan Semua Produk
+        </a>
     </div>
 @else
-    <div class="grid-4" id="actual-product-grid" style="display: none; opacity: 0; transition: opacity 0.4s ease;">
-        @foreach($products as $product)
-            <div class="property-card" onclick="navigateToDetail(event, '{{ route('catalog.show', $product->id) }}')">
-                
-                <!-- Product Image -->
+    <div class="grid-4" id="actual-product-grid" style="display: none; opacity: 0; transition: opacity 0.5s ease;">
+        @foreach($products as $idx => $product)
+            <div class="property-card" onclick="navigateToDetail(event, '{{ route('catalog.show', $product->id) }}')" style="animation-delay: {{ min($idx * 0.06, 0.5) }}s;">
+
+                {{-- Product Image --}}
                 <div class="property-card-photo">
-                    <img src="{{ $product->image_url ?? 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80' }}" alt="{{ $product->name }}">
+                    <img
+                        src="{{ $product->image_url ?? 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80' }}"
+                        alt="{{ $product->name }}"
+                        loading="lazy"
+                    >
                     @if($product->is_local_product)
-                        <span class="local-badge">Tani Lokal</span>
+                        <span class="local-badge">🌾 Tani Lokal</span>
                     @endif
                     @if($product->current_stock > 0 && $product->current_stock <= 5)
-                        <span class="guest-favorite-badge" style="background-color: #ffebeb; color: #c13515;">Promo Stok Tipis</span>
+                        <span class="guest-favorite-badge" style="background: rgba(255,56,92,0.92); color: white;">🔥 Stok Tipis</span>
                     @elseif($product->current_stock === 0)
-                        <span class="guest-favorite-badge" style="background-color: #f2f2f2; color: var(--colors-muted);">Habis</span>
+                        <span class="guest-favorite-badge" style="background: rgba(100,100,100,0.85); color: white;">Habis</span>
                     @endif
                 </div>
-                
-                <!-- Product Meta -->
+
+                {{-- Product Info --}}
                 <div class="property-card-meta">
                     <div class="property-card-title">
                         <span>{{ $product->name }}</span>
-                        <span style="font-size: 11px; color: var(--colors-muted);">{{ $product->unit }}</span>
+                        <span style="font-size: 11px; color: var(--colors-muted); font-weight: 400; background: var(--colors-surface-soft); padding: 1px 8px; border-radius: 100px; flex-shrink: 0; margin-left: 4px;">{{ $product->unit }}</span>
                     </div>
-                    <p class="property-card-description">{{ $product->description ?? 'Bahan makanan berkualitas dari koperasi.' }}</p>
-                    
+                    <p class="property-card-description">{{ $product->description ?? 'Produk berkualitas dari koperasi desa.' }}</p>
+
                     <div class="property-card-price">
                         @auth
                             @if(auth()->user()->role === 'anggota')
@@ -137,35 +174,36 @@
                             @endif
                         @else
                             <span>Rp {{ number_format($product->price_non_member, 0, ',', '.') }}</span>
-                            <span style="font-size: 11px; display: block; color: var(--colors-primary); font-weight: 500; margin-top: 2px;">
-                                Hemat Rp {{ number_format($product->price_non_member - $product->price_member, 0, ',', '.') }} (Anggota)
+                            <span style="font-size: 11px; display: block; color: var(--colors-success); font-weight: 500; margin-top: 3px;">
+                                💚 Hemat Rp {{ number_format($product->price_non_member - $product->price_member, 0, ',', '.') }} jika anggota
                             </span>
                         @endauth
                     </div>
 
-                    <!-- Quick Add To Cart Button (Indomaret/Alfamart direct purchase flow) -->
+                    {{-- Buy Button --}}
                     @if($product->current_stock > 0)
                         @auth
-                            <button type="button" class="quick-buy-btn" onclick="quickAddToCart(event, {{ $product->id }}, '{{ $product->name }}')">
-                                🛒 Beli Langsung
+                            <button type="button" class="quick-buy-btn" onclick="quickAddToCart(event, {{ $product->id }}, '{{ addslashes($product->name) }}')">
+                                <span style="position: relative; z-index: 1;">🛒 Beli Langsung</span>
                             </button>
                         @else
                             <a href="{{ route('register') }}" class="quick-buy-btn" style="text-align: center; text-decoration: none;">
-                                🛒 Daftar & Beli
+                                <span style="position: relative; z-index: 1;">🛒 Daftar &amp; Beli</span>
                             </a>
                         @endauth
                     @else
-                        <button class="quick-buy-btn" style="background-color: var(--colors-surface-soft) !important; color: var(--colors-muted) !important; cursor: not-allowed;" disabled>
+                        <button class="quick-buy-btn" style="opacity: 0.45; cursor: not-allowed;" disabled>
                             Stok Habis
                         </button>
                     @endif
                 </div>
+
             </div>
         @endforeach
     </div>
 @endif
 
-<!-- Hidden Form for Quick Add to Cart -->
+{{-- Hidden Cart Form --}}
 <form id="quick-cart-form" action="{{ route('cart.add') }}" method="POST" style="display: none;">
     @csrf
     <input type="hidden" name="product_id" id="quick-cart-product-id">
@@ -173,28 +211,26 @@
 </form>
 
 <script>
-    // Prevent quick buy button click from navigating to detail page
+    // ── Card click navigation (skip button clicks)
     function navigateToDetail(event, url) {
-        // Only navigate if we didn't click inside a button
         if (!event.target.closest('.quick-buy-btn')) {
-            window.location.href = url;
+            document.body.style.transition = 'opacity 0.2s ease';
+            document.body.style.opacity = '0';
+            setTimeout(() => window.location.href = url, 200);
         }
     }
 
-    // Quick Add to Cart AJAX simulation / Submit
+    // ── AJAX Quick Add to Cart
     function quickAddToCart(event, productId, productName) {
         event.stopPropagation();
-        
-        // Get CSRF Token
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        
-        // Disable button visually
         const btn = event.target.closest('.quick-buy-btn');
-        btn.textContent = 'Memproses...';
-        btn.style.opacity = '0.7';
-        btn.disabled = true;
+        const originalContent = btn.innerHTML;
 
-        // Perform AJAX Request
+        btn.innerHTML = '<span style="position:relative;z-index:1;">⏳ Menambahkan...</span>';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+
         fetch("{{ route('cart.add') }}", {
             method: 'POST',
             headers: {
@@ -202,62 +238,93 @@
                 'X-CSRF-TOKEN': token,
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({
-                product_id: productId,
-                quantity: 1
-            })
+            body: JSON.stringify({ product_id: productId, quantity: 1 })
         })
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
-            btn.textContent = '🛒 Beli Langsung';
-            btn.style.opacity = '1';
+            btn.innerHTML = originalContent;
             btn.disabled = false;
+            btn.style.opacity = '1';
 
             if (data.success) {
-                // Update badge count
-                const badge = document.getElementById('cart-badge');
-                if (badge) {
-                    badge.textContent = data.cart_count;
-                } else {
-                    // Refresh page or inject badge element dynamically
-                    window.location.reload();
-                    return;
+                // Update cart badge
+                let badge = document.getElementById('cart-badge');
+                if (!badge) {
+                    // Create badge if not exists
+                    const cartLink = document.querySelector('.cart-icon-wrap');
+                    if (cartLink) {
+                        badge = document.createElement('span');
+                        badge.id = 'cart-badge';
+                        badge.className = 'cart-badge';
+                        cartLink.appendChild(badge);
+                    }
                 }
+                if (badge) badge.textContent = data.cart_count;
 
-                // Trigger SweetAlert popup
-                window.showSweetAlert('Berhasil Belanja', productName + ' telah ditambahkan ke keranjang belanja Anda!', 'success');
+                // Success animation on button
+                btn.innerHTML = '<span style="position:relative;z-index:1;">✅ Ditambahkan!</span>';
+                btn.style.background = 'var(--colors-success)';
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                    btn.style.background = '';
+                }, 1500);
+
+                window.showSweetAlert('Berhasil Ditambahkan! 🛒', '"' + productName + '" sudah masuk ke keranjang belanja Anda.', 'success');
             } else {
-                window.showSweetAlert('Gagal Belanja', data.message || 'Stok tidak mencukupi.', 'error');
+                window.showSweetAlert('Gagal Menambahkan', data.message || 'Stok tidak mencukupi atau terjadi kesalahan.', 'error');
             }
         })
-        .catch(error => {
-            btn.textContent = '🛒 Beli Langsung';
-            btn.style.opacity = '1';
+        .catch(() => {
+            btn.innerHTML = originalContent;
             btn.disabled = false;
-            
-            // Fallback to normal form submit if AJAX endpoint is not supported yet
+            btn.style.opacity = '1';
+            // Fallback to form submit
             document.getElementById('quick-cart-product-id').value = productId;
             document.getElementById('quick-cart-form').submit();
         });
     }
 
-    // SKELETON LAZY LOADING TRANSITION
+    // ── Skeleton → Product Grid Transition
     document.addEventListener('DOMContentLoaded', function() {
-        const skeleton = document.getElementById('skeleton-grid');
-        const grid = document.getElementById('actual-product-grid');
-        const emptyAlert = document.getElementById('product-results-empty');
+        const skeleton  = document.getElementById('skeleton-grid');
+        const grid      = document.getElementById('actual-product-grid');
+        const emptyMsg  = document.getElementById('product-results-empty');
 
-        setTimeout(function() {
-            if (skeleton) skeleton.style.display = 'none';
-            if (grid) {
-                grid.style.display = 'grid';
-                setTimeout(() => {
-                    grid.style.opacity = '1';
-                }, 50);
-            }
-            if (emptyAlert) emptyAlert.style.display = 'block';
-        }, 400); // 400ms delay to make loader visible and transition smooth
+        // Simulate loading for realistic UX (min 400ms)
+        const minDelay = 400;
+        const start    = Date.now();
+
+        function showContent() {
+            const elapsed = Date.now() - start;
+            const remaining = Math.max(0, minDelay - elapsed);
+            setTimeout(() => {
+                if (skeleton) {
+                    skeleton.style.transition = 'opacity 0.3s ease';
+                    skeleton.style.opacity = '0';
+                    setTimeout(() => { skeleton.style.display = 'none'; }, 300);
+                }
+                if (grid) {
+                    grid.style.display = 'grid';
+                    setTimeout(() => { grid.style.opacity = '1'; }, 50);
+                }
+                if (emptyMsg) {
+                    emptyMsg.style.display = 'block';
+                }
+            }, remaining);
+        }
+
+        // Show after images start loading OR after timeout
+        showContent();
     });
+
+    // ── Promo banner parallax
+    window.addEventListener('scroll', () => {
+        const banner = document.getElementById('promo-banner');
+        if (banner) {
+            const y = window.scrollY * 0.3;
+            banner.style.backgroundPosition = `center ${y}px`;
+        }
+    }, { passive: true });
 </script>
 
 @endsection
