@@ -215,7 +215,7 @@ class StaffController extends Controller
             'image_url' => 'nullable|url|max:2048',
         ]);
 
-        Product::create([
+        $product = Product::create([
             'category_id' => $request->category_id,
             'name' => $request->name,
             'description' => $request->description,
@@ -226,6 +226,9 @@ class StaffController extends Controller
             'is_local_product' => $request->has('is_local_product'),
             'image_url' => $request->image_url,
         ]);
+
+        // Dispatch real-time event
+        event(new \App\Events\ProductStockUpdated($product));
 
         return back()->with('success', 'Produk berhasil ditambahkan ke inventaris.');
     }
@@ -256,6 +259,9 @@ class StaffController extends Controller
             'is_local_product' => $request->has('is_local_product'),
             'image_url' => $request->image_url,
         ]);
+
+        // Dispatch real-time event
+        event(new \App\Events\ProductStockUpdated($product));
 
         return back()->with('success', 'Produk berhasil diperbarui.');
     }
