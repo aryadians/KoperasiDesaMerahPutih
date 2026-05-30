@@ -9,6 +9,18 @@
     <!-- Design & Styling -->
     <link rel="stylesheet" href="{{ asset('css/airbnb.css') }}">
     <link rel="stylesheet" href="{{ asset('css/print.css') }}" media="print">
+    <style>
+        @media (max-width: 1024px) {
+            .navbar-search { display: none !important; }
+        }
+        .navbar-search:focus-within {
+            border-color: var(--ink) !important;
+            background: var(--canvas) !important;
+        }
+        .navbar-search button:hover {
+            color: var(--ink) !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -55,6 +67,17 @@
                     @endif
                 @endauth
             </nav>
+
+            <!-- Search Bar in Navbar (Hidden on mobile) -->
+            <form action="{{ route('catalog.index') }}" method="GET" class="navbar-search no-print" style="display: flex; align-items: center; border: 1px solid var(--hairline); border-radius: var(--r-full); height: 38px; padding: 0 4px 0 12px; background: var(--surface); max-width: 240px; width: 100%; transition: border-color var(--t-fast); margin: 0 16px;">
+                <input type="text" name="search" placeholder="Cari produk..." value="{{ request('search') }}" style="border: none; outline: none; background: transparent; font-size: 13px; color: var(--ink); width: 100%; font-family: var(--font);">
+                <button type="submit" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; color: var(--muted); transition: color var(--t-fast);">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display: block;">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+            </form>
 
             <!-- User Menu & Shopping Cart (Right Side) -->
             <div class="nav-right">
