@@ -150,8 +150,8 @@
                                 🛒 Beli Langsung
                             </button>
                         @else
-                            <a href="{{ route('login') }}" class="quick-buy-btn">
-                                🔑 Masuk untuk Beli
+                            <a href="{{ route('register') }}" class="quick-buy-btn" style="text-align: center; text-decoration: none;">
+                                🛒 Daftar & Beli
                             </a>
                         @endauth
                     @else
