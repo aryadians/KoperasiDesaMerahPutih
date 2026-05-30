@@ -150,6 +150,118 @@
         margin: 1.5cm;
     }
 
+    /* ================================================================
+       THERMAL POS RECEIPT SPECIFIC (80mm width)
+       ================================================================ */
+    .receipt-container {
+        display: block !important;
+        width: 80mm !important;
+        max-width: 80mm !important;
+        margin: 0 auto;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 10pt;
+        line-height: 1.2;
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
+    }
+
+    .receipt-brand h2 {
+        font-size: 16pt;
+        font-weight: bold;
+        margin: 0;
+        text-align: center;
+    }
+
+    .receipt-brand p {
+        font-size: 9pt;
+        margin: 2px 0;
+        text-align: center;
+    }
+
+    .receipt-divider {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 10pt;
+        text-align: center;
+        letter-spacing: -1px;
+        margin: 6px 0;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .receipt-meta {
+        margin: 6px 0;
+        font-size: 9pt;
+    }
+
+    .receipt-meta div {
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .receipt-meta div span {
+        width: 35px;
+        display: inline-block;
+    }
+
+    table.receipt-items {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-top: 5px !important;
+        border: none !important;
+    }
+
+    table.receipt-items tr, 
+    table.receipt-items td, 
+    table.receipt-items th {
+        border: none !important;
+        padding: 2px 0 !important;
+        background: transparent !important;
+        font-size: 9pt !important;
+    }
+
+    .item-name {
+        font-weight: bold;
+        padding-top: 4px !important;
+    }
+
+    .item-qty {
+        width: 20%;
+        text-align: left;
+    }
+
+    .item-price {
+        width: 40%;
+        text-align: right;
+    }
+
+    .item-subtotal {
+        width: 40%;
+        text-align: right;
+        font-weight: bold;
+    }
+
+    .receipt-totals {
+        margin: 6px 0;
+        font-size: 9pt;
+    }
+
+    .total-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2px;
+    }
+
+    .receipt-footer {
+        text-align: center;
+        font-size: 9pt;
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+
+    .receipt-footer p {
+        margin: 3px 0;
+    }
+    }
     /* Force showing important text/tables */
     h1, h2, h3, h4, h5, h6 {
         page-break-after: avoid;
