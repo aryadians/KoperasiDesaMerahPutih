@@ -361,7 +361,7 @@
         .admin-header-title {
             font-size: 15px;
             font-weight: 600;
-            color: var(--colors-muted);
+            color: var(--muted);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -387,7 +387,7 @@
         }
         
         .mobile-toggle:hover {
-            background: var(--colors-surface-strong);
+            background: var(--surface-md);
         }
 
         /* Content Container Wrap */
@@ -601,12 +601,12 @@
                 <div class="admin-header-title">
                     <span>Aplikasi Desa</span>
                     <span>/</span>
-                    <strong style="color: var(--colors-ink);">Panel Manajemen</strong>
+                    <strong style="color: var(--ink);">Panel Manajemen</strong>
                 </div>
             </div>
             
             <div class="admin-header-right">
-                <div style="font-size: 13px; color: var(--colors-muted); font-weight: 500;" class="no-print">
+                <div style="font-size: 13px; color: var(--muted); font-weight: 500;" class="no-print">
                     {{ date('d M Y') }} &nbsp;·&nbsp; <span id="header-time">{{ date('H:i') }}</span>
                 </div>
                 <div class="avatar-circle" style="background: linear-gradient(135deg, #ff385c, #6c3de0); cursor: pointer;" data-tooltip="User profile">

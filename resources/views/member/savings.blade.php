@@ -4,7 +4,7 @@
 
 @section('content')
 <div style="margin-bottom: 24px;">
-    <a href="{{ route('dashboard') }}" style="font-size: 14px; font-weight: 600; color: var(--colors-ink); display: flex; align-items: center; gap: 8px;">
+    <a href="{{ route('dashboard') }}" style="font-size: 14px; font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 8px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
@@ -17,33 +17,33 @@
 
 <!-- Balance Cards -->
 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px;">
-    <div style="padding: 20px; border: 1px solid var(--colors-hairline); border-radius: var(--rounded-md); background-color: var(--colors-canvas);">
-        <span style="font-size: 12px; color: var(--colors-muted); font-weight: 600;">Simpanan Pokok</span>
-        <div style="font-size: 20px; font-weight: 700; margin-top: 8px; color: var(--colors-ink);">
+    <div style="padding: 20px; border: 1px solid var(--hairline); border-radius: var(--r-md); background-color: var(--canvas);">
+        <span style="font-size: 12px; color: var(--muted); font-weight: 600;">Simpanan Pokok</span>
+        <div style="font-size: 20px; font-weight: 700; margin-top: 8px; color: var(--ink);">
             Rp {{ number_format($balances['pokok'], 0, ',', '.') }}
         </div>
-        <p style="font-size: 11px; color: var(--colors-muted); margin-top: 4px;">Uang pangkal awal keanggotaan.</p>
+        <p style="font-size: 11px; color: var(--muted); margin-top: 4px;">Uang pangkal awal keanggotaan.</p>
     </div>
-    <div style="padding: 20px; border: 1px solid var(--colors-hairline); border-radius: var(--rounded-md); background-color: var(--colors-canvas);">
-        <span style="font-size: 12px; color: var(--colors-muted); font-weight: 600;">Simpanan Wajib</span>
-        <div style="font-size: 20px; font-weight: 700; margin-top: 8px; color: var(--colors-ink);">
+    <div style="padding: 20px; border: 1px solid var(--hairline); border-radius: var(--r-md); background-color: var(--canvas);">
+        <span style="font-size: 12px; color: var(--muted); font-weight: 600;">Simpanan Wajib</span>
+        <div style="font-size: 20px; font-weight: 700; margin-top: 8px; color: var(--ink);">
             Rp {{ number_format($balances['wajib'], 0, ',', '.') }}
         </div>
-        <p style="font-size: 11px; color: var(--colors-muted); margin-top: 4px;">Iuran wajib bulanan anggota.</p>
+        <p style="font-size: 11px; color: var(--muted); margin-top: 4px;">Iuran wajib bulanan anggota.</p>
     </div>
-    <div style="padding: 20px; border: 1px solid var(--colors-hairline); border-radius: var(--rounded-md); background-color: var(--colors-canvas);">
-        <span style="font-size: 12px; color: var(--colors-muted); font-weight: 600;">Simpanan Sukarela</span>
-        <div style="font-size: 20px; font-weight: 700; margin-top: 8px; color: var(--colors-ink);">
+    <div style="padding: 20px; border: 1px solid var(--hairline); border-radius: var(--r-md); background-color: var(--canvas);">
+        <span style="font-size: 12px; color: var(--muted); font-weight: 600;">Simpanan Sukarela</span>
+        <div style="font-size: 20px; font-weight: 700; margin-top: 8px; color: var(--ink);">
             Rp {{ number_format($balances['sukarela'], 0, ',', '.') }}
         </div>
-        <p style="font-size: 11px; color: var(--colors-muted); margin-top: 4px;">Uang tabungan bebas ditarik.</p>
+        <p style="font-size: 11px; color: var(--muted); margin-top: 4px;">Uang tabungan bebas ditarik.</p>
     </div>
-    <div style="padding: 20px; border: 1px solid var(--colors-primary-disabled); border-radius: var(--rounded-md); background-color: #fff9fa;">
-        <span style="font-size: 12px; color: var(--colors-primary); font-weight: 600;">Total Akumulasi</span>
-        <div style="font-size: 20px; font-weight: 700; margin-top: 8px; color: var(--colors-primary);">
+    <div style="padding: 20px; border: 1px solid var(--primary-disabled); border-radius: var(--r-md); background-color: #fff9fa;">
+        <span style="font-size: 12px; color: var(--primary); font-weight: 600;">Total Akumulasi</span>
+        <div style="font-size: 20px; font-weight: 700; margin-top: 8px; color: var(--primary);">
             Rp {{ number_format($balances['total'], 0, ',', '.') }}
         </div>
-        <p style="font-size: 11px; color: var(--colors-muted); margin-top: 4px;">Total modal Anda di koperasi.</p>
+        <p style="font-size: 11px; color: var(--muted); margin-top: 4px;">Total modal Anda di koperasi.</p>
     </div>
 </div>
 
@@ -52,10 +52,10 @@
     <!-- Left: Transaction History List -->
     <div class="main-column">
         <div class="standard-card" style="padding: 0; overflow: hidden;">
-            <h3 style="font-size: 18px; font-weight: 600; padding: 20px; border-bottom: 1px solid var(--colors-hairline);">Riwayat Transaksi Setoran</h3>
+            <h3 style="font-size: 18px; font-weight: 600; padding: 20px; border-bottom: 1px solid var(--hairline);">Riwayat Transaksi Setoran</h3>
             
             @if($savings->isEmpty())
-                <div style="padding: 32px; text-align: center; color: var(--colors-muted);">
+                <div style="padding: 32px; text-align: center; color: var(--muted);">
                     Belum ada riwayat setoran tabungan.
                 </div>
             @else
@@ -96,7 +96,7 @@
     <!-- Right: Deposit Form -->
     <div class="sticky-rail">
         <div class="reservation-card">
-            <h3 style="font-size: 18px; font-weight: 600; border-bottom: 1px solid var(--colors-hairline); padding-bottom: 12px;">Setor Tabungan</h3>
+            <h3 style="font-size: 18px; font-weight: 600; border-bottom: 1px solid var(--hairline); padding-bottom: 12px;">Setor Tabungan</h3>
             
             <form action="{{ route('member.savings.deposit') }}" method="POST">
                 @csrf

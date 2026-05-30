@@ -4,7 +4,7 @@
 
 @section('content')
 <div style="margin-bottom: 24px;">
-    <a href="{{ route('dashboard') }}" style="font-size: 14px; font-weight: 600; color: var(--colors-ink); display: flex; align-items: center; gap: 8px;">
+    <a href="{{ route('dashboard') }}" style="font-size: 14px; font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 8px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
@@ -20,10 +20,10 @@
     <!-- Left: Crops Sold History -->
     <div class="main-column">
         <div class="standard-card" style="padding: 0; overflow: hidden;">
-            <h3 style="font-size: 18px; font-weight: 600; padding: 20px; border-bottom: 1px solid var(--colors-hairline);">Riwayat Penjualan Hasil Tani</h3>
+            <h3 style="font-size: 18px; font-weight: 600; padding: 20px; border-bottom: 1px solid var(--hairline);">Riwayat Penjualan Hasil Tani</h3>
             
             @if($crops->isEmpty())
-                <div style="padding: 32px; text-align: center; color: var(--colors-muted);">
+                <div style="padding: 32px; text-align: center; color: var(--muted);">
                     Belum ada riwayat penyerapan hasil tani Anda.
                 </div>
             @else
@@ -68,7 +68,7 @@
     <!-- Right: Sell Crop Form -->
     <div class="sticky-rail">
         <div class="reservation-card">
-            <h3 style="font-size: 18px; font-weight: 600; border-bottom: 1px solid var(--colors-hairline); padding-bottom: 12px;">Tawarkan Hasil Panen</h3>
+            <h3 style="font-size: 18px; font-weight: 600; border-bottom: 1px solid var(--hairline); padding-bottom: 12px;">Tawarkan Hasil Panen</h3>
             
             <form action="{{ route('member.crops.sell') }}" method="POST" id="sell-crop-form">
                 @csrf
@@ -89,7 +89,7 @@
                 </div>
 
                 <!-- Live estimation display -->
-                <div style="background-color: var(--colors-surface-soft); padding: 12px; border-radius: var(--rounded-sm); font-size: 14px; margin-bottom: 24px;">
+                <div style="background-color: var(--surface); padding: 12px; border-radius: var(--r-sm); font-size: 14px; margin-bottom: 24px;">
                     Estimasi Payout: <strong id="payout-display" style="color: #1a7f5a; font-size: 15px;">Rp 0</strong>
                 </div>
 

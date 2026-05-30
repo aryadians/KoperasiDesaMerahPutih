@@ -11,7 +11,7 @@
 </div>
 
 <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;" class="no-print">
-    <a href="{{ route('member.orders') }}" style="font-size: 14px; font-weight: 600; color: var(--colors-ink); display: flex; align-items: center; gap: 8px;">
+    <a href="{{ route('member.orders') }}" style="font-size: 14px; font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 8px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
@@ -28,7 +28,7 @@
     <!-- Left: Order Items Details -->
     <div class="main-column">
         <div class="standard-card">
-            <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; border-bottom: 1px solid var(--colors-hairline-soft); padding-bottom: 12px;">
+            <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; border-bottom: 1px solid var(--hairline-soft); padding-bottom: 12px;">
                 Rincian Barang Belanjaan
             </h2>
             <table class="clean-table" style="margin-top: 0;">
@@ -46,7 +46,7 @@
                             <td style="font-weight: 600;">{{ $item->product->name }}</td>
                             <td style="text-align: center;">{{ $item->quantity }} {{ $item->product->unit }}</td>
                             <td style="text-align: right;">Rp {{ number_format($item->price_at_purchase, 0, ',', '.') }}</td>
-                            <td style="text-align: right; font-weight: 600; color: var(--colors-ink);">
+                            <td style="text-align: right; font-weight: 600; color: var(--ink);">
                                 Rp {{ number_format($item->subtotal, 0, ',', '.') }}
                             </td>
                         </tr>
@@ -59,26 +59,26 @@
     <!-- Right: Order Invoice Status / Payments -->
     <div class="sticky-rail">
         <div class="reservation-card">
-            <h3 style="font-size: 18px; font-weight: 600; border-bottom: 1px solid var(--colors-hairline); padding-bottom: 12px;">
+            <h3 style="font-size: 18px; font-weight: 600; border-bottom: 1px solid var(--hairline); padding-bottom: 12px;">
                 Invoice Belanja
             </h3>
             
             <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14px;">
                 <div style="display: flex; justify-content: space-between;">
-                    <span style="color: var(--colors-muted);">No. Pesanan</span>
+                    <span style="color: var(--muted);">No. Pesanan</span>
                     <strong>{{ $order->order_number }}</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
-                    <span style="color: var(--colors-muted);">Tanggal</span>
+                    <span style="color: var(--muted);">Tanggal</span>
                     <strong>{{ $order->created_at->format('d M Y H:i') }}</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
-                    <span style="color: var(--colors-muted);">Pengiriman</span>
+                    <span style="color: var(--muted);">Pengiriman</span>
                     <strong style="text-transform: uppercase;">{{ $order->delivery_type }}</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
-                    <span style="color: var(--colors-muted);">Metode Bayar</span>
-                    <strong style="color: var(--colors-ink);">
+                    <span style="color: var(--muted);">Metode Bayar</span>
+                    <strong style="color: var(--ink);">
                         @if($order->payment_method === 'cash')
                             💵 TUNAI (BAYAR DI GERAI)
                         @elseif($order->payment_method === 'saldo_sukarela')
@@ -91,18 +91,18 @@
                     </strong>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
-                    <span style="color: var(--colors-muted);">Poin Diperoleh</span>
-                    <strong style="color: var(--colors-primary);">⭐ {{ $order->points_earned }} Poin</strong>
+                    <span style="color: var(--muted);">Poin Diperoleh</span>
+                    <strong style="color: var(--primary);">⭐ {{ $order->points_earned }} Poin</strong>
                 </div>
-                <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--colors-hairline-soft); padding-top: 12px; font-size: 16px;">
+                <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--hairline-soft); padding-top: 12px; font-size: 16px;">
                     <span>Total Pembayaran</span>
-                    <strong style="font-size: 18px; color: var(--colors-primary);">
+                    <strong style="font-size: 18px; color: var(--primary);">
                         Rp {{ number_format($order->total_amount, 0, ',', '.') }}
                     </strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
-                    <span style="color: var(--colors-muted);">Status</span>
-                    <span style="font-weight: 700; text-transform: uppercase; font-size: 12px; padding: 4px 10px; border-radius: var(--rounded-full);
+                    <span style="color: var(--muted);">Status</span>
+                    <span style="font-weight: 700; text-transform: uppercase; font-size: 12px; padding: 4px 10px; border-radius: var(--r-full);
                         {{ $order->payment_status === 'paid' ? 'background-color:#e6f6f0; color:#1a7f5a;' : '' }}
                         {{ $order->payment_status === 'pending' ? 'background-color:#fff9e6; color:#b28900;' : '' }}
                         {{ $order->payment_status === 'cancelled' ? 'background-color:#ffebeb; color:#c13515;' : '' }}
@@ -113,10 +113,10 @@
             </div>
 
             @if($order->payment_status === 'pending')
-                <div style="margin-top: 24px; border-top: 1px solid var(--colors-hairline-soft); padding-top: 16px;">
+                <div style="margin-top: 24px; border-top: 1px solid var(--hairline-soft); padding-top: 16px;">
                     @if($order->payment_method === 'qris_desa')
                         {{-- QRIS Simulation Section --}}
-                        <div style="text-align: center; background: #fafafa; border: 1px solid var(--colors-hairline); border-radius: var(--rounded-md); padding: 20px; margin-bottom: 16px;">
+                        <div style="text-align: center; background: #fafafa; border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 20px; margin-bottom: 16px;">
                             <div style="font-weight: 700; font-size: 13px; color: #c13515; letter-spacing: 1px; margin-bottom: 12px;">QRIS KDKMP MERAH PUTIH</div>
                             
                             {{-- Mock QR Code in SVG --}}
@@ -149,7 +149,7 @@
                                 <rect x="35" y="75" width="15" height="15" fill="#1a1a1a"/>
                                 <rect x="55" y="50" width="10" height="10" fill="#1a1a1a"/>
                             </svg>
-                            <p style="font-size: 11px; color: var(--colors-muted);">Pindai QRIS di atas untuk melakukan simulasi pembayaran instan.</p>
+                            <p style="font-size: 11px; color: var(--muted);">Pindai QRIS di atas untuk melakukan simulasi pembayaran instan.</p>
                         </div>
 
                         <form action="{{ route('orders.pay', $order->id) }}" method="POST" style="margin-bottom: 10px;">
@@ -159,14 +159,14 @@
                             </button>
                         </form>
                     @elseif($order->payment_method === 'cash')
-                        <div style="background-color: var(--colors-warning-bg); border: 1px solid var(--colors-warning-border); color: var(--colors-warning); padding: 12px; border-radius: var(--rounded-sm); font-size: 12px; line-height: 1.5; margin-bottom: 16px;">
+                        <div style="background-color: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning); padding: 12px; border-radius: var(--r-sm); font-size: 12px; line-height: 1.5; margin-bottom: 16px;">
                             📌 <strong>Pembayaran Tunai:</strong> Silakan datang ke kasir gerai Koperasi Desa Merah Putih untuk membayar tunai dan mengambil barang belanjaan Anda.
                         </div>
                     @endif
 
                     <form action="{{ route('orders.cancel', $order->id) }}" method="POST">
                         @csrf
-                        <button type="submit" class="button-secondary" style="width: 100%; border-color: var(--colors-primary-error-text); color: var(--colors-primary-error-text); font-weight: 600;">
+                        <button type="submit" class="button-secondary" style="width: 100%; border-color: var(--danger); color: var(--danger); font-weight: 600;">
                             ✕ Batalkan Pesanan
                         </button>
                     </form>

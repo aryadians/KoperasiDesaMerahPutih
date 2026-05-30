@@ -11,10 +11,10 @@
     <!-- Left: Loans List -->
     <div class="main-column">
         <div class="standard-card" style="padding: 0; overflow: hidden;">
-            <h3 style="font-size: 18px; font-weight: 600; padding: 20px; border-bottom: 1px solid var(--colors-hairline);">Daftar Pengajuan Pinjaman</h3>
+            <h3 style="font-size: 18px; font-weight: 600; padding: 20px; border-bottom: 1px solid var(--hairline);">Daftar Pengajuan Pinjaman</h3>
             
             @if($loans->isEmpty())
-                <div style="padding: 32px; text-align: center; color: var(--colors-muted);">
+                <div style="padding: 32px; text-align: center; color: var(--muted);">
                     Belum ada pengajuan pinjaman kredit dari anggota.
                 </div>
             @else
@@ -34,11 +34,11 @@
                             <tr>
                                 <td>
                                     <div style="font-weight: 600;">{{ $loan->member->user->name }}</div>
-                                    <span style="font-size: 11px; color: var(--colors-muted);">No. Anggota: {{ $loan->member->nomor_anggota }}</span>
+                                    <span style="font-size: 11px; color: var(--muted);">No. Anggota: {{ $loan->member->nomor_anggota }}</span>
                                 </td>
                                 <td>
                                     <div>{{ $loan->loan_code }}</div>
-                                    <span style="font-size: 11px; color: var(--colors-muted);">Tenor: {{ $loan->tenor_months }} Bulan</span>
+                                    <span style="font-size: 11px; color: var(--muted);">Tenor: {{ $loan->tenor_months }} Bulan</span>
                                 </td>
                                 <td>Rp {{ number_format($loan->amount_requested, 0, ',', '.') }}</td>
                                 <td style="font-weight: 600;">
@@ -66,7 +66,7 @@
                                             </form>
                                             <form action="{{ route('staff.loans.update', [$loan->id, 'rejected']) }}" method="POST" style="margin-top: 4px;">
                                                 @csrf
-                                                <button type="submit" class="button-secondary" style="height: 28px; font-size: 11px; padding: 0 8px; width: 100%; border-color: var(--colors-primary-error-text); color: var(--colors-primary-error-text);">
+                                                <button type="submit" class="button-secondary" style="height: 28px; font-size: 11px; padding: 0 8px; width: 100%; border-color: var(--danger); color: var(--danger);">
                                                     Tolak
                                                 </button>
                                             </form>
@@ -82,7 +82,7 @@
                                                 Bayar Cicilan
                                             </button>
                                         @else
-                                            <span style="font-size: 12px; color: var(--colors-muted);">Selesai</span>
+                                            <span style="font-size: 12px; color: var(--muted);">Selesai</span>
                                         @endif
                                     </div>
                                 </td>
@@ -97,13 +97,13 @@
     <!-- Right: Payment Posting Drawer -->
     <div class="sticky-rail">
         <div class="reservation-card" id="payment-panel" style="display: none;">
-            <h3 style="font-size: 18px; font-weight: 600; border-bottom: 1px solid var(--colors-hairline); padding-bottom: 12px;">Catat Cicilan Masuk</h3>
+            <h3 style="font-size: 18px; font-weight: 600; border-bottom: 1px solid var(--hairline); padding-bottom: 12px;">Catat Cicilan Masuk</h3>
             
             <form action="{{ route('staff.loans.payment') }}" method="POST">
                 @csrf
                 <input type="hidden" name="loan_id" id="form-loan-id">
 
-                <div style="background-color: var(--colors-surface-soft); padding: 12px; border-radius: var(--rounded-sm); font-size: 13px; margin-bottom: 16px;">
+                <div style="background-color: var(--surface); padding: 12px; border-radius: var(--r-sm); font-size: 13px; margin-bottom: 16px;">
                     Pinjaman: <strong id="form-loan-code">-</strong><br>
                     Tagihan Pokok: <strong id="form-loan-base">-</strong>
                 </div>
@@ -124,7 +124,7 @@
                 </div>
 
                 <button type="submit" class="button-primary">Posting Pembayaran</button>
-                <button type="button" class="button-secondary" style="margin-top: 8px; border-color: var(--colors-border-strong);" onclick="document.getElementById('payment-panel').style.display='none'">
+                <button type="button" class="button-secondary" style="margin-top: 8px; border-color: var(--hairline);" onclick="document.getElementById('payment-panel').style.display='none'">
                     Batal
                 </button>
             </form>
@@ -132,7 +132,7 @@
         
         <div class="standard-card" id="info-panel">
             <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Pencatatan Cicilan</h3>
-            <p style="font-size: 13px; color: var(--colors-muted); line-height: 1.5;">
+            <p style="font-size: 13px; color: var(--muted); line-height: 1.5;">
                 Klik tombol <strong>"Bayar Cicilan"</strong> pada pinjaman aktif di tabel untuk membuka form input angsuran masuk.
             </p>
         </div>

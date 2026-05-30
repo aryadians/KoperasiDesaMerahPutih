@@ -3,7 +3,7 @@
 @section('title', 'Daftar Anggota KDKMP')
 
 @section('content')
-<div style="max-width: 500px; margin: 40px auto; padding: 32px; border: 1px solid var(--colors-hairline); border-radius: var(--rounded-md); box-shadow: var(--shadow-tier);">
+<div style="max-width: 500px; margin: 40px auto; padding: 32px; border: 1px solid var(--hairline); border-radius: var(--r-md); box-shadow: var(--shadow-tier);">
     <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 24px; text-align: center;">Daftar Anggota Koperasi</h2>
     
     <form action="{{ route('register') }}" method="POST">
@@ -42,8 +42,8 @@
         <button type="submit" class="button-primary" style="margin-bottom: 16px;">Daftar Keanggotaan</button>
     </form>
     
-    <div style="text-align: center; font-size: 14px; color: var(--colors-muted); margin-top: 16px;">
-        Sudah terdaftar sebagai anggota? <a href="{{ route('login') }}" style="color: var(--colors-primary); font-weight: 600; text-decoration: underline;">Masuk di sini</a>
+    <div style="text-align: center; font-size: 14px; color: var(--muted); margin-top: 16px;">
+        Sudah terdaftar sebagai anggota? <a href="{{ route('login') }}" style="color: var(--primary); font-weight: 600; text-decoration: underline;">Masuk di sini</a>
     </div>
 </div>
 @endsection

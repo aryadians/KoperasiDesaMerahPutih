@@ -7,10 +7,10 @@
 {{-- ═══════════════════════ HEADER ═══════════════════════ --}}
 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
     <div>
-        <h1 style="font-size: 32px; font-weight: 800; letter-spacing: -0.5px; color: var(--colors-ink); margin-bottom: 6px;">
+        <h1 style="font-size: 32px; font-weight: 800; letter-spacing: -0.5px; color: var(--ink); margin-bottom: 6px;">
             📦 Procurement &amp; Purchase Orders (PO)
         </h1>
-        <p style="color: var(--colors-muted); font-size: 15px;">
+        <p style="color: var(--muted); font-size: 15px;">
             Pemesanan inventaris sembako grosir ke supplier dan penghitungan estimasi margin laba ritel.
         </p>
     </div>
@@ -29,7 +29,7 @@
             </h3>
 
             @if($purchaseOrders->isEmpty())
-                <div style="padding: 48px; text-align: center; color: var(--colors-muted);">
+                <div style="padding: 48px; text-align: center; color: var(--muted);">
                     Belum ada Purchase Order (PO) yang dibuat. Gunakan form di sebelah kanan untuk memulai.
                 </div>
             @else
@@ -57,17 +57,17 @@
                                 <tr>
                                     <td>
                                         <div style="font-weight: 700;">{{ $po->po_number }}</div>
-                                        <span style="font-size: 11px; color: var(--colors-muted);">{{ $po->created_at->format('d M Y H:i') }}</span>
+                                        <span style="font-size: 11px; color: var(--muted);">{{ $po->created_at->format('d M Y H:i') }}</span>
                                     </td>
                                     <td>
-                                        <div style="font-weight: 600; color: var(--colors-ink);">{{ $po->product->name }}</div>
-                                        <span style="font-size: 11px; color: var(--colors-muted);">Jual: Rp {{ number_format($po->selling_price_non_member, 0, ',', '.') }}</span>
+                                        <div style="font-weight: 600; color: var(--ink);">{{ $po->product->name }}</div>
+                                        <span style="font-size: 11px; color: var(--muted);">Jual: Rp {{ number_format($po->selling_price_non_member, 0, ',', '.') }}</span>
                                     </td>
                                     <td style="text-align: center; font-weight: 600;">
-                                        {{ $po->quantity }} <span style="font-size: 11px; color: var(--colors-muted); font-weight: 400;">{{ $po->product->unit }}</span>
+                                        {{ $po->quantity }} <span style="font-size: 11px; color: var(--muted); font-weight: 400;">{{ $po->product->unit }}</span>
                                     </td>
                                     <td style="text-align: right;">Rp {{ number_format($po->cost_price, 0, ',', '.') }}</td>
-                                    <td style="text-align: right; font-weight: 700; color: var(--colors-ink);">
+                                    <td style="text-align: right; font-weight: 700; color: var(--ink);">
                                         Rp {{ number_format($po->total_cost, 0, ',', '.') }}
                                     </td>
                                     <td style="text-align: center;">
@@ -96,7 +96,7 @@
                                                 </form>
                                                 <form action="{{ route('staff.purchase-orders.update-status', [$po->id, 'cancelled']) }}" method="POST">
                                                     @csrf
-                                                    <button type="submit" class="button-secondary" style="height: 28px; font-size: 11px; padding: 0 10px; width: auto; border-color: var(--colors-primary-error-text); color: var(--colors-primary-error-text);">
+                                                    <button type="submit" class="button-secondary" style="height: 28px; font-size: 11px; padding: 0 10px; width: auto; border-color: var(--danger); color: var(--danger);">
                                                         ✕
                                                     </button>
                                                 </form>
@@ -109,12 +109,12 @@
                                                 </form>
                                                 <form action="{{ route('staff.purchase-orders.update-status', [$po->id, 'cancelled']) }}" method="POST">
                                                     @csrf
-                                                    <button type="submit" class="button-secondary" style="height: 28px; font-size: 11px; padding: 0 10px; width: auto; border-color: var(--colors-primary-error-text); color: var(--colors-primary-error-text);">
+                                                    <button type="submit" class="button-secondary" style="height: 28px; font-size: 11px; padding: 0 10px; width: auto; border-color: var(--danger); color: var(--danger);">
                                                         ✕
                                                     </button>
                                                 </form>
                                             @else
-                                                <span style="font-size: 12px; color: var(--colors-muted);">-</span>
+                                                <span style="font-size: 12px; color: var(--muted);">-</span>
                                             @endif
                                         </div>
                                     </td>
@@ -159,18 +159,18 @@
                     <input type="number" name="cost_price" id="cost_price" class="text-input" min="1" placeholder="Misal: 10000" oninput="calculateTotalPOCost()" required>
                 </div>
 
-                <div style="background: var(--colors-surface-soft); padding: 14px; border-radius: var(--rounded-md); margin-top: 20px; font-size: 13px; display: flex; flex-direction: column; gap: 6px;">
+                <div style="background: var(--surface); padding: 14px; border-radius: var(--r-md); margin-top: 20px; font-size: 13px; display: flex; flex-direction: column; gap: 6px;">
                     <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--colors-muted);">Harga Jual Gerai:</span>
+                        <span style="color: var(--muted);">Harga Jual Gerai:</span>
                         <strong id="po-sel-price">Rp 0</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--colors-muted);">Proyeksi Margin Laba:</span>
-                        <strong id="po-margin-pct" style="color: var(--colors-success);">0%</strong>
+                        <span style="color: var(--muted);">Proyeksi Margin Laba:</span>
+                        <strong id="po-margin-pct" style="color: var(--success);">0%</strong>
                     </div>
-                    <div style="display: flex; justify-content: space-between; border-top: 1px dashed var(--colors-hairline); padding-top: 8px; font-size: 15px; font-weight: 700; margin-top: 4px;">
+                    <div style="display: flex; justify-content: space-between; border-top: 1px dashed var(--hairline); padding-top: 8px; font-size: 15px; font-weight: 700; margin-top: 4px;">
                         <span>Total Modal PO:</span>
-                        <span id="po-total-cost" style="color: var(--colors-primary);">Rp 0</span>
+                        <span id="po-total-cost" style="color: var(--primary);">Rp 0</span>
                     </div>
                 </div>
 
@@ -222,11 +222,11 @@
             } else if (pct > 0) {
                 marginPctNode.style.color = "var(--warning)";
             } else {
-                marginPctNode.style.color = "var(--colors-primary-error-text)";
+                marginPctNode.style.color = "var(--danger)";
             }
         } else {
             marginPctNode.textContent = "0%";
-            marginPctNode.style.color = "var(--colors-success)";
+            marginPctNode.style.color = "var(--success)";
         }
     }
 </script>

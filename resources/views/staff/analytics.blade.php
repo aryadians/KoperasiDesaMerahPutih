@@ -47,10 +47,10 @@ if (!function_exists('getSvgPoints')) {
 {{-- ═══════════════════════ HEADER ═══════════════════════ --}}
 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
     <div>
-        <h1 style="font-size: 32px; font-weight: 800; letter-spacing: -0.5px; color: var(--colors-ink); margin-bottom: 6px;">
+        <h1 style="font-size: 32px; font-weight: 800; letter-spacing: -0.5px; color: var(--ink); margin-bottom: 6px;">
             📊 Analitik Finansial &amp; Ritel
         </h1>
-        <p style="color: var(--colors-muted); font-size: 15px;">
+        <p style="color: var(--muted); font-size: 15px;">
             Statistik real-time, volume perputaran kas, penyerapan pertanian desa, dan outstanding kredit mikro.
         </p>
     </div>
@@ -114,7 +114,7 @@ if (!function_exists('getSvgPoints')) {
     <div class="standard-card">
         <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
             <span>Omset Ritel vs Penyerapan Tani (Rupiah)</span>
-            <span style="font-size: 12px; font-weight: 500; color: var(--colors-muted);">Tren 5 Bulan Terakhir</span>
+            <span style="font-size: 12px; font-weight: 500; color: var(--muted);">Tren 5 Bulan Terakhir</span>
         </h3>
         
         @php
@@ -183,7 +183,7 @@ if (!function_exists('getSvgPoints')) {
     <div class="standard-card">
         <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
             <span>Outstanding Kredit vs Akumulasi Simpanan (Rupiah)</span>
-            <span style="font-size: 12px; font-weight: 500; color: var(--colors-muted);">Tren 5 Bulan Terakhir</span>
+            <span style="font-size: 12px; font-weight: 500; color: var(--muted);">Tren 5 Bulan Terakhir</span>
         </h3>
         
         @php

@@ -5,8 +5,8 @@
 @section('content')
 
 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
-    <h1 style="font-size: 28px; font-weight: 800; color: var(--colors-ink);">🏪 POS Kasir Gerai</h1>
-    <div style="background: var(--colors-success-bg); color: var(--colors-success); border: 1px solid var(--colors-success-border); padding: 6px 14px; border-radius: 100px; font-size: 13px; font-weight: 600;">
+    <h1 style="font-size: 28px; font-weight: 800; color: var(--ink);">🏪 POS Kasir Gerai</h1>
+    <div style="background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); padding: 6px 14px; border-radius: 100px; font-size: 13px; font-weight: 600;">
         🟢 Kasir Aktif: {{ auth()->user()->name }}
     </div>
 </div>
@@ -45,7 +45,7 @@
                      data-stock="{{ $prod->current_stock }}"
                      data-unit="{{ $prod->unit }}"
                      onclick="addPCToCart(this)"
-                     style="cursor: pointer; border-radius: var(--rounded-md);">
+                     style="cursor: pointer; border-radius: var(--r-md);">
                     
                     <div class="property-card-photo" style="aspect-ratio: 1.25; height: 110px;">
                         <img src="{{ $prod->image_url ?? 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=200&q=80' }}" alt="{{ $prod->name }}" style="height: 100%; object-fit: cover;">
@@ -56,12 +56,12 @@
                     
                     <div style="padding: 10px; display: flex; flex-direction: column; justify-content: space-between; height: 100px;">
                         <div>
-                            <div style="font-size: 13px; font-weight: 700; color: var(--colors-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $prod->name }}">{{ $prod->name }}</div>
-                            <div style="font-size: 11px; color: var(--colors-muted); margin-top: 2px;">Stok: {{ $prod->current_stock }} {{ $prod->unit }}</div>
+                            <div style="font-size: 13px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $prod->name }}">{{ $prod->name }}</div>
+                            <div style="font-size: 11px; color: var(--muted); margin-top: 2px;">Stok: {{ $prod->current_stock }} {{ $prod->unit }}</div>
                         </div>
                         <div style="margin-top: 4px;">
-                            <div style="font-size: 13px; font-weight: 800; color: var(--colors-primary);">Rp {{ number_format($prod->price_non_member, 0, ',', '.') }}</div>
-                            <div style="font-size: 10px; color: var(--colors-success); font-weight: 500; margin-top: 1px;">Member: Rp {{ number_format($prod->price_member, 0, ',', '.') }}</div>
+                            <div style="font-size: 13px; font-weight: 800; color: var(--primary);">Rp {{ number_format($prod->price_non_member, 0, ',', '.') }}</div>
+                            <div style="font-size: 10px; color: var(--success); font-weight: 500; margin-top: 1px;">Member: Rp {{ number_format($prod->price_member, 0, ',', '.') }}</div>
                         </div>
                     </div>
                 </div>
@@ -73,26 +73,26 @@
     <div class="sticky-rail" style="top: 72px;">
         <div class="reservation-card" style="padding: 24px; min-height: 80vh; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-                <h3 style="font-size: 16px; font-weight: 700; border-bottom: 1px solid var(--colors-hairline); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 16px; font-weight: 700; border-bottom: 1px solid var(--hairline); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
                     <span>Keranjang POS</span>
-                    <button class="button-secondary" onclick="clearPOSCart()" style="height: 28px; font-size: 11px; padding: 0 10px; border-color: var(--colors-primary-error-text); color: var(--colors-primary-error-text); width: auto;">Reset</button>
+                    <button class="button-secondary" onclick="clearPOSCart()" style="height: 28px; font-size: 11px; padding: 0 10px; border-color: var(--danger); color: var(--danger); width: auto;">Reset</button>
                 </h3>
 
                 <!-- Member NIK Section -->
-                <div style="background: var(--colors-surface-soft); padding: 12px; border-radius: var(--rounded-md); margin-bottom: 16px;">
+                <div style="background: var(--surface); padding: 12px; border-radius: var(--r-md); margin-bottom: 16px;">
                     <label class="field-label" style="font-size: 11px; font-weight: 700; margin-bottom: 6px; display: block;">Identitas Anggota (NIK)</label>
                     <div style="display: flex; gap: 8px;">
                         <input type="text" id="pos-member-nik" class="text-input" placeholder="Masukkan NIK 16 digit..." style="height: 36px; font-size: 12px;">
                         <button type="button" class="button-primary" onclick="lookupPOSMember()" style="height: 36px; font-size: 12px; width: 60px; padding: 0;">Cek</button>
                     </div>
-                    <div id="pos-member-result" style="font-size: 12px; margin-top: 8px; font-weight: 600; color: var(--colors-success); display: none;">
+                    <div id="pos-member-result" style="font-size: 12px; margin-top: 8px; font-weight: 600; color: var(--success); display: none;">
                         👤 Warga: <span id="pos-member-name">-</span>
                     </div>
                 </div>
 
                 <!-- Cart Items List -->
-                <div style="max-height: 30vh; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--colors-hairline-soft); padding-bottom: 12px; margin-bottom: 16px;" id="pos-cart-list">
-                    <div style="text-align: center; color: var(--colors-muted); font-size: 13px; padding: 24px 0;" id="pos-cart-empty">
+                <div style="max-height: 30vh; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--hairline-soft); padding-bottom: 12px; margin-bottom: 16px;" id="pos-cart-list">
+                    <div style="text-align: center; color: var(--muted); font-size: 13px; padding: 24px 0;" id="pos-cart-empty">
                         Keranjang kosong. Klik produk di sebelah kiri untuk menambahkan.
                     </div>
                 </div>
@@ -100,31 +100,31 @@
 
             <!-- Pricing Summary and Pay checkout -->
             <div>
-                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; border-top: 1px solid var(--colors-hairline-soft); padding-top: 12px; margin-bottom: 16px;">
+                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; border-top: 1px solid var(--hairline-soft); padding-top: 12px; margin-bottom: 16px;">
                     <div style="display: flex; justify-content: space-between;">
                         <span>Jumlah Barang</span>
                         <strong id="pos-total-items">0 Barang</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
                         <span>Potongan Diskon Member</span>
-                        <strong id="pos-total-discount" style="color: var(--colors-success);">- Rp 0</strong>
+                        <strong id="pos-total-discount" style="color: var(--success);">- Rp 0</strong>
                     </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 16px; border-top: 1px dashed var(--colors-hairline); padding-top: 8px; margin-top: 4px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 16px; border-top: 1px dashed var(--hairline); padding-top: 8px; margin-top: 4px;">
                         <span>Total Pembayaran</span>
-                        <strong style="font-size: 18px; color: var(--colors-primary);" id="pos-total-pay">Rp 0</strong>
+                        <strong style="font-size: 18px; color: var(--primary);" id="pos-total-pay">Rp 0</strong>
                     </div>
                 </div>
 
-                <div style="background: var(--colors-surface-soft); padding: 12px; border-radius: var(--rounded-md); margin-bottom: 16px;">
+                <div style="background: var(--surface); padding: 12px; border-radius: var(--r-md); margin-bottom: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                         <span style="font-size: 12px; font-weight: 600;">Uang Tunai Diterima</span>
-                        <span style="font-size: 11px; color: var(--colors-muted); cursor: pointer; text-decoration: underline;" onclick="posFillExactCash()">Uang Pas</span>
+                        <span style="font-size: 11px; color: var(--muted); cursor: pointer; text-decoration: underline;" onclick="posFillExactCash()">Uang Pas</span>
                     </div>
-                    <input type="number" id="pos-cash-received" class="text-input" placeholder="Rp masukkan uang tunai..." oninput="calculatePOSChange()" style="height: 40px; font-weight: 700; font-size: 15px; color: var(--colors-ink);">
+                    <input type="number" id="pos-cash-received" class="text-input" placeholder="Rp masukkan uang tunai..." oninput="calculatePOSChange()" style="height: 40px; font-weight: 700; font-size: 15px; color: var(--ink);">
                     
                     <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px;">
                         <span>Kembalian</span>
-                        <strong id="pos-cash-change" style="color: var(--colors-success); font-size: 15px;">Rp 0</strong>
+                        <strong id="pos-cash-change" style="color: var(--success); font-size: 15px;">Rp 0</strong>
                     </div>
                 </div>
 
@@ -299,11 +299,11 @@
             totalNet += subtotal;
 
             const row = document.createElement('div');
-            row.style.cssText = 'display: flex; justify-content: space-between; align-items: center; gap: 10px; background: white; padding: 10px; border-radius: var(--rounded-sm); border: 1px solid var(--colors-hairline-soft);';
+            row.style.cssText = 'display: flex; justify-content: space-between; align-items: center; gap: 10px; background: white; padding: 10px; border-radius: var(--r-sm); border: 1px solid var(--hairline-soft);';
             row.innerHTML = `
                 <div style="flex: 1; min-width: 0;">
                     <div style="font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</div>
-                    <div style="font-size: 11px; color: var(--colors-muted); margin-top: 2px;">
+                    <div style="font-size: 11px; color: var(--muted); margin-top: 2px;">
                         Rp ${price.toLocaleString('id-ID')} / ${item.unit}
                     </div>
                 </div>
@@ -315,7 +315,7 @@
                 <div style="font-weight: 700; font-size: 13px; min-width: 72px; text-align: right;">
                     Rp ${subtotal.toLocaleString('id-ID')}
                 </div>
-                <button onclick="removePCItem(${item.id})" style="border: none; background: none; color: var(--colors-primary); font-weight: bold; cursor: pointer; padding: 4px; font-size: 13px;" title="Hapus">✕</button>
+                <button onclick="removePCItem(${item.id})" style="border: none; background: none; color: var(--primary); font-weight: bold; cursor: pointer; padding: 4px; font-size: 13px;" title="Hapus">✕</button>
             `;
             list.appendChild(row);
         });
@@ -417,10 +417,10 @@
 
         if (cash >= total) {
             changeNode.textContent = 'Rp ' + (cash - total).toLocaleString('id-ID');
-            changeNode.style.color = 'var(--colors-success)';
+            changeNode.style.color = 'var(--success)';
         } else {
             changeNode.textContent = 'Uang Kurang ⚠️';
-            changeNode.style.color = 'var(--colors-danger)';
+            changeNode.style.color = 'var(--danger)';
         }
     }
 

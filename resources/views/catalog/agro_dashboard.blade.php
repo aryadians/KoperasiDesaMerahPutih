@@ -5,8 +5,8 @@
 @section('content')
 <div class="reveal" style="margin-bottom: 32px; text-align: center;">
     <span class="promo-badge" style="background: #e6f6f0; color: #1a7f5a;">🌾 TRANSFARANSI AGRO DESA</span>
-    <h1 style="font-size: 32px; font-weight: 800; color: var(--colors-ink); margin-top: 8px; letter-spacing: -0.5px;">Tren Harga Hasil Tani Lokal</h1>
-    <p style="color: var(--colors-muted); max-width: 600px; margin: 8px auto 0; font-size: 15px;">
+    <h1 style="font-size: 32px; font-weight: 800; color: var(--ink); margin-top: 8px; letter-spacing: -0.5px;">Tren Harga Hasil Tani Lokal</h1>
+    <p style="color: var(--muted); max-width: 600px; margin: 8px auto 0; font-size: 15px;">
         Koperasi menyerap langsung komoditas tani warga dengan harga transparan dan adil, lalu menyalurkannya ke gerai ritel sembako KDKMP.
     </p>
 </div>
@@ -76,7 +76,7 @@
     </div>
 
     <!-- Chart Legend -->
-    <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-top: 20px; border-top: 1px solid var(--colors-hairline-soft); padding-top: 16px;">
+    <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-top: 20px; border-top: 1px solid var(--hairline-soft); padding-top: 16px;">
         @foreach($colors as $name => $color)
             <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500;">
                 <span style="display: inline-block; width: 12px; height: 12px; border-radius: 3px; background-color: {{ $color }};"></span>
@@ -103,13 +103,13 @@
                 </div>
                 <p class="property-card-description">{{ $prod->description }}</p>
                 
-                <div style="border-top: 1px solid var(--colors-hairline-soft); padding-top: 12px; margin-top: 12px;">
+                <div style="border-top: 1px solid var(--hairline-soft); padding-top: 12px; margin-top: 12px;">
                     <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
-                        <span style="color: var(--colors-muted);">Harga Jual Gerai:</span>
-                        <strong style="color: var(--colors-primary);">Rp {{ number_format($prod->price_non_member, 0, ',', '.') }}/{{ $prod->unit }}</strong>
+                        <span style="color: var(--muted);">Harga Jual Gerai:</span>
+                        <strong style="color: var(--primary);">Rp {{ number_format($prod->price_non_member, 0, ',', '.') }}/{{ $prod->unit }}</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between; font-size: 13px;">
-                        <span style="color: var(--colors-muted);">Harga Beli Tani:</span>
+                        <span style="color: var(--muted);">Harga Beli Tani:</span>
                         <strong style="color: #1a7f5a;">Rp {{ number_format($prod->price_member * 0.85, 0, ',', '.') }}/{{ $prod->unit }}</strong>
                     </div>
                 </div>

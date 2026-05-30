@@ -99,7 +99,7 @@
                             </a>
                             <form action="{{ route('admin.logout') }}" method="POST" style="display: inline;">
                                 @csrf
-                                <button type="submit" style="background: none; border: none; font-size: 14px; font-weight: 600; color: var(--colors-muted); cursor: pointer;">Logout</button>
+                                <button type="submit" style="background: none; border: none; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer;">Logout</button>
                             </form>
                         </div>
                     @else
@@ -113,7 +113,7 @@
                             </a>
                             <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                                 @csrf
-                                <button type="submit" style="background: none; border: none; font-size: 14px; font-weight: 600; color: var(--colors-muted); cursor: pointer;">Logout</button>
+                                <button type="submit" style="background: none; border: none; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer;">Logout</button>
                             </form>
                         </div>
                     @endif
@@ -121,8 +121,8 @@
                     {{-- GUEST: Daftar Anggota (utama) + link kecil ke Admin Panel --}}
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <a href="{{ route('login') }}" class="product-tab" style="font-weight: 600;">Masuk</a>
-                        <a href="{{ route('register') }}" class="product-tab" style="color: var(--colors-primary); font-weight: 600;">Daftar Anggota</a>
-                        <a href="{{ route('admin.login') }}" style="font-size: 12px; color: var(--colors-muted); padding: 6px 12px; border: 1px solid var(--colors-hairline-soft); border-radius: 100px; transition: all 0.2s; white-space: nowrap;" onmouseover="this.style.borderColor='var(--colors-hairline)';this.style.color='var(--colors-ink)'" onmouseout="this.style.borderColor='var(--colors-hairline-soft)';this.style.color='var(--colors-muted)'">⚙ Admin</a>
+                        <a href="{{ route('register') }}" class="product-tab" style="color: var(--primary); font-weight: 600;">Daftar Anggota</a>
+                        <a href="{{ route('admin.login') }}" style="font-size: 12px; color: var(--muted); padding: 6px 12px; border: 1px solid var(--hairline-soft); border-radius: 100px; transition: all 0.2s; white-space: nowrap;" onmouseover="this.style.borderColor='var(--hairline)';this.style.color='var(--ink)'" onmouseout="this.style.borderColor='var(--hairline-soft)';this.style.color='var(--muted)'">⚙ Admin</a>
                     </div>
                 @endauth
             </div>

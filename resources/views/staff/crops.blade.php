@@ -8,7 +8,7 @@
 
 <div class="standard-card" style="padding: 0; overflow: hidden;">
     @if($crops->isEmpty())
-        <div style="padding: 32px; text-align: center; color: var(--colors-muted);">
+        <div style="padding: 32px; text-align: center; color: var(--muted);">
             Belum ada hasil panen yang didaftarkan petani untuk diserap.
         </div>
     @else
@@ -29,7 +29,7 @@
                     <tr>
                         <td style="font-weight: 600;">
                             <div>{{ $crop->member->user->name }}</div>
-                            <span style="font-size: 11px; color: var(--colors-muted);">No. Anggota: {{ $crop->member->nomor_anggota }}</span>
+                            <span style="font-size: 11px; color: var(--muted);">No. Anggota: {{ $crop->member->nomor_anggota }}</span>
                         </td>
                         <td>{{ $crop->product_name }}</td>
                         <td>{{ number_format($crop->quantity, 2) }} kg/unit</td>
