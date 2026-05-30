@@ -242,6 +242,16 @@ class StaffController extends Controller
         $distribution = [];
         $totalSHUAmount = $request->input('shu_amount');
 
+        if ($request->isMethod('post')) {
+            $request->validate(['shu_amount' => 'required|numeric|min:1000']);
+            try {
+                $result = $this->shuService->distributeSHU($totalSHUAmount);
+                return redirect()->route('staff.shu')->with('success', "Berhasil mendistribusikan SHU sebesar Rp " . number_format($result['total_distributed'], 0, ',', '.') . " kepada {$result['member_count']} anggota.");
+            } catch (Exception $e) {
+                return back()->withErrors(['error' => $e->getMessage()]);
+            }
+        }
+
         if ($totalSHUAmount && $totalSHUAmount > 0) {
             try {
                 $distribution = $this->shuService->calculateSHUDistribution($totalSHUAmount);

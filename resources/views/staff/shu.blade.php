@@ -31,45 +31,47 @@
                     Input nominal SHU Bersih di sebelah kanan untuk memproyeksikan dividen bagi anggota aktif.
                 </div>
             @else
-                <table class="clean-table" style="margin-top: 0;">
-                    <thead>
-                        <tr>
-                            <th>Nomor Anggota</th>
-                            <th>Nama Anggota</th>
-                            <th style="text-align: center;">Total Poin Loyalitas</th>
-                            <th style="text-align: right;">Estimasi SHU Diterima</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @php 
-                            $totalPoints = 0; 
-                            $totalDividends = 0;
-                        @endphp
-                        @foreach($distribution as $item)
-                            @php 
-                                $totalPoints += $item['points'];
-                                $totalDividends += $item['share'];
-                            @endphp
+                <div class="clean-table-container">
+                    <table class="clean-table" style="margin-top: 0;">
+                        <thead>
                             <tr>
-                                <td style="font-weight: 600;">{{ $item['nomor_anggota'] }}</td>
-                                <td>{{ $item['name'] }}</td>
-                                <td style="text-align: center;">⭐ {{ $item['points'] }} Poin</td>
-                                <td style="text-align: right; font-weight: 700; color: #1a7f5a;">
-                                    Rp {{ number_format($item['share'], 0, ',', '.') }}
+                                <th>Nomor Anggota</th>
+                                <th>Nama Anggota</th>
+                                <th style="text-align: center;">Total Poin Loyalitas</th>
+                                <th style="text-align: right;">Estimasi SHU Diterima</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php 
+                                $totalPoints = 0; 
+                                $totalDividends = 0;
+                            @endphp
+                            @foreach($distribution as $item)
+                                @php 
+                                    $totalPoints += $item['points'];
+                                    $totalDividends += $item['share'];
+                                @endphp
+                                <tr>
+                                    <td style="font-weight: 600;">{{ $item['nomor_anggota'] }}</td>
+                                    <td>{{ $item['name'] }}</td>
+                                    <td style="text-align: center;">⭐ {{ $item['points'] }} Poin</td>
+                                    <td style="text-align: right; font-weight: 700; color: #1a7f5a;">
+                                        Rp {{ number_format($item['share'], 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr style="background-color: var(--surface); font-weight: 700;">
+                                <td colspan="2" style="padding: 16px; border-top: 2px solid var(--hairline);">TOTAL PROYEKSI</td>
+                                <td style="text-align: center; padding: 16px; border-top: 2px solid var(--hairline);">⭐ {{ $totalPoints }} Poin</td>
+                                <td style="text-align: right; padding: 16px; border-top: 2px solid var(--hairline); color: #1a7f5a;">
+                                    Rp {{ number_format($totalDividends, 0, ',', '.') }}
                                 </td>
                             </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot>
-                        <tr style="background-color: var(--surface); font-weight: 700;">
-                            <td colspan="2" style="padding: 16px; border-top: 2px solid var(--hairline);">TOTAL PROYEKSI</td>
-                            <td style="text-align: center; padding: 16px; border-top: 2px solid var(--hairline);">⭐ {{ $totalPoints }} Poin</td>
-                            <td style="text-align: right; padding: 16px; border-top: 2px solid var(--hairline); color: #1a7f5a;">
-                                Rp {{ number_format($totalDividends, 0, ',', '.') }}
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                        </tfoot>
+                    </table>
+                </div>
             @endif
         </div>
     </div>
@@ -94,6 +96,23 @@
                 Dividen Anggota = (Poin Anggota / Total Poin Seluruh Anggota Aktif) * Dana SHU Bersih.
             </div>
         </div>
+
+        @if(!empty($distribution))
+        <div class="reservation-card" style="margin-top: 24px; border-color: var(--primary); background: var(--primary-light);">
+            <h3 style="font-size: 18px; font-weight: 600; color: var(--primary-dark); margin-bottom: 8px;">Eksekusi Pembagian</h3>
+            <p style="font-size: 13px; color: var(--body); margin-bottom: 16px; line-height: 1.5;">
+                Dengan menekan tombol di bawah ini, SHU akan langsung disetorkan ke saldo <strong>Simpanan Sukarela</strong> masing-masing anggota dan <strong>Poin Loyalitas akan direset (0)</strong>.
+            </p>
+            
+            <form action="{{ route('staff.shu') }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengeksekusi pembagian SHU ini secara final? Saldo akan disetorkan dan poin anggota akan hangus / direset ke 0.')">
+                @csrf
+                <input type="hidden" name="shu_amount" value="{{ $totalSHUAmount }}">
+                <button type="submit" class="btn btn-primary btn-full btn-lg" style="border-radius: 100px;">
+                    Eksekusi Pembagian SHU
+                </button>
+            </form>
+        </div>
+        @endif
     </div>
 
 </div>
