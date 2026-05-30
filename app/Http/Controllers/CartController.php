@@ -1,0 +1,141 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Product;
+use App\Services\TransactionService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Exception;
+
+class CartController extends Controller
+{
+    protected $transactionService;
+
+    public function __construct(TransactionService $transactionService)
+    {
+        $this->transactionService = $transactionService;
+    }
+
+    /**
+     * Show cart view.
+     */
+    public function index()
+    {
+        $cart = session()->get('cart', []);
+        return view('cart.index', compact('cart'));
+    }
+
+    /**
+     * Add product to cart.
+     */
+    public function add(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        $productId = $request->product_id;
+        $quantity = $request->quantity;
+
+        $product = Product::findOrFail($productId);
+        $cart = session()->get('cart', []);
+
+        if (isset($cart[$productId])) {
+            $cart[$productId]['quantity'] += $quantity;
+        } else {
+            $cart[$productId] = [
+                'name' => $product->name,
+                'price_member' => $product->price_member,
+                'price_non_member' => $product->price_non_member,
+                'unit' => $product->unit,
+                'quantity' => $quantity,
+                'is_local_product' => $product->is_local_product,
+            ];
+        }
+
+        session()->put('cart', $cart);
+
+        return redirect()->route('cart.index')->with('success', 'Produk berhasil ditambahkan ke keranjang.');
+    }
+
+    /**
+     * Remove product from cart.
+     */
+    public function remove($id)
+    {
+        $cart = session()->get('cart', []);
+
+        if (isset($cart[$id])) {
+            unset($cart[$id]);
+            session()->put('cart', $cart);
+        }
+
+        return redirect()->route('cart.index')->with('success', 'Produk dihapus dari keranjang.');
+    }
+
+    /**
+     * Update cart quantities.
+     */
+    public function update(Request $request)
+    {
+        $request->validate([
+            'quantities' => 'required|array',
+            'quantities.*' => 'required|integer|min:1',
+        ]);
+
+        $cart = session()->get('cart', []);
+
+        foreach ($request->quantities as $id => $quantity) {
+            if (isset($cart[$id])) {
+                $cart[$id]['quantity'] = $quantity;
+            }
+        }
+
+        session()->put('cart', $cart);
+
+        return redirect()->route('cart.index')->with('success', 'Keranjang berhasil diperbarui.');
+    }
+
+    /**
+     * Process checkout.
+     */
+    public function checkout(Request $request)
+    {
+        $request->validate([
+            'delivery_type' => 'required|in:pickup,delivery',
+        ]);
+
+        $cart = session()->get('cart', []);
+
+        if (empty($cart)) {
+            return redirect()->route('cart.index')->with('error', 'Keranjang belanja kosong.');
+        }
+
+        // Format items for service
+        $items = [];
+        foreach ($cart as $productId => $details) {
+            $items[] = [
+                'product_id' => $productId,
+                'quantity' => $details['quantity'],
+            ];
+        }
+
+        try {
+            $order = $this->transactionService->checkout(
+                Auth::id(),
+                $items,
+                $request->delivery_type
+            );
+
+            // Clear cart
+            session()->forget('cart');
+
+            return redirect()->route('orders.show', $order->id)
+                ->with('success', 'Pesanan berhasil dibuat! Silakan lanjutkan pembayaran.');
+        } catch (Exception $e) {
+            return redirect()->route('cart.index')->with('error', 'Gagal memproses pesanan: ' . $e->getMessage());
+        }
+    }
+}

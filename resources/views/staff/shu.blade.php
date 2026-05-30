@@ -1,0 +1,96 @@
+@extends('layouts.app')
+
+@section('title', 'Kalkulator SHU Anggota - KDKMP')
+
+@section('content')
+<div style="margin-bottom: 24px;">
+    <a href="{{ route('staff.dashboard') }}" style="font-size: 14px; font-weight: 600; color: var(--colors-ink); display: flex; align-items: center; gap: 8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Kembali ke dashboard staf
+    </a>
+</div>
+
+<h1 style="font-size: 28px; font-weight: 600; margin-bottom: 24px;">Kalkulator Pembagian SHU Ke Anggota</h1>
+
+<div class="split-layout">
+    
+    <!-- Left: Calculations Table -->
+    <div class="main-column">
+        <div class="standard-card" style="padding: 0; overflow: hidden;">
+            <h3 style="font-size: 18px; font-weight: 600; padding: 20px; border-bottom: 1px solid var(--colors-hairline);">Hasil Estimasi Pembagian SHU</h3>
+            
+            @if(empty($distribution))
+                <div style="padding: 48px; text-align: center; color: var(--colors-muted);">
+                    Input nominal SHU Bersih di sebelah kanan untuk memproyeksikan dividen bagi anggota aktif.
+                </div>
+            @else
+                <table class="clean-table" style="margin-top: 0;">
+                    <thead>
+                        <tr>
+                            <th>Nomor Anggota</th>
+                            <th>Nama Anggota</th>
+                            <th style="text-align: center;">Total Poin Loyalitas</th>
+                            <th style="text-align: right;">Estimasi SHU Diterima</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php 
+                            $totalPoints = 0; 
+                            $totalDividends = 0;
+                        @endphp
+                        @foreach($distribution as $item)
+                            @php 
+                                $totalPoints += $item['points'];
+                                $totalDividends += $item['share'];
+                            @endphp
+                            <tr>
+                                <td style="font-weight: 600;">{{ $item['nomor_anggota'] }}</td>
+                                <td>{{ $item['name'] }}</td>
+                                <td style="text-align: center;">⭐ {{ $item['points'] }} Poin</td>
+                                <td style="text-align: right; font-weight: 700; color: #1a7f5a;">
+                                    Rp {{ number_format($item['share'], 0, ',', '.') }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot>
+                        <tr style="background-color: var(--colors-surface-soft); font-weight: 700;">
+                            <td colspan="2" style="padding: 16px; border-top: 2px solid var(--colors-border-strong);">TOTAL PROYEKSI</td>
+                            <td style="text-align: center; padding: 16px; border-top: 2px solid var(--colors-border-strong);">⭐ {{ $totalPoints }} Poin</td>
+                            <td style="text-align: right; padding: 16px; border-top: 2px solid var(--colors-border-strong); color: #1a7f5a;">
+                                Rp {{ number_format($totalDividends, 0, ',', '.') }}
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            @endif
+        </div>
+    </div>
+
+    <!-- Right: Calculation Input -->
+    <div class="sticky-rail">
+        <div class="reservation-card">
+            <h3 style="font-size: 18px; font-weight: 600; border-bottom: 1px solid var(--colors-hairline); padding-bottom: 12px;">Input Nominal SHU</h3>
+            
+            <form action="{{ route('staff.shu') }}" method="GET">
+                
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label for="shu_amount">Jumlah SHU Bersih Dibagikan (Rp)</label>
+                    <input type="number" name="shu_amount" id="shu_amount" class="text-input" placeholder="Masukkan total uang SHU, misal: 5000000" value="{{ $totalSHUAmount }}" min="1000" required>
+                </div>
+
+                <button type="submit" class="button-primary">Proyeksikan SHU</button>
+            </form>
+
+            <div style="font-size: 12px; color: var(--colors-muted); line-height: 1.5; margin-top: 8px;">
+                💡 <strong>Formula Koperasi:</strong><br>
+                Dividen Anggota = (Poin Anggota / Total Poin Seluruh Anggota Aktif) * Dana SHU Bersih.
+            </div>
+        </div>
+    </div>
+
+</div>
+@endsection
