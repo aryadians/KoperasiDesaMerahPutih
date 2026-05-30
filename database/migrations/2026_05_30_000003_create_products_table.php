@@ -21,6 +21,7 @@ return new class extends Migration
             $table->integer('current_stock')->default(0);
             $table->string('unit'); // kg, pcs, liter, etc.
             $table->boolean('is_local_product')->default(false);
+            $table->string('image_url')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

@@ -43,8 +43,27 @@ class CartController extends Controller
         $cart = session()->get('cart', []);
 
         if (isset($cart[$productId])) {
-            $cart[$productId]['quantity'] += $quantity;
+            $newQuantity = $cart[$productId]['quantity'] + $quantity;
+            if ($product->current_stock < $newQuantity) {
+                if ($request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Stok '{$product->name}' tidak mencukupi untuk ditambah ke keranjang."
+                    ], 422);
+                }
+                return back()->withErrors(['error' => "Stok '{$product->name}' tidak mencukupi."]);
+            }
+            $cart[$productId]['quantity'] = $newQuantity;
         } else {
+            if ($product->current_stock < $quantity) {
+                if ($request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Stok '{$product->name}' tidak mencukupi."
+                    ], 422);
+                }
+                return back()->withErrors(['error' => "Stok '{$product->name}' tidak mencukupi."]);
+            }
             $cart[$productId] = [
                 'name' => $product->name,
                 'price_member' => $product->price_member,
@@ -56,6 +75,14 @@ class CartController extends Controller
         }
 
         session()->put('cart', $cart);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Produk berhasil ditambahkan ke keranjang.',
+                'cart_count' => count($cart)
+            ]);
+        }
 
         return redirect()->route('cart.index')->with('success', 'Produk berhasil ditambahkan ke keranjang.');
     }

@@ -20,6 +20,7 @@ class Product extends Model
         'current_stock',
         'unit',
         'is_local_product',
+        'image_url',
     ];
 
     protected $casts = [

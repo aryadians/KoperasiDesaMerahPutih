@@ -58,7 +58,7 @@
                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                     </svg>
                     @if(session()->has('cart') && count(session('cart')) > 0)
-                        <span style="position: absolute; top: 0; right: 0; background-color: var(--colors-primary); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                        <span id="cart-badge" style="position: absolute; top: 0; right: 0; background-color: var(--colors-primary); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold;">
                             {{ count(session('cart')) }}
                         </span>
                     @endif
@@ -92,24 +92,6 @@
     <!-- Main Content Section -->
     <main style="min-height: 70vh; padding: 32px 0;">
         <div class="container">
-            
-            <!-- Toast / Session Alerts -->
-            @if(session('success'))
-                <div class="alert-notification alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if($errors->any())
-                <div class="alert-notification alert-danger">
-                    <ul style="list-style: none;">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
             @yield('content')
         </div>
     </main>
@@ -150,5 +132,73 @@
         </div>
     </footer>
 
+    <!-- Custom SweetAlert Overlay Structure -->
+    <div class="swal-overlay" id="custom-swal-overlay">
+        <div class="swal-modal">
+            <div class="swal-icon" id="swal-modal-icon">✓</div>
+            <h3 class="swal-title" id="swal-modal-title">Judul</h3>
+            <p class="swal-text" id="swal-modal-text">Keterangan pesan dialog.</p>
+            <div class="swal-buttons">
+                <button type="button" class="button-primary" style="height: 40px; padding: 0 24px; width: auto;" onclick="closeSweetAlert()">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripting for Custom SweetAlert, Skeletons, and AJAX -->
+    <script>
+        let swalCallback = null;
+
+        window.showSweetAlert = function(title, text, type = 'success', callback = null) {
+            const overlay = document.getElementById('custom-swal-overlay');
+            const iconNode = document.getElementById('swal-modal-icon');
+            const titleNode = document.getElementById('swal-modal-title');
+            const textNode = document.getElementById('swal-modal-text');
+
+            swalCallback = callback;
+
+            // Set content
+            titleNode.textContent = title;
+            textNode.textContent = text;
+
+            // Reset icon types
+            iconNode.className = 'swal-icon';
+            if (type === 'success') {
+                iconNode.classList.add('success');
+                iconNode.textContent = '✓';
+            } else if (type === 'error') {
+                iconNode.classList.add('error');
+                iconNode.textContent = '✕';
+            } else if (type === 'warning') {
+                iconNode.classList.add('warning');
+                iconNode.textContent = '⚠';
+            }
+
+            // Show
+            overlay.classList.add('active');
+        };
+
+        window.closeSweetAlert = function() {
+            const overlay = document.getElementById('custom-swal-overlay');
+            overlay.classList.remove('active');
+            if (swalCallback) {
+                swalCallback();
+                swalCallback = null;
+            }
+        };
+
+        // Automate Laravel Session Redirect alerts
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('success'))
+                window.showSweetAlert('Berhasil', '{{ session('success') }}', 'success');
+            @endif
+
+            @if($errors->any())
+                @php $errText = implode('\\n', $errors->all()); @endphp
+                window.showSweetAlert('Terjadi Kesalahan', '{!! $errText !!}', 'error');
+            @endif
+        });
+    </script>
 </body>
 </html>
