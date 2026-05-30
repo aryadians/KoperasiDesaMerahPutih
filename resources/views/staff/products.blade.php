@@ -48,6 +48,7 @@
                                     <input type="checkbox" id="select-all" onclick="toggleSelectAll(this)" style="cursor: pointer; width: 16px; height: 16px;">
                                 </th>
                                 <th>Produk</th>
+                                <th>Barcode</th>
                                 <th>Kategori</th>
                                 <th>Harga Anggota</th>
                                 <th>Harga Umum</th>
@@ -66,6 +67,13 @@
                                         <span style="font-size: 11px; color: var(--muted);">Unit: {{ $product->unit }}</span>
                                         @if($product->is_local_product)
                                             <span style="font-size: 10px; color: var(--success); background-color: var(--success-bg); padding: 2px 6px; border-radius: var(--r-full); font-weight: 600; margin-left: 6px;">🌾 Tani Lokal</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($product->barcode)
+                                            <code style="background: var(--surface-soft); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 11px; color: var(--ink); border: 1px solid var(--hairline);">{{ $product->barcode }}</code>
+                                        @else
+                                            <span style="font-size: 11px; color: var(--muted); font-style: italic;">Belum set</span>
                                         @endif
                                     </td>
                                     <td>
@@ -149,6 +157,14 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="barcode">Kode Barcode (Scan / Ketik Manual)</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" name="barcode" id="form-barcode" class="text-input" placeholder="Contoh: 8991234567890" style="flex: 1;">
+                        <button type="button" class="btn btn-secondary" onclick="generateBarcodeField()" style="height: 38px; padding: 0 12px; font-size: 12px; white-space: nowrap; border-radius: var(--r-sm);">⚡ Generate</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label for="category_id">Kategori</label>
                     <select name="category_id" id="form-category-id" class="form-select" required>
                         <option value="">Pilih Kategori</option>
@@ -205,6 +221,23 @@
 </div>
 
 <script>
+    // --- Barcode Generator for Local Goods ---
+    function generateBarcodeField() {
+        let barcode = '899'; // Indonesia EAN prefix
+        for (let i = 0; i < 9; i++) {
+            barcode += Math.floor(Math.random() * 10);
+        }
+        // Calculate EAN-13 check digit
+        let sum = 0;
+        for (let i = 0; i < 12; i++) {
+            sum += parseInt(barcode[i]) * (i % 2 === 0 ? 1 : 3);
+        }
+        const checkDigit = (10 - (sum % 10)) % 10;
+        barcode += checkDigit;
+        
+        document.getElementById('form-barcode').value = barcode;
+    }
+
     // --- Edit Form Logic ---
     function loadEditForm(btn) {
         const product = JSON.parse(btn.getAttribute('data-product'));
@@ -222,6 +255,7 @@
         document.getElementById('form-method').value = 'POST'; // We use POST for laravel update here since Route supports it
         
         document.getElementById('form-name').value = product.name;
+        document.getElementById('form-barcode').value = product.barcode || '';
         document.getElementById('form-category-id').value = product.category_id;
         document.getElementById('form-description').value = product.description || '';
         document.getElementById('form-image-url').value = product.image_url || '';
@@ -244,6 +278,7 @@
         const form = document.getElementById('product-form');
         form.action = "{{ route('staff.products.store') }}";
         form.reset();
+        document.getElementById('form-barcode').value = '';
     }
 
     // --- Bulk Selection Logic ---

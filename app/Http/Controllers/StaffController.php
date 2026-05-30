@@ -205,6 +205,7 @@ class StaffController extends Controller
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
+            'barcode' => 'nullable|string|max:50|unique:products,barcode',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price_member' => 'required|numeric|min:0',
@@ -217,6 +218,7 @@ class StaffController extends Controller
 
         $product = Product::create([
             'category_id' => $request->category_id,
+            'barcode' => $request->barcode,
             'name' => $request->name,
             'description' => $request->description,
             'price_member' => $request->price_member,
@@ -237,6 +239,7 @@ class StaffController extends Controller
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
+            'barcode' => 'nullable|string|max:50|unique:products,barcode,' . $id,
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price_member' => 'required|numeric|min:0',
@@ -250,6 +253,7 @@ class StaffController extends Controller
         $product = Product::findOrFail($id);
         $product->update([
             'category_id' => $request->category_id,
+            'barcode' => $request->barcode,
             'name' => $request->name,
             'description' => $request->description,
             'price_member' => $request->price_member,

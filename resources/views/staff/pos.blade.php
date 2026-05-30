@@ -4,24 +4,455 @@
 
 @section('content')
 
-<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
-    <h1 style="font-size: 28px; font-weight: 800; color: var(--ink);">🏪 POS Kasir Gerai</h1>
-    <div style="background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); padding: 6px 14px; border-radius: 100px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-        <span class="pulse-ring" style="width: 8px; height: 8px;"></span> Kasir Aktif: {{ auth()->user()->name }}
+<!-- POS Page Layout Stylesheet -->
+<style>
+    /* Full Viewport POS Layout Redesign */
+    .pos-layout {
+        display: flex;
+        gap: 20px;
+        height: calc(100vh - 190px);
+        overflow: hidden;
+        position: relative;
+        z-index: 10;
+        box-sizing: border-box;
+    }
+
+    .pos-catalog-column {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        min-width: 0;
+        height: 100%;
+    }
+
+    .pos-cart-column {
+        width: 380px;
+        flex-shrink: 0;
+        height: 100%;
+    }
+
+    /* Search and Filter Panel */
+    .pos-search-panel {
+        background: #ffffff;
+        border-radius: var(--r-md);
+        border: 1px solid var(--hairline-soft);
+        box-shadow: var(--shadow-sm);
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        flex-shrink: 0;
+        min-width: 0;
+    }
+
+    .category-strip {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    /* Lock body scroll on POS page for clean app-like experience */
+    @media (min-width: 769px) {
+        body {
+            height: 100vh;
+            overflow: hidden !important;
+        }
+        .admin-main {
+            height: 100vh;
+            overflow: hidden !important;
+        }
+        .admin-content {
+            height: calc(100vh - 72px);
+            overflow: hidden !important;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 32px 20px !important;
+        }
+        .pos-layout {
+            flex: 1;
+            min-height: 0;
+            height: auto;
+        }
+    }
+
+    /* Product Grid Scroll Area */
+    .pos-products-scroll {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 4px;
+        padding-bottom: 20px;
+    }
+
+    .pos-products-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+    .pos-products-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .pos-products-scroll::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: var(--r-full);
+    }
+    .pos-products-scroll::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    .pos-products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        gap: 14px;
+    }
+
+    /* Custom POS Product Card */
+    .pos-prod-card {
+        background: #ffffff;
+        border-radius: var(--r-md);
+        border: 1px solid var(--hairline-soft);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        user-select: none;
+        position: relative;
+        height: 220px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .pos-prod-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--primary);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04), 0 4px 6px rgba(255, 56, 92, 0.04);
+    }
+
+    .pos-prod-card:active {
+        transform: scale(0.97) translateY(-2px);
+    }
+
+    .pos-prod-card.out-of-stock {
+        opacity: 0.55;
+        cursor: not-allowed;
+        pointer-events: none;
+        background: #fafafa;
+    }
+
+    .pos-prod-img-wrap {
+        width: 100%;
+        height: 100px;
+        position: relative;
+        overflow: hidden;
+        background: var(--surface-strong);
+    }
+
+    .pos-prod-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .pos-prod-card:hover .pos-prod-img-wrap img {
+        transform: scale(1.06);
+    }
+
+    .pos-prod-info {
+        padding: 12px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .pos-prod-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--ink);
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pos-stock-badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 100px;
+        width: fit-content;
+        margin-top: 4px;
+    }
+
+    .pos-stock-in {
+        background: #e6f7ed;
+        color: var(--success);
+    }
+
+    .pos-stock-low {
+        background: #fffbeb;
+        color: var(--warning);
+        font-weight: 700;
+    }
+
+    .pos-stock-out {
+        background: #fff0f3;
+        color: var(--danger);
+    }
+
+    .pos-prod-price {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--primary);
+    }
+
+    .pos-prod-member-price {
+        font-size: 10px;
+        color: var(--success);
+        font-weight: 600;
+        margin-top: 2px;
+    }
+
+    /* Cart Panel Card */
+    .pos-cart-panel {
+        background: #ffffff;
+        border-radius: var(--r-md);
+        border: 1px solid var(--hairline-soft);
+        box-shadow: var(--shadow-md);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .pos-cart-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--hairline-soft);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .pos-cart-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .pos-cart-scroll {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        background: #fafbfd;
+    }
+
+    .pos-cart-scroll::-webkit-scrollbar {
+        width: 5px;
+    }
+    .pos-cart-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .pos-cart-scroll::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: var(--r-full);
+    }
+
+    /* Cart Row Item */
+    .pos-cart-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        background: #ffffff;
+        padding: 10px 12px;
+        border-radius: var(--r-sm);
+        border: 1px solid var(--hairline-soft);
+        transition: all 0.2s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .pos-cart-row:hover {
+        border-color: var(--hairline);
+        box-shadow: var(--shadow-sm);
+    }
+
+    /* Quantity controllers */
+    .qty-btn {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 1px solid var(--hairline);
+        background: #ffffff;
+        color: var(--ink);
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+    }
+
+    .qty-btn:hover {
+        background: var(--ink);
+        color: #ffffff;
+        border-color: var(--ink);
+    }
+
+    .qty-input {
+        width: 44px;
+        height: 24px;
+        border-radius: var(--r-xs);
+        border: 1px solid var(--hairline);
+        text-align: center;
+        font-weight: 700;
+        font-size: 13px;
+        color: var(--ink);
+        background: #ffffff;
+        outline: none;
+        transition: border-color 0.15s;
+        box-sizing: border-box;
+    }
+    
+    .qty-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px var(--primary-glow);
+    }
+
+    .qty-input::-webkit-outer-spin-button,
+    .qty-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        appearance: none;
+        margin: 0;
+    }
+
+    .qty-input {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+    /* Checkout & Payment Area */
+    .pos-checkout-panel {
+        padding: 16px 20px;
+        border-top: 1px solid var(--hairline-soft);
+        background: #f8fafc;
+        flex-shrink: 0;
+    }
+
+    .pos-summary-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        color: var(--body);
+        margin-bottom: 6px;
+    }
+
+    .pos-summary-total {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--ink);
+        border-top: 1px dashed var(--hairline);
+        padding-top: 8px;
+        margin-top: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+    }
+
+    /* Cash denominations buttons */
+    .denom-btn-group {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+
+    .denom-btn {
+        background: #ffffff;
+        border: 1px solid var(--hairline);
+        border-radius: var(--r-xs);
+        padding: 6px 0;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--body);
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.15s;
+    }
+
+    .denom-btn:hover {
+        background: var(--primary-light);
+        border-color: var(--primary-muted);
+        color: var(--primary);
+    }
+
+    /* Keyboard Shortcuts Guides */
+    .kbd-badge {
+        font-family: inherit;
+        background: var(--surface-strong);
+        border: 1px solid var(--hairline);
+        border-radius: 4px;
+        padding: 1px 5px;
+        font-size: 9px;
+        font-weight: 700;
+        color: var(--muted);
+        box-shadow: 0 1px 0 rgba(0,0,0,0.15);
+    }
+
+    @media (max-width: 768px) {
+        .pos-layout {
+            flex-direction: column;
+            height: auto;
+            overflow: visible;
+        }
+        .pos-cart-column {
+            width: 100%;
+            height: auto;
+        }
+        .pos-products-scroll {
+            max-height: 400px;
+        }
+    }
+</style>
+
+<!-- POS Top Header Banner -->
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;" class="no-print">
+    <div>
+        <h1 style="font-size: 24px; font-weight: 800; color: var(--ink); display: flex; align-items: center; gap: 10px;">
+            <span>🏪</span> POS Kasir Gerai Offline
+        </h1>
+        <p style="font-size: 13px; color: var(--muted); margin-top: 2px;">
+            Kelola transaksi warga desa secara tatap muka dengan cepat. Gunakan pintasan keyboard <span class="kbd-badge">F1</span> s.d. <span class="kbd-badge">F4</span>.
+        </p>
+    </div>
+    <div class="status-pill" style="background: var(--success-bg); color: var(--success); border: 1.5px solid var(--success-border); padding: 6px 14px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+        <span class="pulse-dot"></span>
+        <span>Kasir: <strong>{{ auth()->user()->name }}</strong></span>
     </div>
 </div>
 
-<div class="split-layout">
+<!-- Main POS Workspace Layout -->
+<div class="pos-layout no-print">
     
     <!-- LEFT: Product Search and Catalog Grid -->
-    <div class="main-column">
-        <div class="card card-flush" style="margin-bottom: 16px; box-shadow: var(--shadow-sm); padding: 16px;">
-            <div style="display: flex; gap: 12px; align-items: center;">
+    <div class="pos-catalog-column">
+        <!-- Search bar panel -->
+        <div class="pos-search-panel">
+            <div style="display: flex; gap: 12px; align-items: center; width: 100%;">
                 <div style="flex: 1; position: relative;">
                     <svg style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--muted);" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <input type="text" id="pos-search" class="text-input" placeholder="Scan Barcode / Cari nama barang (Tekan F1)" oninput="filterPOSProducts()" onkeydown="handleBarcodeScan(event)" style="height: 48px; padding-left: 44px; font-weight: 600; font-size: 15px;" autofocus autocomplete="off">
+                    <input type="text" id="pos-search" class="text-input" placeholder="Scan Barcode / Cari nama barang (Tekan F1)" oninput="filterPOSProducts()" onkeydown="handleBarcodeScan(event)" style="height: 46px; padding-left: 44px; font-weight: 600; font-size: 14px;" autofocus autocomplete="off">
                 </div>
-                <select id="pos-category" class="text-input" onchange="filterPOSProducts()" style="height: 48px; width: 220px; font-weight: 500;">
+                <select id="pos-category" class="text-input" onchange="filterPOSProducts()" style="height: 46px; width: 200px; font-weight: 500; font-size: 14px; padding: 0 12px;">
                     <option value="">Semua Kategori</option>
                     @foreach($categories as $cat)
                         <option value="{{ $cat->id }}">{{ $cat->name }}</option>
@@ -29,7 +460,7 @@
                 </select>
             </div>
             
-            <div class="category-strip" style="margin: 16px 0 0 0; padding-bottom: 4px;">
+            <div class="category-strip" style="margin: 0; padding-bottom: 0;">
                 <button class="category-tab active" id="btn-cat-all" onclick="selectCategory('')">🏪 Semua</button>
                 @foreach($categories as $cat)
                     <button class="category-tab" id="btn-cat-{{ $cat->id }}" onclick="selectCategory('{{ $cat->id }}')">{{ $cat->name }}</button>
@@ -37,56 +468,74 @@
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; max-height: calc(100vh - 260px); overflow-y: auto; padding-right: 4px; padding-bottom: 24px;" id="pos-products-grid">
-            @foreach($products as $prod)
-                <div class="property-card reveal-scale pos-product-item" 
-                     data-id="{{ $prod->id }}" 
-                     data-name="{{ strtolower($prod->name) }}" 
-                     data-category="{{ $prod->category_id }}"
-                     data-member-price="{{ $prod->price_member }}"
-                     data-guest-price="{{ $prod->price_non_member }}"
-                     data-stock="{{ $prod->current_stock }}"
-                     data-unit="{{ $prod->unit }}"
-                     onclick="addPCToCart(this)"
-                     style="cursor: pointer; border-radius: var(--r-md); box-shadow: var(--shadow-sm); border: 1px solid var(--hairline-soft);">
-                    
-                    <div class="property-card-photo" style="aspect-ratio: 1.25; height: 110px;">
-                        <img src="{{ $prod->image_url ?? 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=200&q=80' }}" alt="{{ $prod->name }}" style="height: 100%; object-fit: cover;">
-                        @if($prod->is_local_product)
-                            <span class="local-badge" style="font-size: 9px; padding: 2px 6px;">🌾 Tani Lokal</span>
-                        @endif
-                    </div>
-                    
-                    <div style="padding: 12px; display: flex; flex-direction: column; justify-content: space-between; height: 105px;">
-                        <div>
-                            <div style="font-size: 13px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3;" title="{{ $prod->name }}">{{ $prod->name }}</div>
-                            <div style="font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 500;">Stok: {{ $prod->current_stock }} {{ $prod->unit }}</div>
+        <!-- Scrollable Product Catalog Grid -->
+        <div class="pos-products-scroll">
+            <div class="pos-products-grid" id="pos-products-grid">
+                @foreach($products as $prod)
+                    <div class="pos-prod-card @if($prod->current_stock <= 0) out-of-stock @endif pos-product-item" 
+                         data-id="{{ $prod->id }}" 
+                         data-name="{{ strtolower($prod->name) }}" 
+                         data-category="{{ $prod->category_id }}"
+                         data-barcode="{{ $prod->barcode }}" 
+                         data-member-price="{{ $prod->price_member }}"
+                         data-guest-price="{{ $prod->price_non_member }}"
+                         data-stock="{{ $prod->current_stock }}"
+                         data-unit="{{ $prod->unit }}"
+                         onclick="addPCToCart(this)">
+                        
+                        <div class="pos-prod-img-wrap">
+                            <img src="{{ $prod->image_url ?? 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=200&q=80' }}" alt="{{ $prod->name }}">
+                            @if($prod->is_local_product)
+                                <span class="local-badge" style="font-size: 8px; padding: 2px 6px; top: 8px; right: 8px; font-weight: 700;">🌾 Tani Lokal</span>
+                            @endif
                         </div>
-                        <div style="margin-top: 4px;">
-                            <div style="font-size: 14px; font-weight: 800; color: var(--primary); line-height: 1;">Rp {{ number_format($prod->price_non_member, 0, ',', '.') }}</div>
-                            <div style="font-size: 10px; color: var(--success); font-weight: 600; margin-top: 4px;">Anggota: Rp {{ number_format($prod->price_member, 0, ',', '.') }}</div>
+                        
+                        <div class="pos-prod-info">
+                            <div>
+                                <div class="pos-prod-name" title="{{ $prod->name }}">{{ $prod->name }}</div>
+                                @if($prod->barcode)
+                                    <div style="font-size: 9px; color: var(--muted); font-family: monospace; margin: 2px 0 4px; display: flex; align-items: center; gap: 4px; user-select: text;">
+                                        <span style="letter-spacing: -0.5px;">║▌║█║▌</span> <span>{{ $prod->barcode }}</span>
+                                    </div>
+                                @endif
+                                @if($prod->current_stock <= 0)
+                                    <span class="pos-stock-badge pos-stock-out">Habis</span>
+                                @elseif($prod->current_stock <= 5)
+                                    <span class="pos-stock-badge pos-stock-low">Kritis: {{ $prod->current_stock }} {{ $prod->unit }}</span>
+                                @else
+                                    <span class="pos-stock-badge pos-stock-in">Stok: {{ $prod->current_stock }} {{ $prod->unit }}</span>
+                                @endif
+                            </div>
+                            <div style="margin-top: 4px;">
+                                <div class="pos-prod-price">Rp {{ number_format($prod->price_non_member, 0, ',', '.') }}</div>
+                                <div class="pos-prod-member-price">Anggota: Rp {{ number_format($prod->price_member, 0, ',', '.') }}</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
+            </div>
         </div>
     </div>
 
-    <!-- RIGHT: Cashier POS Cart -->
-    <div class="sticky-rail" style="align-self: start; top: 96px;">
-        <div class="card" style="padding: 20px; max-height: calc(100vh - 120px); display: flex; flex-direction: column; box-shadow: var(--shadow-lg); border: 1.5px solid var(--hairline);">
-            <div style="flex-shrink: 0;">
-                <h3 style="font-size: 16px; font-weight: 700; border-bottom: 1px solid var(--hairline); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; color: var(--ink);">
-                    <span>🛒 Keranjang Kasir</span>
-                    <button class="btn btn-ghost btn-sm" onclick="clearPOSCart()" style="height: 28px; font-size: 11px; padding: 0 10px; border-color: var(--danger); color: var(--danger);">Reset (F4)</button>
-                </h3>
+    <!-- RIGHT: Cashier POS Cart Column -->
+    <div class="pos-cart-column">
+        <div class="pos-cart-panel">
+            
+            <!-- Cart Title Header -->
+            <div class="pos-cart-header">
+                <span class="pos-cart-title">
+                    <span>🛒</span> Keranjang Kasir
+                </span>
+                <button class="btn btn-ghost btn-sm" onclick="clearPOSCart()" style="height: 28px; font-size: 11px; padding: 0 10px; border-color: var(--danger); color: var(--danger);">Reset <span class="kbd-badge" style="font-size: 8px;">F4</span></button>
+            </div>
 
-                <!-- Member NIK Section -->
-                <div style="background: var(--surface); padding: 12px; border-radius: var(--r-md); margin-bottom: 16px; border: 1px solid var(--hairline-soft);">
-                    <label class="field-label" style="font-size: 11px; font-weight: 700; margin-bottom: 6px; display: block; color: var(--body);">SCAN KARTU ANGGOTA (NIK)</label>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="text" id="pos-member-nik" class="text-input" placeholder="Barcode NIK / Ketik manual" style="height: 38px; font-size: 13px; font-weight: 600;">
-                        <button type="button" class="btn btn-primary btn-sm" onclick="lookupPOSMember()" style="height: 38px; width: 60px; padding: 0;">Cek</button>
+            <!-- Member NIK Lookup Terminal Panel -->
+            <div style="padding: 16px 16px 8px; border-bottom: 1px solid var(--hairline-soft); background: #fdfdfd; flex-shrink: 0;">
+                <div style="background: var(--surface-soft); padding: 12px; border-radius: var(--r-md); border: 1.5px solid var(--hairline-soft);">
+                    <label class="field-label" style="font-size: 10px; font-weight: 800; margin-bottom: 6px; display: block; color: var(--muted); letter-spacing: 0.5px;">KARTU ANGGOTA (NIK)</label>
+                    <div style="display: flex; gap: 6px;">
+                        <input type="text" id="pos-member-nik" class="text-input" placeholder="Barcode NIK / Ketik manual" style="height: 38px; font-size: 13px; font-weight: 600; background: #ffffff;">
+                        <button type="button" class="button-primary" onclick="lookupPOSMember()" style="height: 38px; width: 60px; padding: 0; font-size: 12px; border-radius: var(--r-sm);">Cek</button>
                     </div>
                     <div id="pos-member-result" style="font-size: 12px; margin-top: 8px; font-weight: 700; color: var(--success); display: none; background: var(--success-bg); padding: 6px 10px; border-radius: var(--r-xs); border: 1px solid var(--success-border);">
                         👤 <span id="pos-member-name">-</span>
@@ -94,46 +543,57 @@
                 </div>
             </div>
 
-            <!-- Cart Items List: Scrollable -->
-            <div style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px dashed var(--hairline); padding-bottom: 12px; margin-bottom: 16px;" id="pos-cart-list">
+            <!-- Cart Items Scrollable List -->
+            <div class="pos-cart-scroll" id="pos-cart-list">
                 <div style="text-align: center; color: var(--muted); font-size: 13px; padding: 32px 0;" id="pos-cart-empty">
                     <div style="font-size: 40px; margin-bottom: 12px; opacity: 0.5;">🛒</div>
                     Keranjang kosong.<br>Scan barcode atau klik produk.
                 </div>
             </div>
 
-            <!-- Pricing Summary and Pay checkout -->
-            <div style="flex-shrink: 0; background: var(--surface-md); padding: 16px; border-radius: var(--r-md); border: 1px solid var(--hairline-soft);">
-                <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; margin-bottom: 12px; color: var(--body);">
-                    <div style="display: flex; justify-content: space-between;">
+            <!-- Pricing Summary & Checkout Pay -->
+            <div class="pos-checkout-panel">
+                <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; margin-bottom: 10px; color: var(--body);">
+                    <div class="pos-summary-row">
                         <span>Jumlah Barang</span>
                         <strong id="pos-total-items" style="color: var(--ink);">0 Barang</strong>
                     </div>
-                    <div style="display: flex; justify-content: space-between;">
+                    <div class="pos-summary-row">
                         <span>Potongan Member</span>
                         <strong id="pos-total-discount" style="color: var(--success); font-weight: 700;">- Rp 0</strong>
                     </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 15px; border-top: 1px dashed var(--hairline); padding-top: 8px; margin-top: 4px; font-weight: 700; color: var(--ink);">
+                    <div class="pos-summary-total">
                         <span>Total Bayar</span>
-                        <strong style="font-size: 20px; color: var(--primary);" id="pos-total-pay">Rp 0</strong>
+                        <strong style="font-size: 20px; color: var(--primary); line-height: 1;" id="pos-total-pay">Rp 0</strong>
                     </div>
                 </div>
 
-                <div style="background: var(--canvas); padding: 10px; border-radius: var(--r-md); margin-bottom: 12px; border: 1px solid var(--hairline);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <span style="font-size: 11px; font-weight: 700; color: var(--ink);">TUNAI DITERIMA</span>
-                        <span style="font-size: 10px; font-weight: 600; color: var(--primary); cursor: pointer; background: var(--primary-light); padding: 2px 8px; border-radius: 100px;" onclick="posFillExactCash()">Uang Pas (F3)</span>
+                <!-- Tunai & Kembalian Terminal Card -->
+                <div style="background: #ffffff; padding: 12px; border-radius: var(--r-md); margin-bottom: 12px; border: 1px solid var(--hairline-soft);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 10px; font-weight: 800; color: var(--ink); letter-spacing: 0.5px;">TUNAI DITERIMA</span>
+                        <span style="font-size: 10px; font-weight: 600; color: var(--primary); cursor: pointer; background: var(--primary-light); padding: 2px 8px; border-radius: 100px;" onclick="posFillExactCash()">Uang Pas <span class="kbd-badge" style="font-size: 8px;">F3</span></span>
                     </div>
-                    <input type="number" id="pos-cash-received" class="text-input" placeholder="Rp 0" oninput="calculatePOSChange()" style="height: 38px; font-weight: 800; font-size: 16px; color: var(--ink); text-align: right;">
+                    
+                    <!-- Quick Cash Denominations panel -->
+                    <div class="denom-btn-group">
+                        <button type="button" class="denom-btn" onclick="posFillCash(10000)">10K</button>
+                        <button type="button" class="denom-btn" onclick="posFillCash(20000)">20K</button>
+                        <button type="button" class="denom-btn" onclick="posFillCash(50000)">50K</button>
+                        <button type="button" class="denom-btn" onclick="posFillCash(100000)">100K</button>
+                        <button type="button" class="denom-btn" onclick="posFillExactCash()">Exact</button>
+                    </div>
+
+                    <input type="number" id="pos-cash-received" class="text-input" placeholder="Rp 0" oninput="calculatePOSChange()" style="height: 38px; font-weight: 800; font-size: 16px; color: var(--ink); text-align: right; background: var(--surface-soft);">
                     
                     <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px; font-weight: 700; border-top: 1px dashed var(--hairline-soft); padding-top: 6px;">
-                        <span style="color: var(--muted);">KEMBALIAN</span>
+                        <span style="color: var(--muted); font-size: 11px;">KEMBALIAN</span>
                         <strong id="pos-cash-change" style="color: var(--success); font-size: 16px;">Rp 0</strong>
                     </div>
                 </div>
 
-                <button class="btn btn-primary btn-full" id="btn-pos-checkout" onclick="submitPOSCheckout()" style="height: 44px; border-radius: 100px; font-weight: 800; font-size: 14px;" disabled>
-                    Selesaikan Bayar (F2)
+                <button class="button-primary btn-full" id="btn-pos-checkout" onclick="submitPOSCheckout()" style="height: 44px; border-radius: 100px; font-weight: 800; font-size: 14px; width: 100%; border: none;" disabled>
+                    Selesaikan Bayar <span class="kbd-badge" style="font-size: 9px; color: white; background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.25);">F2</span>
                 </button>
             </div>
         </div>
@@ -250,14 +710,30 @@
 
     // ── Barcode Scanner Logic ──
     function handleBarcodeScan(e) {
-        // Many barcode scanners send an "Enter" key after the barcode string
         if (e.key === 'Enter') {
             e.preventDefault();
-            const val = e.target.value.toLowerCase().trim();
+            const val = e.target.value.trim();
             if (!val) return;
             
-            // Look for exactly 1 visible item matching the scan
+            // 1. Search for exact barcode match first
             const cards = document.querySelectorAll('.pos-product-item');
+            let exactMatchCard = null;
+            
+            for (let card of cards) {
+                if (card.dataset.barcode && card.dataset.barcode.trim() === val) {
+                    exactMatchCard = card;
+                    break;
+                }
+            }
+
+            if (exactMatchCard) {
+                addPCToCart(exactMatchCard);
+                e.target.value = ''; // clear input
+                filterPOSProducts(); // reset filters/search
+                return;
+            }
+
+            // 2. Fallback: if no exact barcode match, look for exactly 1 visible item
             let matchedCard = null;
             let visibleCount = 0;
 
@@ -268,7 +744,7 @@
                 }
             });
 
-            // Auto-add if it uniquely filters down to 1 item (typical barcode behavior)
+            // Auto-add if it uniquely filters down to 1 item
             if (visibleCount === 1 && matchedCard) {
                 addPCToCart(matchedCard);
                 e.target.value = ''; // clear for next scan
@@ -279,7 +755,7 @@
 
     // ── Cart Add ──
     function addPCToCart(card) {
-        playBeep(); // Audio feedback on scan/click
+        playBeep(); // Audio feedback
         
         const id = parseInt(card.dataset.id);
         const name = card.dataset.name;
@@ -304,12 +780,22 @@
         }
 
         renderPOSCart();
+        
+        // Auto-focus search input for next barcode scan
+        setTimeout(() => {
+            const searchInput = document.getElementById('pos-search');
+            if (searchInput) {
+                searchInput.focus();
+                searchInput.select();
+            }
+        }, 50);
     }
 
     // ── Remove from POS Cart ──
     function removePCItem(id) {
         delete posCart[id];
         renderPOSCart();
+        document.getElementById('pos-search').focus();
     }
 
     function adjustPCQty(id, delta) {
@@ -324,16 +810,38 @@
             posCart[id].quantity = newQty;
         }
         renderPOSCart();
-    } else {
-            posCart[id].quantity = newQty;
+        document.getElementById('pos-search').focus();
+    }
+
+    // ── Direct Quantity Update ──
+    function updatePCQtyDirect(id, val) {
+        if (!posCart[id]) return;
+        let qty = parseInt(val);
+        if (isNaN(qty) || qty <= 0) {
+            qty = 1;
         }
+        if (qty > posCart[id].maxStock) {
+            window.showSweetAlert('Stok Terbatas', 'Jumlah melebihi stok yang tersedia (' + posCart[id].maxStock + ').', 'warning');
+            qty = posCart[id].maxStock;
+        }
+        posCart[id].quantity = qty;
         renderPOSCart();
+    }
+
+    // ── Prevent Cart Input Enter Form Submit ──
+    function preventCartEnterSubmit(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            e.target.blur(); // Triggers updatePCQtyDirect via change event
+            document.getElementById('pos-search').focus();
+        }
     }
 
     // ── Clear POS Cart
     function clearPOSCart() {
         posCart = {};
         renderPOSCart();
+        document.getElementById('pos-search').focus();
     }
 
     // ── POS Cart calculations & HTML rendering
@@ -354,6 +862,7 @@
             countBadge.textContent = '0 Barang';
             discBadge.textContent = '- Rp 0';
             payBadge.textContent = 'Rp 0';
+            payBadge.dataset.value = 0;
             checkoutBtn.disabled = true;
             document.getElementById('pos-cash-received').value = '';
             calculatePOSChange();
@@ -374,23 +883,23 @@
             totalNet += subtotal;
 
             const row = document.createElement('div');
-            row.style.cssText = 'display: flex; justify-content: space-between; align-items: center; gap: 10px; background: white; padding: 10px; border-radius: var(--r-sm); border: 1px solid var(--hairline-soft);';
+            row.className = 'pos-cart-row';
             row.innerHTML = `
                 <div style="flex: 1; min-width: 0;">
-                    <div style="font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</div>
+                    <div style="font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink);">${item.name}</div>
                     <div style="font-size: 11px; color: var(--muted); margin-top: 2px;">
                         Rp ${price.toLocaleString('id-ID')} / ${item.unit}
                     </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <button class="button-secondary" onclick="adjustPCQty(${item.id}, -1)" style="width: 24px; height: 24px; padding: 0; font-size: 14px; border-radius: 4px; display: flex; align-items: center; justify-content: center;">-</button>
-                    <span style="font-size: 13px; font-weight: 700; min-width: 16px; text-align: center;">${item.quantity}</span>
-                    <button class="button-secondary" onclick="adjustPCQty(${item.id}, 1)" style="width: 24px; height: 24px; padding: 0; font-size: 14px; border-radius: 4px; display: flex; align-items: center; justify-content: center;">+</button>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                    <button class="qty-btn" onclick="adjustPCQty(${item.id}, -1)">-</button>
+                    <input type="number" class="qty-input" value="${item.quantity}" min="1" max="${item.maxStock}" onchange="updatePCQtyDirect(${item.id}, this.value)" onkeydown="preventCartEnterSubmit(event)">
+                    <button class="qty-btn" onclick="adjustPCQty(${item.id}, 1)">+</button>
                 </div>
-                <div style="font-weight: 700; font-size: 13px; min-width: 72px; text-align: right;">
+                <div style="font-weight: 800; font-size: 13px; min-width: 80px; text-align: right; color: var(--ink);">
                     Rp ${subtotal.toLocaleString('id-ID')}
                 </div>
-                <button onclick="removePCItem(${item.id})" style="border: none; background: none; color: var(--primary); font-weight: bold; cursor: pointer; padding: 4px; font-size: 13px;" title="Hapus">✕</button>
+                <button onclick="removePCItem(${item.id})" style="border: none; background: none; color: var(--primary); font-weight: bold; cursor: pointer; padding: 4px; font-size: 14px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary-dark)'" onmouseout="this.style.color='var(--primary)'" title="Hapus">✕</button>
             `;
             list.appendChild(row);
         });
@@ -424,7 +933,7 @@
         .then(data => {
             if (data.success) {
                 selectedMember = { name: data.name, nomor_anggota: data.nomor_anggota, nik: nik };
-                nameNode.textContent = data.name + ' (' + data.nomor_anggota + ')';
+                nameNode.innerHTML = '👤 ' + data.name + ' (' + data.nomor_anggota + ') <span style="margin-left:4px;color:#10b981;">✓ Terverifikasi</span>';
                 resultNode.style.display = 'block';
                 window.showSweetAlert('Anggota Ditemukan! 👤', 'Warga "' + data.name + '" terverifikasi. Diskon harga anggota diterapkan.', 'success');
             } else {
@@ -446,7 +955,7 @@
     function filterPOSProducts() {
         const search = document.getElementById('pos-search').value.toLowerCase();
         const category = document.getElementById('pos-category').value;
-        const cards = document.querySelectorAll('#pos-products-grid .property-card');
+        const cards = document.querySelectorAll('#pos-products-grid .pos-product-item');
 
         cards.forEach(card => {
             const name = card.dataset.name.toLowerCase();
@@ -455,7 +964,7 @@
             const matchesCategory = !category || catId === category;
 
             if (matchesSearch && matchesCategory) {
-                card.style.display = 'block';
+                card.style.display = 'flex';
             } else {
                 card.style.display = 'none';
             }
@@ -463,7 +972,6 @@
     }
 
     function selectCategory(catId) {
-        // Toggle tabs active class
         document.querySelectorAll('.category-strip .category-tab').forEach(tab => tab.classList.remove('active'));
         if (catId === '') {
             document.getElementById('btn-cat-all').classList.add('active');
@@ -482,6 +990,12 @@
             document.getElementById('pos-cash-received').value = total;
             calculatePOSChange();
         }
+    }
+
+    // ── Quick Fill custom cash amount
+    function posFillCash(amount) {
+        document.getElementById('pos-cash-received').value = amount;
+        calculatePOSChange();
     }
 
     // ── Calculate Change (kembalian)
@@ -538,7 +1052,7 @@
         .then(r => r.json())
         .then(data => {
             checkoutBtn.disabled = false;
-            checkoutBtn.textContent = '🛍 Selesaikan & Cetak Struk';
+            checkoutBtn.textContent = 'Selesaikan Bayar F2';
 
             if (data.success) {
                 // Populate and Open Struk Receipt Modal
@@ -554,7 +1068,7 @@
         })
         .catch(err => {
             checkoutBtn.disabled = false;
-            checkoutBtn.textContent = '🛍 Selesaikan & Cetak Struk';
+            checkoutBtn.textContent = 'Selesaikan Bayar F2';
             window.showSweetAlert('Error Sistem', 'Gagal menghubungi server.', 'error');
         });
     }
@@ -572,8 +1086,6 @@
         let totalNet = 0;
 
         order.items.forEach(item => {
-            const isMem = selectedMember !== null;
-            // estimate original non-member price for guest calculation
             const unitPrice = parseFloat(item.price_at_purchase);
             const subtotal = unitPrice * item.quantity;
             totalNet += subtotal;
@@ -589,8 +1101,6 @@
             `;
             listNode.appendChild(div);
         });
-
-        const totalDiscount = order.points_earned * 0; // points only logged
         
         document.getElementById('rec-total-gross').textContent = 'Rp ' + totalNet.toLocaleString('id-ID');
         document.getElementById('rec-discount').textContent = selectedMember ? 'Harga Member Koperasi' : 'Rp 0';
@@ -602,9 +1112,11 @@
         document.getElementById('pos-receipt-overlay').classList.add('active');
     }
 
+    // Close Modal
     function closePOSReceipt() {
         document.getElementById('pos-receipt-overlay').classList.remove('active');
     }
+
     // ── Real-time Stock Update (Echo) ──
     window.Echo.channel('inventory')
         .listen('ProductStockUpdated', (e) => {
@@ -613,10 +1125,28 @@
             if (productCard) {
                 // Update stock in dataset
                 productCard.dataset.stock = e.current_stock;
-                // Update UI
-                const stockDisplay = productCard.querySelector('div[style*="font-size: 11px"]');
-                if (stockDisplay) {
-                    stockDisplay.textContent = 'Stok: ' + e.current_stock + ' ' + productCard.dataset.unit;
+                
+                // Update Stock Badge UI
+                const infoDiv = productCard.querySelector('.pos-prod-info > div');
+                if (infoDiv) {
+                    const oldBadge = infoDiv.querySelector('.pos-stock-badge');
+                    if (oldBadge) oldBadge.remove();
+                    
+                    const newBadge = document.createElement('span');
+                    if (e.current_stock <= 0) {
+                        productCard.classList.add('out-of-stock');
+                        newBadge.className = 'pos-stock-badge pos-stock-out';
+                        newBadge.textContent = 'Habis';
+                    } else if (e.current_stock <= 5) {
+                        productCard.classList.remove('out-of-stock');
+                        newBadge.className = 'pos-stock-badge pos-stock-low';
+                        newBadge.textContent = 'Kritis: ' + e.current_stock + ' ' + productCard.dataset.unit;
+                    } else {
+                        productCard.classList.remove('out-of-stock');
+                        newBadge.className = 'pos-stock-badge pos-stock-in';
+                        newBadge.textContent = 'Stok: ' + e.current_stock + ' ' + productCard.dataset.unit;
+                    }
+                    infoDiv.appendChild(newBadge);
                 }
             }
         });

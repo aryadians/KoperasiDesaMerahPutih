@@ -315,6 +315,7 @@
         /* Right Side Content Frame */
         .admin-main {
             flex: 1;
+            min-width: 0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -376,6 +377,7 @@
             padding: 40px;
             flex: 1;
             width: 100%;
+            min-width: 0;
             box-sizing: border-box;
             position: relative;
             z-index: 10;
