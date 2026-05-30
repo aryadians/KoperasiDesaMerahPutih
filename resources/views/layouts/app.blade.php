@@ -57,22 +57,6 @@
                         <a href="{{ route('member.orders') }}" class="product-tab {{ Request::routeIs('member.orders') ? 'active' : '' }}">
                             Belanja Saya
                         </a>
-                    @else
-                        <a href="{{ route('staff.dashboard') }}" class="product-tab {{ Request::routeIs('staff.dashboard') ? 'active' : '' }}">
-                            Dashboard Staf
-                        </a>
-                        <a href="{{ route('staff.analytics') }}" class="product-tab {{ Request::routeIs('staff.analytics') ? 'active' : '' }}">
-                            Analitik
-                        </a>
-                        <a href="{{ route('staff.purchase-orders') }}" class="product-tab {{ Request::routeIs('staff.purchase-orders') ? 'active' : '' }}">
-                            Procurement (PO)
-                        </a>
-                        <a href="{{ route('staff.pos') }}" class="product-tab {{ Request::routeIs('staff.pos') ? 'active' : '' }}" style="color: var(--primary); font-weight: 600;">
-                            🏪 POS Kasir
-                        </a>
-                        <a href="{{ route('staff.config') }}" class="product-tab {{ Request::routeIs('staff.config') ? 'active' : '' }}">
-                            ⚙️ Konfigurasi
-                        </a>
                     @endif
                 @endauth
             </nav>

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Kalkulator SHU Anggota - KDKMP')
 
@@ -8,16 +8,6 @@
     <h1>KOPERASI DESA MERAH PUTIH (KDKMP)</h1>
     <p>Laporan Estimasi Pembagian Sisa Hasil Usaha (SHU) Anggota Aktif</p>
     <p style="font-size: 11px; color: #555;">Tanggal Cetak: {{ \Carbon\Carbon::now()->translatedFormat('d F Y H:i') }}</p>
-</div>
-
-<div style="margin-bottom: 24px;" class="no-print">
-    <a href="{{ route('staff.dashboard') }}" style="font-size: 14px; font-weight: 600; color: var(--colors-ink); display: flex; align-items: center; gap: 8px;">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
-        </svg>
-        Kembali ke dashboard staf
-    </a>
 </div>
 
 <h1 style="font-size: 28px; font-weight: 600; margin-bottom: 24px;" class="no-print">Kalkulator Pembagian SHU Ke Anggota</h1>
