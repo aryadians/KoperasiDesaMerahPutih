@@ -534,71 +534,72 @@
                 <button class="btn btn-ghost btn-sm" onclick="clearPOSCart()" style="height: 28px; font-size: 11px; padding: 0 10px; border-color: var(--danger); color: var(--danger);">Reset <span class="kbd-badge" style="font-size: 8px;">F4</span></button>
             </div>
 
-            <!-- Member NIK Lookup Terminal Panel -->
-            <div style="padding: 16px 16px 8px; border-bottom: 1px solid var(--hairline-soft); background: #fdfdfd; flex-shrink: 0;">
-                <div style="background: var(--surface-soft); padding: 12px; border-radius: var(--r-md); border: 1.5px solid var(--hairline-soft);">
-                    <label class="field-label" style="font-size: 10px; font-weight: 800; margin-bottom: 6px; display: block; color: var(--muted); letter-spacing: 0.5px;">KARTU ANGGOTA (NIK)</label>
-                    <div style="display: flex; gap: 6px;">
-                        <input type="text" id="pos-member-nik" class="text-input" placeholder="Barcode NIK / Ketik manual" style="height: 38px; font-size: 13px; font-weight: 600; background: #ffffff;">
-                        <button type="button" class="button-primary" onclick="lookupPOSMember()" style="height: 38px; width: 60px; padding: 0; font-size: 12px; border-radius: var(--r-sm);">Cek</button>
-                    </div>
-                    <div id="pos-member-result" style="font-size: 12px; margin-top: 8px; font-weight: 700; color: var(--success); display: none; background: var(--success-bg); padding: 6px 10px; border-radius: var(--r-xs); border: 1px solid var(--success-border);">
-                        👤 <span id="pos-member-name">-</span>
-                    </div>
+            <!-- Member NIK Lookup Terminal Panel (Ultra-Compact) -->
+            <div style="padding: 8px 12px; border-bottom: 1px solid var(--hairline-soft); background: #fdfdfd; flex-shrink: 0;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 11px; font-weight: 700; color: var(--muted); white-space: nowrap;">NIK:</span>
+                    <input type="text" id="pos-member-nik" class="text-input" placeholder="Scan Kartu Anggota" style="height: 32px; font-size: 12px; font-weight: 600; padding: 0 10px; background: #ffffff; flex: 1;">
+                    <button type="button" class="button-primary" onclick="lookupPOSMember()" style="height: 32px; padding: 0 12px; font-size: 11px; border-radius: var(--r-sm); width: auto;">Cek</button>
+                </div>
+                <div id="pos-member-result" style="font-size: 11px; margin-top: 6px; font-weight: 700; color: var(--success); display: none; background: var(--success-bg); padding: 4px 10px; border-radius: var(--r-xs); border: 1px solid var(--success-border);">
+                    👤 <span id="pos-member-name">-</span>
                 </div>
             </div>
 
             <!-- Cart Items Scrollable List -->
-            <div class="pos-cart-scroll" id="pos-cart-list">
+            <div class="pos-cart-scroll" style="flex: 1; overflow-y: auto;">
                 <div style="text-align: center; color: var(--muted); font-size: 13px; padding: 32px 0;" id="pos-cart-empty">
                     <div style="font-size: 40px; margin-bottom: 12px; opacity: 0.5;">🛒</div>
                     Keranjang kosong.<br>Scan barcode atau klik produk.
                 </div>
+                <div id="pos-cart-list" style="display: flex; flex-direction: column; gap: 8px;">
+                    <!-- cart rows go here -->
+                </div>
             </div>
 
-            <!-- Pricing Summary & Checkout Pay -->
-            <div class="pos-checkout-panel">
-                <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px; margin-bottom: 10px; color: var(--body);">
-                    <div class="pos-summary-row">
+            <!-- Pricing Summary & Checkout Pay (Ultra-Compact) -->
+            <div class="pos-checkout-panel" style="padding: 12px 16px; border-top: 1px solid var(--hairline-soft); background: #f8fafc; flex-shrink: 0;">
+                <div style="display: flex; flex-direction: column; gap: 2px; font-size: 12px; margin-bottom: 8px; color: var(--body);">
+                    <div class="pos-summary-row" style="margin-bottom: 2px;">
                         <span>Jumlah Barang</span>
                         <strong id="pos-total-items" style="color: var(--ink);">0 Barang</strong>
                     </div>
-                    <div class="pos-summary-row">
+                    <div class="pos-summary-row" style="margin-bottom: 2px;">
                         <span>Potongan Member</span>
                         <strong id="pos-total-discount" style="color: var(--success); font-weight: 700;">- Rp 0</strong>
                     </div>
-                    <div class="pos-summary-total">
+                    <div class="pos-summary-total" style="padding-top: 6px; margin-top: 4px; border-top: 1px dashed var(--hairline);">
                         <span>Total Bayar</span>
-                        <strong style="font-size: 20px; color: var(--primary); line-height: 1;" id="pos-total-pay">Rp 0</strong>
+                        <strong style="font-size: 18px; color: var(--primary); line-height: 1;" id="pos-total-pay" data-value="0">Rp 0</strong>
                     </div>
                 </div>
 
                 <!-- Tunai & Kembalian Terminal Card -->
-                <div style="background: #ffffff; padding: 12px; border-radius: var(--r-md); margin-bottom: 12px; border: 1px solid var(--hairline-soft);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <span style="font-size: 10px; font-weight: 800; color: var(--ink); letter-spacing: 0.5px;">TUNAI DITERIMA</span>
-                        <span style="font-size: 10px; font-weight: 600; color: var(--primary); cursor: pointer; background: var(--primary-light); padding: 2px 8px; border-radius: 100px;" onclick="posFillExactCash()">Uang Pas <span class="kbd-badge" style="font-size: 8px;">F3</span></span>
+                <div style="background: #ffffff; padding: 8px 10px; border-radius: var(--r-md); margin-bottom: 8px; border: 1px solid var(--hairline-soft);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span style="font-size: 9px; font-weight: 800; color: var(--ink); letter-spacing: 0.5px;">TUNAI DITERIMA</span>
+                        <span style="font-size: 9px; font-weight: 600; color: var(--primary); cursor: pointer; background: var(--primary-light); padding: 1px 6px; border-radius: 100px;" onclick="posFillExactCash()">Uang Pas <span class="kbd-badge" style="font-size: 7px;">F3</span></span>
                     </div>
                     
                     <!-- Quick Cash Denominations panel -->
-                    <div class="denom-btn-group">
-                        <button type="button" class="denom-btn" onclick="posFillCash(10000)">10K</button>
-                        <button type="button" class="denom-btn" onclick="posFillCash(20000)">20K</button>
-                        <button type="button" class="denom-btn" onclick="posFillCash(50000)">50K</button>
-                        <button type="button" class="denom-btn" onclick="posFillCash(100000)">100K</button>
-                        <button type="button" class="denom-btn" onclick="posFillExactCash()">Exact</button>
+                    <div class="denom-btn-group" style="margin-bottom: 6px; gap: 4px; display: grid; grid-template-columns: repeat(5, 1fr);">
+                        <button type="button" class="denom-btn" onclick="posFillCash(10000)" style="padding: 4px 0; font-size: 10px; border-radius: var(--r-xs);">10K</button>
+                        <button type="button" class="denom-btn" onclick="posFillCash(20000)" style="padding: 4px 0; font-size: 10px; border-radius: var(--r-xs);">20K</button>
+                        <button type="button" class="denom-btn" onclick="posFillCash(50000)" style="padding: 4px 0; font-size: 10px; border-radius: var(--r-xs);">50K</button>
+                        <button type="button" class="denom-btn" onclick="posFillCash(100000)" style="padding: 4px 0; font-size: 10px; border-radius: var(--r-xs);">100K</button>
+                        <button type="button" class="denom-btn" onclick="posFillExactCash()" style="padding: 4px 0; font-size: 10px; border-radius: var(--r-xs);">Exact</button>
                     </div>
 
-                    <input type="number" id="pos-cash-received" class="text-input" placeholder="Rp 0" oninput="calculatePOSChange()" style="height: 38px; font-weight: 800; font-size: 16px; color: var(--ink); text-align: right; background: var(--surface-soft);">
+                    <input type="number" id="pos-cash-received" class="text-input" placeholder="Rp 0" oninput="calculatePOSChange()" style="height: 32px; font-weight: 800; font-size: 14px; color: var(--ink); text-align: right; background: var(--surface-soft); padding: 0 10px; width: 100%; box-sizing: border-box;">
                     
-                    <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 13px; font-weight: 700; border-top: 1px dashed var(--hairline-soft); padding-top: 6px;">
-                        <span style="color: var(--muted); font-size: 11px;">KEMBALIAN</span>
-                        <strong id="pos-cash-change" style="color: var(--success); font-size: 16px;">Rp 0</strong>
+                    <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 12px; font-weight: 700; border-top: 1px dashed var(--hairline-soft); padding-top: 4px;">
+                        <span style="color: var(--muted); font-size: 10px;">KEMBALIAN</span>
+                        <strong id="pos-cash-change" style="color: var(--success); font-size: 14px;">Rp 0</strong>
                     </div>
                 </div>
 
-                <button class="button-primary btn-full" id="btn-pos-checkout" onclick="submitPOSCheckout()" style="height: 44px; border-radius: 100px; font-weight: 800; font-size: 14px; width: 100%; border: none;" disabled>
-                    Selesaikan Bayar <span class="kbd-badge" style="font-size: 9px; color: white; background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.25);">F2</span>
+                <button class="button-primary btn-full" id="btn-pos-checkout" onclick="submitPOSCheckout()" style="height: 38px; border-radius: 100px; font-weight: 800; font-size: 13px; width: 100%; border: none;" disabled>
+                    Selesaikan Bayar <span class="kbd-badge" style="font-size: 8px; color: white; background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.25);">F2</span>
                 </button>
             </div>
         </div>
@@ -888,7 +889,9 @@
 
         const keys = Object.keys(posCart);
         if (keys.length === 0) {
-            list.appendChild(emptyMsg);
+            emptyMsg.style.display = 'block';
+            list.style.display = 'none';
+            
             countBadge.textContent = '0 Barang';
             discBadge.textContent = '- Rp 0';
             payBadge.textContent = 'Rp 0';
@@ -898,6 +901,9 @@
             calculatePOSChange();
             return;
         }
+
+        emptyMsg.style.display = 'none';
+        list.style.display = 'flex';
 
         let totalItems = 0;
         let totalGross = 0;
@@ -914,22 +920,30 @@
 
             const row = document.createElement('div');
             row.className = 'pos-cart-row';
+            row.style.cssText = 'padding: 10px;';
             row.innerHTML = `
-                <div style="flex: 1; min-width: 0;">
-                    <div style="font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink);">${item.name}</div>
-                    <div style="font-size: 11px; color: var(--muted); margin-top: 2px;">
-                        Rp ${price.toLocaleString('id-ID')} / ${item.unit}
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; width: 100%;">
+                    <!-- Top row: Product Name & Delete Button -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; width: 100%;">
+                        <div style="font-size: 13px; font-weight: 700; color: var(--ink); word-break: break-word; line-height: 1.3;" title="${item.name}">${item.name}</div>
+                        <button onclick="removePCItem(${item.id})" style="border: none; background: none; color: var(--muted); font-weight: bold; cursor: pointer; padding: 2px 6px; font-size: 14px; line-height: 1; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--muted)'" title="Hapus">✕</button>
+                    </div>
+                    
+                    <!-- Bottom row: Price detail, Qty controllers, and Subtotal -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; margin-top: 2px;">
+                        <div style="font-size: 11px; color: var(--muted); min-width: 90px; white-space: nowrap;">
+                            Rp ${price.toLocaleString('id-ID')} / ${item.unit}
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 3px;">
+                            <button class="qty-btn" onclick="adjustPCQty(${item.id}, -1)">-</button>
+                            <input type="number" class="qty-input" value="${item.quantity}" min="1" max="${item.maxStock}" onchange="updatePCQtyDirect(${item.id}, this.value)" onkeydown="preventCartEnterSubmit(event)">
+                            <button class="qty-btn" onclick="adjustPCQty(${item.id}, 1)">+</button>
+                        </div>
+                        <div style="font-weight: 800; font-size: 13px; color: var(--ink); text-align: right; min-width: 80px;">
+                            Rp ${subtotal.toLocaleString('id-ID')}
+                        </div>
                     </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 4px;">
-                    <button class="qty-btn" onclick="adjustPCQty(${item.id}, -1)">-</button>
-                    <input type="number" class="qty-input" value="${item.quantity}" min="1" max="${item.maxStock}" onchange="updatePCQtyDirect(${item.id}, this.value)" onkeydown="preventCartEnterSubmit(event)">
-                    <button class="qty-btn" onclick="adjustPCQty(${item.id}, 1)">+</button>
-                </div>
-                <div style="font-weight: 800; font-size: 13px; min-width: 80px; text-align: right; color: var(--ink);">
-                    Rp ${subtotal.toLocaleString('id-ID')}
-                </div>
-                <button onclick="removePCItem(${item.id})" style="border: none; background: none; color: var(--primary); font-weight: bold; cursor: pointer; padding: 4px; font-size: 14px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary-dark)'" onmouseout="this.style.color='var(--primary)'" title="Hapus">✕</button>
             `;
             list.appendChild(row);
         });
