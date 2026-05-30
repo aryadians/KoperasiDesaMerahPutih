@@ -1199,14 +1199,49 @@
             aspectRatio: 1.777778
         };
         
+        // Request camera permission first to guarantee full device labels are returned
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    // Stop the temporary permission stream
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    // Retrieve cameras with full labels
+                    loadCamerasList(config);
+                })
+                .catch(err => {
+                    console.warn("User denied camera permission or error: ", err);
+                    // Fallback to direct loading
+                    loadCamerasList(config);
+                });
+        } else {
+            loadCamerasList(config);
+        }
+    }
+
+    function loadCamerasList(config) {
         Html5Qrcode.getCameras().then(devices => {
             if (devices && devices.length > 0) {
                 let cameraId = devices[0].id;
-                // Try to find the back camera or environment camera
+                
+                // For desktop/laptop, prefer built-in webcam if no back camera exists
+                let foundBack = false;
                 for (let device of devices) {
-                    if (device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('environment') || device.label.toLowerCase().includes('belakang')) {
+                    const label = device.label.toLowerCase();
+                    if (label.includes('back') || label.includes('environment') || label.includes('belakang') || label.includes('rear')) {
                         cameraId = device.id;
+                        foundBack = true;
                         break;
+                    }
+                }
+                
+                if (!foundBack) {
+                    for (let device of devices) {
+                        const label = device.label.toLowerCase();
+                        if (label.includes('integrated') || label.includes('webcam') || label.includes('front') || label.includes('depan') || label.includes('camera')) {
+                            cameraId = device.id;
+                            break;
+                        }
                     }
                 }
                 
