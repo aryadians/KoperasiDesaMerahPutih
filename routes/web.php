@@ -116,6 +116,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/loans/payment', [StaffController::class, 'recordLoanPayment'])->name('loans.payment');
 
         // Product inventory (Admin)
+        Route::get('/products/export', [StaffController::class, 'exportProducts'])->name('products.export');
+        Route::post('/products/bulk-delete', [StaffController::class, 'bulkDeleteProducts'])->name('products.bulk-delete');
         Route::get('/products', [StaffController::class, 'products'])->name('products');
         Route::post('/products', [StaffController::class, 'storeProduct'])->name('products.store');
         Route::post('/products/{id}/update', [StaffController::class, 'updateProduct'])->name('products.update');

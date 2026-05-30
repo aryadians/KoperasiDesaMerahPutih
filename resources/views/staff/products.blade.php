@@ -4,14 +4,36 @@
 
 @section('content')
 
-<h1 style="font-size: 28px; font-weight: 600; margin-bottom: 24px; color: var(--ink);">Inventaris Gerai Sembako</h1>
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+    <h1 style="font-size: 28px; font-weight: 600; color: var(--ink); margin: 0;">Inventaris Gerai Sembako</h1>
+    <a href="{{ route('staff.products.export') }}" class="btn btn-secondary btn-sm" style="font-weight: 600;" data-no-loading>
+        📥 Export CSV
+    </a>
+</div>
 
 <div class="split-layout">
     
     <!-- Left: Inventory List Table -->
     <div class="main-column">
-        <div class="standard-card" style="padding: 0; overflow: hidden; box-shadow: var(--shadow-sm);">
-            <h3 style="font-size: 18px; font-weight: 600; padding: 20px; border-bottom: 1px solid var(--hairline); color: var(--ink); background: var(--canvas);">Daftar Semua Barang</h3>
+        <div class="card card-flush" style="box-shadow: var(--shadow-sm);">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--hairline); background: var(--surface-md);">
+                <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: var(--ink);">Daftar Semua Barang</h3>
+                
+                <!-- Hidden Bulk Action Bar -->
+                <form id="bulk-action-form" action="{{ route('staff.products.bulk-delete') }}" method="POST" style="display: none;">
+                    @csrf
+                    <input type="hidden" name="ids" id="bulk-ids-input">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 13px; font-weight: 600; color: var(--primary-dark);">
+                            <span id="selected-count">0</span> item terpilih
+                        </span>
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus produk yang dipilih?')">
+                            Hapus Massal
+                        </button>
+                    </div>
+                </form>
+            </div>
             
             @if($products->isEmpty())
                 <div style="padding: 32px; text-align: center; color: var(--muted);">
@@ -22,17 +44,23 @@
                     <table class="clean-table" style="margin-top: 0;">
                         <thead style="background: var(--surface);">
                             <tr>
+                                <th style="width: 40px; text-align: center;">
+                                    <input type="checkbox" id="select-all" onclick="toggleSelectAll(this)" style="cursor: pointer; width: 16px; height: 16px;">
+                                </th>
                                 <th>Produk</th>
                                 <th>Kategori</th>
                                 <th>Harga Anggota</th>
                                 <th>Harga Umum</th>
                                 <th>Stok</th>
-                                <th style="text-align: center; width: 180px;">Aksi</th>
+                                <th style="text-align: center; width: 150px;">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($products as $product)
                                 <tr>
+                                    <td style="text-align: center;">
+                                        <input type="checkbox" class="row-checkbox" value="{{ $product->id }}" onchange="updateBulkActionBar()" style="cursor: pointer; width: 16px; height: 16px;">
+                                    </td>
                                     <td>
                                         <div style="font-weight: 600; color: var(--ink);">{{ $product->name }}</div>
                                         <span style="font-size: 11px; color: var(--muted);">Unit: {{ $product->unit }}</span>
@@ -65,12 +93,6 @@
                                                 onclick="loadEditForm(this)">
                                                 ✏️ Edit
                                             </button>
-                                            <form action="{{ route('staff.products.delete', $product->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?')" style="display: inline;">
-                                                @csrf
-                                                <button type="submit" class="btn btn-danger btn-sm">
-                                                    ✕ Hapus
-                                                </button>
-                                            </form>
                                         </div>
                                     </td>
                                 </tr>
@@ -78,14 +100,44 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Custom Basic Pagination -->
+                @if($products->hasPages())
+                <div style="padding: 16px 20px; border-top: 1px solid var(--hairline); display: flex; justify-content: space-between; align-items: center; background: var(--surface);">
+                    <div style="font-size: 13px; color: var(--muted);">
+                        Menampilkan {{ $products->firstItem() }} - {{ $products->lastItem() }} dari {{ $products->total() }} produk
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        @if($products->onFirstPage())
+                            <span class="btn btn-sm btn-ghost" style="opacity: 0.5; pointer-events: none;">&laquo; Prev</span>
+                        @else
+                            <a href="{{ $products->previousPageUrl() }}" class="btn btn-sm btn-secondary">&laquo; Prev</a>
+                        @endif
+
+                        @if($products->hasMorePages())
+                            <a href="{{ $products->nextPageUrl() }}" class="btn btn-sm btn-secondary">Next &raquo;</a>
+                        @else
+                            <span class="btn btn-sm btn-ghost" style="opacity: 0.5; pointer-events: none;">Next &raquo;</span>
+                        @endif
+                    </div>
+                </div>
+                @endif
             @endif
         </div>
     </div>
 
     <!-- Right: Create/Edit Form Drawer -->
     <div class="sticky-rail">
-        <div class="reservation-card" id="form-panel" style="box-shadow: var(--shadow-md);">
-            <h3 style="font-size: 18px; font-weight: 700; border-bottom: 1px solid var(--hairline); padding-bottom: 16px; margin-bottom: 20px; color: var(--ink);" id="panel-title">📦 Tambah Produk Baru</h3>
+        <div class="card" id="form-panel" style="box-shadow: var(--shadow-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--hairline); padding-bottom: 16px; margin-bottom: 20px;">
+                <h3 style="font-size: 18px; font-weight: 700; color: var(--ink); margin: 0;" id="panel-title">📦 Tambah Produk</h3>
+                
+                <!-- Dynamic Delete Button (Appears only on Edit) -->
+                <form action="" method="POST" id="delete-form" style="display: none;" onsubmit="return confirm('Yakin menghapus produk ini?');">
+                    @csrf
+                    <button type="submit" class="btn btn-danger btn-sm" title="Hapus Produk Ini">🗑️ Hapus</button>
+                </form>
+            </div>
             
             <form action="{{ route('staff.products.store') }}" method="POST" id="product-form">
                 @csrf
@@ -144,7 +196,7 @@
 
                 <button type="submit" class="btn btn-primary btn-full btn-lg" id="form-submit-btn">Simpan Produk</button>
                 <button type="button" class="btn btn-ghost btn-full btn-md" id="form-cancel-btn" style="display: none; margin-top: 10px;" onclick="resetForm()">
-                    Batal Edit
+                    Batal / Form Baru
                 </button>
             </form>
         </div>
@@ -153,11 +205,17 @@
 </div>
 
 <script>
+    // --- Edit Form Logic ---
     function loadEditForm(btn) {
         const product = JSON.parse(btn.getAttribute('data-product'));
-        document.getElementById('panel-title').textContent = '✏️ Edit Produk: ' + product.name;
+        document.getElementById('panel-title').textContent = '✏️ Edit: ' + product.name.substring(0, 15) + '...';
         document.getElementById('form-submit-btn').textContent = 'Perbarui Produk';
         document.getElementById('form-cancel-btn').style.display = 'inline-flex';
+        
+        // Show delete button
+        const deleteForm = document.getElementById('delete-form');
+        deleteForm.action = `/staff/products/${product.id}/delete`;
+        deleteForm.style.display = 'block';
         
         const form = document.getElementById('product-form');
         form.action = `/staff/products/${product.id}/update`;
@@ -178,13 +236,39 @@
     }
     
     function resetForm() {
-        document.getElementById('panel-title').textContent = '📦 Tambah Produk Baru';
+        document.getElementById('panel-title').textContent = '📦 Tambah Produk';
         document.getElementById('form-submit-btn').textContent = 'Simpan Produk';
         document.getElementById('form-cancel-btn').style.display = 'none';
+        document.getElementById('delete-form').style.display = 'none';
         
         const form = document.getElementById('product-form');
         form.action = "{{ route('staff.products.store') }}";
         form.reset();
+    }
+
+    // --- Bulk Selection Logic ---
+    function toggleSelectAll(masterCb) {
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(cb => cb.checked = masterCb.checked);
+        updateBulkActionBar();
+    }
+
+    function updateBulkActionBar() {
+        const checked = document.querySelectorAll('.row-checkbox:checked');
+        const count = checked.length;
+        const bulkBar = document.getElementById('bulk-action-form');
+        
+        if (count > 0) {
+            bulkBar.style.display = 'flex';
+            document.getElementById('selected-count').textContent = count;
+            
+            // Build comma-separated IDs
+            const ids = Array.from(checked).map(cb => cb.value).join(',');
+            document.getElementById('bulk-ids-input').value = ids;
+        } else {
+            bulkBar.style.display = 'none';
+            document.getElementById('select-all').checked = false;
+        }
     }
 </script>
 @endsection

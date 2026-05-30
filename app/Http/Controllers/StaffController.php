@@ -163,9 +163,42 @@ class StaffController extends Controller
      */
     public function products()
     {
-        $products = Product::with('category')->get();
+        // Added pagination for performance and "Pro" UI
+        $products = Product::with('category')->latest()->paginate(10);
         $categories = Category::all();
         return view('staff.products', compact('products', 'categories'));
+    }
+
+    public function exportProducts()
+    {
+        $products = Product::with('category')->latest()->get();
+        $csvData = "ID,Nama Produk,Kategori,Harga Anggota,Harga Umum,Stok,Unit,Komoditas Lokal\n";
+        
+        foreach($products as $p) {
+            $name = str_replace('"', '""', $p->name);
+            $category = $p->category ? str_replace('"', '""', $p->category->name) : '';
+            $isLocal = $p->is_local_product ? 'Ya' : 'Tidak';
+            $csvData .= "{$p->id},\"{$name}\",\"{$category}\",{$p->price_member},{$p->price_non_member},{$p->current_stock},{$p->unit},{$isLocal}\n";
+        }
+        
+        return response($csvData)
+            ->header('Content-Type', 'text/csv')
+            ->header('Content-Disposition', 'attachment; filename="inventaris_kdkmp_' . date('Ymd_Hi') . '.csv"');
+    }
+
+    public function bulkDeleteProducts(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|string'
+        ]);
+
+        $ids = explode(',', $request->ids);
+        if (count($ids) > 0) {
+            Product::whereIn('id', $ids)->delete();
+            return back()->with('success', count($ids) . ' produk berhasil dihapus secara massal.');
+        }
+
+        return back()->with('error', 'Tidak ada produk yang dipilih.');
     }
 
     public function storeProduct(Request $request)
