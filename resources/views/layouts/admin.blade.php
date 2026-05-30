@@ -48,10 +48,10 @@
             left: 0;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             z-index: 1000;
             transition: transform var(--t-base) var(--ease-out);
             box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
+            overflow: hidden; /* Prevent sidebar itself from overflowing */
         }
 
         /* Sidebar Brand & Logo */
