@@ -36,23 +36,22 @@
         .ambient-glow {
             display: none;
         }
-
-        /* Sidebar Container */
-        .admin-sidebar {
-            width: var(--sidebar-width);
-            height: 100vh;
-            background: var(--sidebar-bg);
-            border-right: 1px solid var(--sidebar-border);
-            position: fixed;
-            top: 0;
-            left: 0;
-            display: flex;
-            flex-direction: column;
-            z-index: 1000;
-            transition: transform var(--t-base) var(--ease-out);
-            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
-            overflow: hidden; /* Prevent sidebar itself from overflowing */
-        }
+/* Sidebar Container */
+.admin-sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transition: transform var(--t-base) var(--ease-out);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+    flex: 0 0 var(--sidebar-width);
+}
 
         /* Sidebar Brand & Logo */
         .sidebar-brand {
@@ -316,7 +315,6 @@
         /* Right Side Content Frame */
         .admin-main {
             flex: 1;
-            margin-left: var(--sidebar-width);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
