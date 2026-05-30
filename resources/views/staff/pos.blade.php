@@ -448,9 +448,14 @@
         <!-- Search bar panel -->
         <div class="pos-search-panel">
             <div style="display: flex; gap: 12px; align-items: center; width: 100%;">
-                <div style="flex: 1; position: relative;">
-                    <svg style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--muted);" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <input type="text" id="pos-search" class="text-input" placeholder="Scan Barcode / Cari nama barang (Tekan F1)" oninput="filterPOSProducts()" onkeydown="handleBarcodeScan(event)" style="height: 46px; padding-left: 44px; font-weight: 600; font-size: 14px;" autofocus autocomplete="off">
+                <div style="flex: 1; position: relative; display: flex; gap: 8px;">
+                    <div style="flex: 1; position: relative;">
+                        <svg style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--muted);" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="pos-search" class="text-input" placeholder="Scan Barcode / Cari nama barang (Tekan F1)" oninput="filterPOSProducts()" onkeydown="handleBarcodeScan(event)" style="height: 46px; padding-left: 44px; font-weight: 600; font-size: 14px;" autofocus autocomplete="off">
+                    </div>
+                    <button type="button" class="btn btn-secondary" onclick="openCameraScanner()" style="height: 46px; width: 46px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: var(--r-md);" title="Scan Barcode menggunakan Kamera">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                    </button>
                 </div>
                 <select id="pos-category" class="text-input" onchange="filterPOSProducts()" style="height: 46px; width: 200px; font-weight: 500; font-size: 14px; padding: 0 12px;">
                     <option value="">Semua Kategori</option>
@@ -668,6 +673,31 @@
     }
 </style>
 
+<!-- ============================================================
+     Kamera Webcam Barcode Scanner Modal (Overlay)
+     ============================================================ -->
+<div class="swal-overlay" id="pos-camera-overlay">
+    <div class="swal-modal" style="max-width: 450px; text-align: center; padding: 20px; border-radius: var(--r-md); background: white;" id="pos-camera-box">
+        <h3 style="font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span>📷</span> Scan Barcode Kamera
+        </h3>
+        
+        <!-- Video Stream Container -->
+        <div id="camera-reader" style="width: 100%; height: auto; border-radius: var(--r-sm); overflow: hidden; background: #000; border: 1.5px solid var(--hairline); box-shadow: var(--shadow-sm);"></div>
+        
+        <!-- Camera selection dropdown -->
+        <div style="margin-top: 14px; text-align: left;">
+            <label class="field-label" style="font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 4px; display: block;">PILIH KAMERA</label>
+            <select id="camera-select" class="text-input" onchange="changeCamera(this.value)" style="height: 38px; font-size: 13px; padding: 0 10px;"></select>
+        </div>
+        
+        <div style="margin-top: 18px; display: flex; gap: 8px;">
+            <button class="btn btn-secondary btn-full" onclick="closeCameraScanner()" style="flex: 1; height: 38px; font-size: 13px; border-radius: var(--r-sm);">Tutup (ESC)</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
 <script>
     let posCart = {}; // key: productId, value: { id, name, unit, memberPrice, guestPrice, quantity, maxStock }
     let selectedMember = null; // { name, nomor_anggota, nik }
@@ -1150,5 +1180,119 @@
                 }
             }
         });
+
+    // ============================================================
+    // WEBCAM CAMERA BARCODE SCANNER ENGINE
+    // ============================================================
+    let html5QrCode = null;
+
+    function openCameraScanner() {
+        document.getElementById('pos-camera-overlay').classList.add('active');
+        
+        if (!html5QrCode) {
+            html5QrCode = new Html5Qrcode("camera-reader");
+        }
+        
+        const config = { 
+            fps: 10, 
+            qrbox: { width: 250, height: 150 }, // wide box for barcode shape
+            aspectRatio: 1.777778
+        };
+        
+        Html5Qrcode.getCameras().then(devices => {
+            if (devices && devices.length > 0) {
+                let cameraId = devices[0].id;
+                // Try to find the back camera or environment camera
+                for (let device of devices) {
+                    if (device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('environment') || device.label.toLowerCase().includes('belakang')) {
+                        cameraId = device.id;
+                        break;
+                    }
+                }
+                
+                // Populate cameras dropdown selector
+                const selector = document.getElementById('camera-select');
+                selector.innerHTML = '';
+                devices.forEach(device => {
+                    const opt = document.createElement('option');
+                    opt.value = device.id;
+                    opt.text = device.label || `Kamera ${selector.length + 1}`;
+                    if (device.id === cameraId) opt.selected = true;
+                    selector.appendChild(opt);
+                });
+                
+                // Start scanning
+                startScanningWithId(cameraId, config);
+            } else {
+                window.showSweetAlert('Kamera Tidak Terdeteksi', 'Tidak ada perangkat kamera yang terhubung.', 'error');
+                closeCameraScanner();
+            }
+        }).catch(err => {
+            console.error("Gagal mendeteksi kamera", err);
+            window.showSweetAlert('Error Deteksi Kamera', 'Gagal mengakses izin perangkat kamera.', 'error');
+            closeCameraScanner();
+        });
+    }
+
+    function startScanningWithId(cameraId, config) {
+        html5QrCode.start(
+            cameraId, 
+            config,
+            (decodedText, decodedResult) => {
+                playBeep(); // Audio feedback
+                
+                const searchInput = document.getElementById('pos-search');
+                searchInput.value = decodedText;
+                
+                closeCameraScanner();
+                
+                // Trigger barcode lookup
+                handleBarcodeScan({
+                    key: 'Enter',
+                    preventDefault: () => {},
+                    target: searchInput
+                });
+            },
+            (errorMessage) => {
+                // Ignore scanner error frames to prevent console flood
+            }
+        ).catch(err => {
+            console.error("Gagal memutar kamera", err);
+            window.showSweetAlert('Gagal Mengakses Kamera', 'Izin kamera ditolak atau sedang aktif di aplikasi lain.', 'error');
+            closeCameraScanner();
+        });
+    }
+
+    function changeCamera(cameraId) {
+        if (html5QrCode && html5QrCode.isScanning) {
+            html5QrCode.stop().then(() => {
+                const config = { 
+                    fps: 10, 
+                    qrbox: { width: 250, height: 150 },
+                    aspectRatio: 1.777778
+                };
+                startScanningWithId(cameraId, config);
+            });
+        }
+    }
+
+    function closeCameraScanner() {
+        document.getElementById('pos-camera-overlay').classList.remove('active');
+        if (html5QrCode && html5QrCode.isScanning) {
+            html5QrCode.stop().catch(err => console.error("Gagal menghentikan kamera", err));
+        }
+        
+        // Re-focus scanner search input
+        setTimeout(() => {
+            document.getElementById('pos-search').focus();
+        }, 150);
+    }
+
+    // Escape key listener for closing camera modal
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            closeCameraScanner();
+        }
+    });
 </script>
 @endsection
