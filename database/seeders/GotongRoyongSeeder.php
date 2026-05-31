@@ -53,6 +53,7 @@ class GotongRoyongSeeder extends Seeder
             'tanggal_bergabung' => '2026-05-31',
             'total_poin' => 150,
             'status_aktif' => true,
+            'no_hp' => '081234567892',
         ]);
 
         // 3. Seed savings for Gatot so he has balance to purchase/test

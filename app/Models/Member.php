@@ -21,6 +21,7 @@ class Member extends Model
         'total_poin',
         'status_aktif',
         'ktp_image',
+        'no_hp',
     ];
 
     protected $casts = [

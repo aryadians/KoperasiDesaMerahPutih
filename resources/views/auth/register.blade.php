@@ -85,6 +85,11 @@
             </div>
 
             <div class="form-group" style="margin: 0;">
+                <label for="no_hp" style="font-weight: 600; font-size: 13px; margin-bottom: 6px; color: var(--ink);">No. WhatsApp</label>
+                <input type="text" name="no_hp" id="no_hp" class="text-input" placeholder="Contoh: 081234567890" value="{{ old('no_hp') }}" required style="height: 48px; font-size: 14px;">
+            </div>
+
+            <div class="form-group" style="margin: 0;">
                 <label for="branch_id" style="font-weight: 600; font-size: 13px; margin-bottom: 6px; color: var(--ink);">Desa Keanggotaan</label>
                 <div style="position: relative; display: flex; align-items: center;">
                     <select name="branch_id" id="branch_id" class="form-select" required style="appearance: none; -webkit-appearance: none; width: 100%; height: 48px; padding: 0 32px 0 14px; border: 1.5px solid var(--hairline); border-radius: 12px; background: var(--canvas); font-size: 14px; color: var(--ink); cursor: pointer; outline: none;">

@@ -190,6 +190,7 @@
                                             <div style="font-size: 12px; line-height: 1.5;">
                                                 <div><strong>NIK:</strong> <span style="font-family: monospace; font-size: 12px;">{{ $user->member->nik }}</span></div>
                                                 <div><strong>No:</strong> <span style="font-weight: 600; color: var(--primary);">{{ $user->member->nomor_anggota }}</span></div>
+                                                <div><strong>WhatsApp:</strong> <span style="color: var(--success); font-weight: 600;">{{ $user->member->no_hp ?? '-' }}</span></div>
                                                 <div style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted);" title="{{ $user->member->alamat_desa }}"><strong>Desa:</strong> {{ $user->member->alamat_desa }}</div>
                                                 <div style="font-size: 11px; color: var(--muted); margin-top: 4px;">🎯 Poin: <strong>{{ $user->member->total_poin }}</strong> | Bergabung: {{ $user->member->tanggal_bergabung->format('Y-m-d') }}</div>
                                             </div>
@@ -317,6 +318,12 @@
                         <input type="text" name="nik" id="form-nik" class="text-input" placeholder="3201xxxxxxxxxxxx" maxlength="16" minlength="16">
                     </div>
 
+                    <!-- No. WhatsApp -->
+                    <div class="form-group" style="margin: 0;">
+                        <label for="form-no-hp">No. WhatsApp</label>
+                        <input type="text" name="no_hp" id="form-no-hp" class="text-input" placeholder="Contoh: 081234567890">
+                    </div>
+
                     <!-- Alamat Desa -->
                     <div class="form-group" style="margin: 0;">
                         <label for="form-alamat">Alamat Lengkap Desa</label>
@@ -369,15 +376,18 @@
         const container = document.getElementById('anggota-fields-container');
         const nikInput = document.getElementById('form-nik');
         const alamatInput = document.getElementById('form-alamat');
+        const noHpInput = document.getElementById('form-no-hp');
         
         if (role === 'anggota') {
             container.style.display = 'flex';
             nikInput.required = true;
             alamatInput.required = true;
+            noHpInput.required = true;
         } else {
             container.style.display = 'none';
             nikInput.required = false;
             alamatInput.required = false;
+            noHpInput.required = false;
         }
     }
 
@@ -463,6 +473,7 @@
         if (user.role === 'anggota' && member) {
             document.getElementById('form-nik').value = member.nik;
             document.getElementById('form-alamat').value = member.alamat_desa;
+            document.getElementById('form-no-hp').value = member.no_hp || '';
             
             const ktpImage = member.ktp_image || '';
             document.getElementById('form-ktp-image').value = ktpImage;
@@ -479,6 +490,7 @@
         } else {
             document.getElementById('form-nik').value = '';
             document.getElementById('form-alamat').value = '';
+            document.getElementById('form-no-hp').value = '';
             clearKtpPreview();
         }
         

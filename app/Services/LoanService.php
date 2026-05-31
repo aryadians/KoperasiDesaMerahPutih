@@ -93,6 +93,19 @@ class LoanService
             $loan->status = $status;
             $loan->save();
 
+            // Send notification for approved or active statuses
+            if (in_array($status, ['approved', 'active'])) {
+                $loan->load('member.user');
+                $notificationService = resolve(\App\Services\NotificationService::class);
+                
+                $title = $status === 'approved' ? '💸 Pengajuan Pinjaman Disetujui' : '💰 Pinjaman Dicairkan';
+                $message = $status === 'approved' 
+                    ? "Pengajuan pinjaman Anda ({$loan->loan_code}) telah disetujui sebesar Rp " . number_format($loan->amount_approved, 0, ',', '.') . " dengan tenor {$loan->tenor_months} bulan."
+                    : "Dana pinjaman Anda ({$loan->loan_code}) sebesar Rp " . number_format($loan->amount_approved, 0, ',', '.') . " telah dicairkan ke rekening Anda. Silakan cek saldo Anda.";
+
+                $notificationService->sendMemberNotification($loan->member, $title, $message);
+            }
+
             return $loan;
         });
     }

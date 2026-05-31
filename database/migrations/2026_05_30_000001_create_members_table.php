@@ -20,6 +20,7 @@ return new class extends Migration
             $table->date('tanggal_bergabung');
             $table->integer('total_poin')->default(0);
             $table->boolean('status_aktif')->default(true);
+            $table->string('no_hp')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

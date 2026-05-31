@@ -42,6 +42,8 @@ class RunAutodebet extends Command
             
             $this->info("Nominal Iuran Wajib: Rp " . number_format($amount, 0, ',', '.'));
 
+            $successMembers = [];
+
             DB::beginTransaction();
             foreach ($members as $member) {
                 // Check current sukarela balance
@@ -67,6 +69,7 @@ class RunAutodebet extends Command
                     );
 
                     $successCount++;
+                    $successMembers[] = $member;
                     $this->line(" - Member ID {$member->id}: Sukses");
                 } else {
                     $failCount++;
@@ -74,6 +77,16 @@ class RunAutodebet extends Command
                 }
             }
             DB::commit();
+
+            // Dispatch WhatsApp notifications
+            $notificationService = resolve(\App\Services\NotificationService::class);
+            foreach ($successMembers as $sMember) {
+                /** @var \App\Models\Member $sMember */
+                $sMember->load('user');
+                $title = '💸 Autodebet Iuran Bulanan';
+                $message = "Autodebet iuran wajib bulanan sebesar Rp " . number_format($amount, 0, ',', '.') . " dari saldo Simpanan Sukarela Anda telah berhasil diproses. Terima kasih.";
+                $notificationService->sendMemberNotification($sMember, $title, $message);
+            }
 
             $this->info("Autodebet selesai! Sukses: {$successCount}, Gagal: {$failCount}.");
             return Command::SUCCESS;

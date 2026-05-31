@@ -52,6 +52,7 @@ class AuthController extends Controller
             'nik' => 'required|string|size:16|unique:members',
             'alamat_desa' => 'required|string',
             'branch_id' => 'required|exists:branches,id',
+            'no_hp' => 'required|string|max:20',
         ]);
 
         try {
@@ -78,6 +79,7 @@ class AuthController extends Controller
                     'tanggal_bergabung' => date('Y-m-d'),
                     'total_poin' => 0,
                     'status_aktif' => true,
+                    'no_hp' => $request->no_hp,
                 ]);
 
                 // Automatically deposit Simpanan Pokok (compulsory joining fee) if needed, 

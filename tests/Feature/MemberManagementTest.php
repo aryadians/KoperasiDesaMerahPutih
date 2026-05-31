@@ -81,6 +81,7 @@ class MemberManagementTest extends TestCase
             'nik' => '1234567890123456',
             'alamat_desa' => 'Desa Merah RT 01 RW 02',
             'ktp_image' => 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            'no_hp' => '081234567890',
         ]);
 
         $response->assertRedirect(route('staff.members'));
@@ -150,6 +151,7 @@ class MemberManagementTest extends TestCase
             'status' => 'inactive',
             'nik' => '2222222222222222',
             'alamat_desa' => 'New Address',
+            'no_hp' => '081234567890',
         ]);
 
         $response->assertRedirect(route('staff.members'));

@@ -132,10 +132,14 @@ class CropAbsorptionService
                 }
                 $smsMessage .= "Sisa bersih Rp " . number_format($netPayout, 0, ',', '.') . " disetor ke Saldo Sukarela Anda.";
 
-                session()->flash('sms_notification', [
-                    'title' => $smsTitle,
-                    'message' => $smsMessage
-                ]);
+                // Send WhatsApp notification using NotificationService
+                $absorption->load('member.user');
+                $notificationService = resolve(\App\Services\NotificationService::class);
+                $notificationService->sendMemberNotification(
+                    $absorption->member,
+                    $smsTitle,
+                    $smsMessage
+                );
             } else {
                 $absorption->save();
             }

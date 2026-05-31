@@ -316,6 +316,7 @@ class DatabaseSeeder extends Seeder
             'tanggal_bergabung' => '2026-01-15',
             'total_poin' => 450, // Has points for SHU testing!
             'status_aktif' => true,
+            'no_hp' => '081234567890',
         ]);
 
         // Member 2
@@ -334,6 +335,7 @@ class DatabaseSeeder extends Seeder
             'tanggal_bergabung' => '2026-02-20',
             'total_poin' => 250, // Has points for SHU testing!
             'status_aktif' => true,
+            'no_hp' => '081234567891',
         ]);
 
         // 5. Seed initial Savings for Members

@@ -554,6 +554,7 @@ class StaffController extends Controller
             $successCount = 0;
             $failCount = 0;
             $amount = (float) (SystemConfig::where('key', 'IURAN_WAJIB_NOMINAL')->first()->value ?? 50000.00);
+            $successMembers = [];
 
             DB::beginTransaction();
             foreach ($members as $member) {
@@ -580,11 +581,22 @@ class StaffController extends Controller
                     );
 
                     $successCount++;
+                    $successMembers[] = $member;
                 } else {
                     $failCount++;
                 }
             }
             DB::commit();
+
+            // Dispatch WhatsApp notifications
+            $notificationService = resolve(\App\Services\NotificationService::class);
+            foreach ($successMembers as $sMember) {
+                /** @var \App\Models\Member $sMember */
+                $sMember->load('user');
+                $title = '💸 Autodebet Iuran Bulanan';
+                $message = "Autodebet iuran wajib bulanan sebesar Rp " . number_format($amount, 0, ',', '.') . " dari saldo Simpanan Sukarela Anda telah berhasil diproses. Terima kasih.";
+                $notificationService->sendMemberNotification($sMember, $title, $message);
+            }
 
             return back()->with('success', "Autodebet berhasil diproses! Sukses: {$successCount} Anggota, Gagal (saldo tidak cukup): {$failCount} Anggota.");
         } catch (Exception $e) {
@@ -763,6 +775,7 @@ class StaffController extends Controller
             'nik' => 'required_if:role,anggota|nullable|string|size:16|unique:members,nik',
             'alamat_desa' => 'required_if:role,anggota|nullable|string',
             'ktp_image' => 'nullable|string',
+            'no_hp' => 'required_if:role,anggota|nullable|string|max:20',
         ], [
             'email.unique' => 'Alamat email sudah terdaftar.',
             'nik.unique' => 'NIK sudah terdaftar.',
@@ -794,6 +807,7 @@ class StaffController extends Controller
                         'total_poin' => 0,
                         'status_aktif' => $request->status === 'active',
                         'ktp_image' => $request->ktp_image,
+                        'no_hp' => $request->no_hp,
                     ]);
                 }
             });
@@ -823,6 +837,7 @@ class StaffController extends Controller
             'nik' => 'required_if:role,anggota|nullable|string|size:16|unique:members,nik,' . ($user->member->id ?? 0),
             'alamat_desa' => 'required_if:role,anggota|nullable|string',
             'ktp_image' => 'nullable|string',
+            'no_hp' => 'required_if:role,anggota|nullable|string|max:20',
         ], [
             'email.unique' => 'Alamat email sudah terdaftar.',
             'nik.unique' => 'NIK sudah terdaftar.',
@@ -846,6 +861,7 @@ class StaffController extends Controller
                         'nik' => $request->nik,
                         'alamat_desa' => $request->alamat_desa,
                         'status_aktif' => $request->status === 'active',
+                        'no_hp' => $request->no_hp,
                     ];
                     if ($request->filled('ktp_image')) {
                         $memberData['ktp_image'] = $request->ktp_image;
