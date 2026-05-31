@@ -17,8 +17,11 @@ class PurchaseOrderController extends Controller
      */
     public function index()
     {
-        $purchaseOrders = PurchaseOrder::with('product')->latest()->get();
-        $products = Product::all();
+        $branchId = auth()->user()->branch_id;
+        $purchaseOrders = PurchaseOrder::whereHas('product', function($q) use ($branchId) {
+            $q->where('branch_id', $branchId);
+        })->with('product')->latest()->get();
+        $products = Product::where('branch_id', $branchId)->get();
         $categories = Category::all();
 
         return view('staff.purchase_orders', compact('purchaseOrders', 'products', 'categories'));
@@ -37,6 +40,9 @@ class PurchaseOrderController extends Controller
 
         try {
             $product = Product::findOrFail($request->product_id);
+            if ($product->branch_id !== auth()->user()->branch_id) {
+                abort(403, 'Unauthorized branch action');
+            }
             $poNumber = 'PO-' . strtoupper(uniqid());
 
             PurchaseOrder::create([
@@ -68,7 +74,10 @@ class PurchaseOrderController extends Controller
         try {
             DB::beginTransaction();
 
-            $po = PurchaseOrder::findOrFail($id);
+            $po = PurchaseOrder::with('product')->findOrFail($id);
+            if ($po->product->branch_id !== auth()->user()->branch_id) {
+                abort(403, 'Unauthorized branch action');
+            }
 
             if ($po->status === 'received') {
                 throw new Exception("Purchase Order ini sudah diterima sebelumnya.");
