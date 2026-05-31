@@ -4,7 +4,13 @@
 
 @section('content')
 
-<h1 style="font-size: 28px; font-weight: 600; margin-bottom: 24px; color: var(--ink);">Kelola Semua Pesanan Gerai</h1>
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
+    <h1 style="font-size: 28px; font-weight: 600; margin-bottom: 24px; color: var(--ink);">Kelola Semua Pesanan Gerai</h1>
+    <div style="display: flex; gap: 8px;">
+        <button onclick="exportOrders('csv')" class="btn btn-secondary btn-sm">📥 Export CSV</button>
+        <button onclick="exportOrders('pdf')" class="btn btn-secondary btn-sm">📄 Export PDF</button>
+    </div>
+</div>
 
 <div class="standard-card" style="padding: 0; overflow: hidden; box-shadow: var(--shadow-sm);">
     @if($orders->isEmpty())
@@ -12,10 +18,14 @@
             Belum ada pesanan belanja masuk dari warga.
         </div>
     @else
+        <div style="padding: 20px; background: var(--surface-md); display: flex; align-items: center; gap: 12px; display: none;" id="bulk-action-bar">
+            <span style="font-size: 13px; font-weight: 600;" id="selected-count">0</span> item terpilih
+        </div>
         <div class="clean-table-container">
             <table class="clean-table" style="margin-top: 0;">
                 <thead style="background: var(--surface);">
                     <tr>
+                        <th style="width: 40px;"><input type="checkbox" id="select-all" onclick="toggleSelectAll(this)"></th>
                         <th>Nomor Pesanan</th>
                         <th>Warga / Anggota</th>
                         <th>Tanggal Pesan</th>
@@ -28,6 +38,7 @@
                 <tbody>
                     @foreach($orders as $order)
                         <tr>
+                            <td><input type="checkbox" class="row-checkbox" value="{{ $order->id }}" onchange="updateBulkActionBar()"></td>
                             <td style="font-weight: 700; color: var(--ink);">{{ $order->order_number }}</td>
                             <td>
                                 <div style="font-weight: 600; color: var(--ink);">{{ $order->user->name }}</div>
@@ -77,4 +88,26 @@
         </div>
     @endif
 </div>
+
+<script>
+    function toggleSelectAll(masterCb) {
+        document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = masterCb.checked);
+        updateBulkActionBar();
+    }
+
+    function updateBulkActionBar() {
+        const checked = document.querySelectorAll('.row-checkbox:checked');
+        const bar = document.getElementById('bulk-action-bar');
+        bar.style.display = checked.length > 0 ? 'flex' : 'none';
+        document.getElementById('selected-count').textContent = checked.length;
+    }
+
+    function exportOrders(type) {
+        const checked = document.querySelectorAll('.row-checkbox:checked');
+        const ids = Array.from(checked).map(cb => cb.value).join(',');
+        let url = `{{ route('orders.export') }}?type=${type}`;
+        if (ids) url += `&ids=${ids}`;
+        window.location.href = url;
+    }
+</script>
 @endsection

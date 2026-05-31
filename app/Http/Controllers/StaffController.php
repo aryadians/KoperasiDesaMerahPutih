@@ -70,6 +70,35 @@ class StaffController extends Controller
         ));
     }
 
+    public function exportOrders(Request $request)
+    {
+        $request->validate(['type' => 'required|in:pdf,csv', 'ids' => 'nullable|string']);
+        
+        $query = Order::with('user');
+        if ($request->filled('ids')) {
+            $query->whereIn('id', explode(',', $request->ids));
+        }
+        $orders = $query->latest()->get();
+
+        if ($request->type === 'csv') {
+            $csvData = "Nomor Pesanan,Warga,Tanggal,Pengiriman,Total,Status Bayar\n";
+            foreach($orders as $o) {
+                $csvData .= "{$o->order_number},{$o->user->name},{$o->created_at->format('Y-m-d')},{$o->delivery_type},{$o->total_amount},{$o->payment_status}\n";
+            }
+            return response($csvData)->header('Content-Type', 'text/csv')->header('Content-Disposition', 'attachment; filename="orders_'.date('Ymd').'.csv"');
+        } else {
+            $data = $orders->map(function($o) {
+                return [$o->order_number, $o->user->name, $o->created_at->format('Y-m-d'), $o->delivery_type, number_format($o->total_amount, 0), $o->payment_status];
+            });
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('layouts.report', [
+                'title' => 'Laporan Pesanan Gerai',
+                'headers' => ['No. Pesanan', 'Warga', 'Tanggal', 'Pengiriman', 'Total', 'Status'],
+                'data' => $data
+            ]);
+            return $pdf->download('orders_'.date('Ymd').'.pdf');
+        }
+    }
+
     /**
      * Order management list.
      */
@@ -161,12 +190,29 @@ class StaffController extends Controller
     /**
      * Product Inventory CRUD.
      */
-    public function products()
+    public function products(Request $request)
     {
-        // Added pagination for performance and "Pro" UI
-        $products = Product::with('category')->latest()->paginate(10);
+        $search = $request->input('search');
+        $categoryId = $request->input('category_id');
+
+        $query = Product::with('category')->latest();
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('barcode', 'like', "%{$search}%");
+            });
+        }
+
+        if ($categoryId) {
+            $query->where('category_id', $categoryId);
+        }
+
+        // Paginate products with query parameters appended
+        $products = $query->paginate(10)->withQueryString();
         $categories = Category::all();
-        return view('staff.products', compact('products', 'categories'));
+        
+        return view('staff.products', compact('products', 'categories', 'search', 'categoryId'));
     }
 
     public function exportProducts()
@@ -213,7 +259,7 @@ class StaffController extends Controller
             'current_stock' => 'required|integer|min:0',
             'unit' => 'required|string',
             'is_local_product' => 'nullable|boolean',
-            'image_url' => 'nullable|url|max:2048',
+            'image_url' => 'nullable|string',
         ]);
 
         $product = Product::create([
@@ -247,7 +293,7 @@ class StaffController extends Controller
             'current_stock' => 'required|integer|min:0',
             'unit' => 'required|string',
             'is_local_product' => 'nullable|boolean',
-            'image_url' => 'nullable|url|max:2048',
+            'image_url' => 'nullable|string',
         ]);
 
         $product = Product::findOrFail($id);
@@ -268,6 +314,36 @@ class StaffController extends Controller
         event(new \App\Events\ProductStockUpdated($product));
 
         return back()->with('success', 'Produk berhasil diperbarui.');
+    }
+
+    /**
+     * Update product stock level directly via inline AJAX (Stock Opname).
+     */
+    public function updateProductStockInline(Request $request, $id)
+    {
+        $request->validate([
+            'current_stock' => 'required|integer|min:0',
+        ]);
+
+        try {
+            $product = Product::findOrFail($id);
+            $product->current_stock = $request->current_stock;
+            $product->save();
+
+            // Dispatch real-time event
+            event(new \App\Events\ProductStockUpdated($product));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Stok berhasil diperbarui!',
+                'current_stock' => $product->current_stock,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui stok: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function deleteProduct($id)

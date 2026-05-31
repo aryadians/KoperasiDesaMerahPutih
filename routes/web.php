@@ -102,7 +102,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/purchase-orders', [\App\Http\Controllers\PurchaseOrderController::class, 'store'])->name('purchase-orders.store');
         Route::post('/purchase-orders/{id}/status/{status}', [\App\Http\Controllers\PurchaseOrderController::class, 'updateStatus'])->name('purchase-orders.update-status');
 
-        // Order management (Kasir)
+        // Order management
+        Route::get('/orders/export', [StaffController::class, 'exportOrders'])->name('orders.export');
         Route::get('/orders', [StaffController::class, 'orders'])->name('orders');
         Route::post('/orders/{id}/{status}', [StaffController::class, 'updateOrderStatus'])->name('orders.update');
 
@@ -121,6 +122,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/products', [StaffController::class, 'products'])->name('products');
         Route::post('/products', [StaffController::class, 'storeProduct'])->name('products.store');
         Route::post('/products/{id}/update', [StaffController::class, 'updateProduct'])->name('products.update');
+        Route::post('/products/{id}/update-stock', [StaffController::class, 'updateProductStockInline'])->name('products.update-stock');
         Route::post('/products/{id}/delete', [StaffController::class, 'deleteProduct'])->name('products.delete');
 
         // SHU Dividend Calculator
