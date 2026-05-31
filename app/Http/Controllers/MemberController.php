@@ -197,9 +197,12 @@ class MemberController extends Controller
      */
     public function payOrder($id)
     {
+        // Authorize order belongs to logged in user
+        $order = Order::where('user_id', Auth::id())->findOrFail($id);
+
         try {
-            $this->transactionService->markAsPaid($id);
-            return redirect()->route('orders.show', $id)->with('success', 'Pembayaran pesanan berhasil disimulasikan.');
+            $this->transactionService->markAsPaid($order->id);
+            return redirect()->route('orders.show', $order->id)->with('success', 'Pembayaran pesanan berhasil disimulasikan.');
         } catch (Exception $e) {
             return back()->withErrors(['error' => 'Gagal memproses pembayaran: ' . $e->getMessage()]);
         }
@@ -210,9 +213,12 @@ class MemberController extends Controller
      */
     public function cancelOrder($id)
     {
+        // Authorize order belongs to logged in user
+        $order = Order::where('user_id', Auth::id())->findOrFail($id);
+
         try {
-            $this->transactionService->cancelOrder($id);
-            return redirect()->route('orders.show', $id)->with('success', 'Pesanan berhasil dibatalkan dan stok dikembalikan.');
+            $this->transactionService->cancelOrder($order->id);
+            return redirect()->route('orders.show', $order->id)->with('success', 'Pesanan berhasil dibatalkan dan stok dikembalikan.');
         } catch (Exception $e) {
             return back()->withErrors(['error' => 'Gagal membatalkan pesanan: ' . $e->getMessage()]);
         }
