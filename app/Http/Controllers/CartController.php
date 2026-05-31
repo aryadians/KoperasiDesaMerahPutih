@@ -49,6 +49,19 @@ class CartController extends Controller
         $quantity = $request->quantity;
 
         $product = Product::findOrFail($productId);
+        
+        // Ensure the product belongs to the active branch (BOLA / Multi-tenant isolation check)
+        $activeBranchId = Auth::check() ? Auth::user()->branch_id : session('active_branch_id', 1);
+        if ($product->branch_id != $activeBranchId) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Produk tidak tersedia untuk gerai desa Anda.'
+                ], 403);
+            }
+            return back()->withErrors(['error' => 'Produk tidak tersedia untuk gerai desa Anda.']);
+        }
+
         $cart = session()->get('cart', []);
 
         if (isset($cart[$productId])) {
