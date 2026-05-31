@@ -107,7 +107,7 @@
     /* Custom POS Product Card */
     .pos-prod-card {
         background: #ffffff;
-        border-radius: var(--r-md);
+        border-radius: var(--r-sm);
         border: 1px solid var(--hairline-soft);
         overflow: hidden;
         display: flex;
@@ -116,30 +116,19 @@
         cursor: pointer;
         user-select: none;
         position: relative;
-        height: 220px;
+        height: 180px;
         box-shadow: var(--shadow-sm);
     }
 
     .pos-prod-card:hover {
-        transform: translateY(-4px);
+        transform: translateY(-2px);
         border-color: var(--primary);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.04), 0 4px 6px rgba(255, 56, 92, 0.04);
-    }
-
-    .pos-prod-card:active {
-        transform: scale(0.97) translateY(-2px);
-    }
-
-    .pos-prod-card.out-of-stock {
-        opacity: 0.55;
-        cursor: not-allowed;
-        pointer-events: none;
-        background: #fafafa;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
     }
 
     .pos-prod-img-wrap {
         width: 100%;
-        height: 100px;
+        height: 70px;
         position: relative;
         overflow: hidden;
         background: var(--surface-strong);
@@ -148,6 +137,44 @@
     .pos-prod-img-wrap img {
         width: 100%;
         height: 100%;
+        object-fit: cover;
+    }
+
+    .pos-prod-body {
+        padding: 8px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .pos-prod-title {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--ink);
+        line-height: 1.25;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .pos-prod-meta {
+        margin-top: 4px;
+    }
+
+    .pos-prod-price {
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--primary);
+        line-height: 1;
+    }
+
+    .pos-prod-stock {
+        font-size: 9px;
+        color: var(--muted);
+        margin-top: 2px;
+    }
         object-fit: cover;
         transition: transform 0.4s ease;
     }
@@ -1099,6 +1126,42 @@
             checkoutBtn.textContent = 'Selesaikan Bayar F2';
 
             if (data.success) {
+                // Deduct stock levels locally in real-time
+                Object.keys(posCart).forEach(id => {
+                    const item = posCart[id];
+                    const productCard = document.querySelector(`.pos-product-item[data-id="${item.id}"]`);
+                    if (productCard) {
+                        let currentStock = parseInt(productCard.dataset.stock) || 0;
+                        let newStock = Math.max(0, currentStock - item.quantity);
+                        
+                        // Update stock in dataset
+                        productCard.dataset.stock = newStock;
+                        
+                        // Update Stock Badge UI
+                        const infoDiv = productCard.querySelector('.pos-prod-info > div');
+                        if (infoDiv) {
+                            const oldBadge = infoDiv.querySelector('.pos-stock-badge');
+                            if (oldBadge) oldBadge.remove();
+                            
+                            const newBadge = document.createElement('span');
+                            if (newStock <= 0) {
+                                productCard.classList.add('out-of-stock');
+                                newBadge.className = 'pos-stock-badge pos-stock-out';
+                                newBadge.textContent = 'Habis';
+                            } else if (newStock <= 5) {
+                                productCard.classList.remove('out-of-stock');
+                                newBadge.className = 'pos-stock-badge pos-stock-low';
+                                newBadge.textContent = 'Kritis: ' + newStock + ' ' + productCard.dataset.unit;
+                            } else {
+                                productCard.classList.remove('out-of-stock');
+                                newBadge.className = 'pos-stock-badge pos-stock-in';
+                                newBadge.textContent = 'Stok: ' + newStock + ' ' + productCard.dataset.unit;
+                            }
+                            infoDiv.appendChild(newBadge);
+                        }
+                    }
+                });
+
                 // Populate and Open Struk Receipt Modal
                 openPOSReceipt(data.order, cash);
                 
@@ -1213,27 +1276,8 @@
             aspectRatio: 1.777778
         };
         
-        // Request camera permission first to guarantee full device labels are returned
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(stream => {
-                    // Stop the temporary permission stream
-                    stream.getTracks().forEach(track => track.stop());
-                    
-                    // Retrieve cameras with full labels
-                    loadCamerasList(config);
-                })
-                .catch(err => {
-                    console.warn("User denied camera permission or error: ", err);
-                    // Fallback to direct loading
-                    loadCamerasList(config);
-                });
-        } else {
-            loadCamerasList(config);
-        }
-    }
-
-    function loadCamerasList(config) {
+        // Retrieve list of cameras. If permissions are already granted, we select the preferred camera.
+        // Otherwise, we request to start with the default facing environment/user camera.
         Html5Qrcode.getCameras().then(devices => {
             if (devices && devices.length > 0) {
                 let cameraId = devices[0].id;
@@ -1241,7 +1285,7 @@
                 // For desktop/laptop, prefer built-in webcam if no back camera exists
                 let foundBack = false;
                 for (let device of devices) {
-                    const label = device.label.toLowerCase();
+                    const label = (device.label || '').toLowerCase();
                     if (label.includes('back') || label.includes('environment') || label.includes('belakang') || label.includes('rear')) {
                         cameraId = device.id;
                         foundBack = true;
@@ -1251,7 +1295,7 @@
                 
                 if (!foundBack) {
                     for (let device of devices) {
-                        const label = device.label.toLowerCase();
+                        const label = (device.label || '').toLowerCase();
                         if (label.includes('integrated') || label.includes('webcam') || label.includes('front') || label.includes('depan') || label.includes('camera')) {
                             cameraId = device.id;
                             break;
@@ -1259,27 +1303,14 @@
                     }
                 }
                 
-                // Populate cameras dropdown selector
-                const selector = document.getElementById('camera-select');
-                selector.innerHTML = '';
-                devices.forEach(device => {
-                    const opt = document.createElement('option');
-                    opt.value = device.id;
-                    opt.text = device.label || `Kamera ${selector.length + 1}`;
-                    if (device.id === cameraId) opt.selected = true;
-                    selector.appendChild(opt);
-                });
-                
-                // Start scanning
                 startScanningWithId(cameraId, config);
             } else {
-                window.showSweetAlert('Kamera Tidak Terdeteksi', 'Tidak ada perangkat kamera yang terhubung.', 'error');
-                closeCameraScanner();
+                // Fallback to start scanning using facingMode constraints if getCameras returns empty
+                startScanningWithConstraint({ facingMode: "environment" }, config);
             }
         }).catch(err => {
-            console.error("Gagal mendeteksi kamera", err);
-            window.showSweetAlert('Error Deteksi Kamera', 'Gagal mengakses izin perangkat kamera.', 'error');
-            closeCameraScanner();
+            console.warn("Gagal mendeteksi kamera, mencoba dengan constraint default", err);
+            startScanningWithConstraint({ facingMode: "environment" }, config);
         });
     }
 
@@ -1305,10 +1336,63 @@
             (errorMessage) => {
                 // Ignore scanner error frames to prevent console flood
             }
-        ).catch(err => {
+        ).then(() => {
+            // Once scanning starts successfully, update dropdown list with friendly device labels
+            updateCameraDropdown(cameraId);
+        }).catch(err => {
             console.error("Gagal memutar kamera", err);
             window.showSweetAlert('Gagal Mengakses Kamera', 'Izin kamera ditolak atau sedang aktif di aplikasi lain.', 'error');
             closeCameraScanner();
+        });
+    }
+
+    function startScanningWithConstraint(constraint, config) {
+        html5QrCode.start(
+            constraint, 
+            config,
+            (decodedText, decodedResult) => {
+                playBeep();
+                const searchInput = document.getElementById('pos-search');
+                searchInput.value = decodedText;
+                closeCameraScanner();
+                handleBarcodeScan({
+                    key: 'Enter',
+                    preventDefault: () => {},
+                    target: searchInput
+                });
+            },
+            (errorMessage) => {}
+        ).then(() => {
+            updateCameraDropdown(null);
+        }).catch(err => {
+            console.error("Gagal memutar kamera dengan constraint", err);
+            window.showSweetAlert('Gagal Mengakses Kamera', 'Izin kamera ditolak atau tidak terdeteksi.', 'error');
+            closeCameraScanner();
+        });
+    }
+
+    function updateCameraDropdown(activeCameraId) {
+        Html5Qrcode.getCameras().then(devices => {
+            const selector = document.getElementById('camera-select');
+            selector.innerHTML = '';
+            if (devices && devices.length > 0) {
+                devices.forEach(device => {
+                    const opt = document.createElement('option');
+                    opt.value = device.id;
+                    opt.text = device.label || `Kamera ${selector.length + 1}`;
+                    if (device.id === activeCameraId || device.label === activeCameraId || (!activeCameraId && selector.length === 0)) {
+                        opt.selected = true;
+                    }
+                    selector.appendChild(opt);
+                });
+            } else {
+                const opt = document.createElement('option');
+                opt.value = "";
+                opt.text = "Kamera Default";
+                selector.appendChild(opt);
+            }
+        }).catch(err => {
+            console.error("Gagal memperbarui daftar kamera:", err);
         });
     }
 
