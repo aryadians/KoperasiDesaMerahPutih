@@ -38,11 +38,12 @@ class PurchaseOrderController extends Controller
             'cost_price' => 'required|numeric|min:0',
         ]);
 
+        $product = Product::findOrFail($request->product_id);
+        if ($product->branch_id !== auth()->user()->branch_id) {
+            abort(403, 'Unauthorized branch action');
+        }
+
         try {
-            $product = Product::findOrFail($request->product_id);
-            if ($product->branch_id !== auth()->user()->branch_id) {
-                abort(403, 'Unauthorized branch action');
-            }
             $poNumber = 'PO-' . strtoupper(uniqid());
 
             PurchaseOrder::create([
@@ -71,13 +72,13 @@ class PurchaseOrderController extends Controller
             return back()->withErrors(['error' => 'Status PO tidak valid.']);
         }
 
+        $po = PurchaseOrder::with('product')->findOrFail($id);
+        if ($po->product->branch_id !== auth()->user()->branch_id) {
+            abort(403, 'Unauthorized branch action');
+        }
+
         try {
             DB::beginTransaction();
-
-            $po = PurchaseOrder::with('product')->findOrFail($id);
-            if ($po->product->branch_id !== auth()->user()->branch_id) {
-                abort(403, 'Unauthorized branch action');
-            }
 
             if ($po->status === 'received') {
                 throw new Exception("Purchase Order ini sudah diterima sebelumnya.");

@@ -151,11 +151,11 @@ class StaffController extends Controller
 
     public function updateOrderStatus($id, $status)
     {
+        $order = Order::findOrFail($id);
+        if ($order->branch_id !== auth()->user()->branch_id) {
+            abort(403, 'Unauthorized branch action');
+        }
         try {
-            $order = Order::findOrFail($id);
-            if ($order->branch_id !== auth()->user()->branch_id) {
-                abort(403, 'Unauthorized branch action');
-            }
             if ($status === 'paid') {
                 $this->transactionService->markAsPaid($id);
             } elseif ($status === 'cancelled') {
@@ -179,11 +179,11 @@ class StaffController extends Controller
 
     public function updateCropStatus(Request $request, $id, $status)
     {
+        $crop = CropAbsorption::findOrFail($id);
+        if ($crop->branch_id !== auth()->user()->branch_id) {
+            abort(403, 'Unauthorized branch action');
+        }
         try {
-            $crop = CropAbsorption::findOrFail($id);
-            if ($crop->branch_id !== auth()->user()->branch_id) {
-                abort(403, 'Unauthorized branch action');
-            }
             $this->cropService->updateStatus($id, $status, $request->input('scale_image'));
             return back()->with('success', 'Status penyerapan hasil tani berhasil diperbarui.');
         } catch (Exception $e) {
@@ -203,11 +203,11 @@ class StaffController extends Controller
 
     public function updateLoanStatus(Request $request, $id, $status)
     {
+        $loan = Loan::findOrFail($id);
+        if ($loan->branch_id !== auth()->user()->branch_id) {
+            abort(403, 'Unauthorized branch action');
+        }
         try {
-            $loan = Loan::findOrFail($id);
-            if ($loan->branch_id !== auth()->user()->branch_id) {
-                abort(403, 'Unauthorized branch action');
-            }
             $amountApproved = $request->input('amount_approved');
             $this->loanService->updateStatus($id, $status, $amountApproved);
             return back()->with('success', 'Status pinjaman berhasil diperbarui.');
@@ -228,11 +228,12 @@ class StaffController extends Controller
             'installment_number' => 'required|integer|min:1',
         ]);
 
+        $loan = Loan::findOrFail($request->loan_id);
+        if ($loan->branch_id !== auth()->user()->branch_id) {
+            abort(403, 'Unauthorized branch action');
+        }
+
         try {
-            $loan = Loan::findOrFail($request->loan_id);
-            if ($loan->branch_id !== auth()->user()->branch_id) {
-                abort(403, 'Unauthorized branch action');
-            }
             $this->loanService->recordPayment(
                 $request->loan_id,
                 $request->amount_paid,
@@ -687,12 +688,12 @@ class StaffController extends Controller
      */
     public function downloadReceiptPdf($id)
     {
+        $order = Order::with(['items.product', 'user', 'branch'])->findOrFail($id);
+        if ($order->branch_id !== auth()->user()->branch_id) {
+            abort(403, 'Unauthorized branch action');
+        }
+
         try {
-            $order = Order::with(['items.product', 'user', 'branch'])->findOrFail($id);
-            if ($order->branch_id !== auth()->user()->branch_id) {
-                abort(403, 'Unauthorized branch action');
-            }
-            
             $member = null;
             if ($order->user && $order->user->role === 'anggota') {
                 $member = Member::where('user_id', $order->user_id)->first();
@@ -874,12 +875,12 @@ class StaffController extends Controller
      */
     public function deleteMember($id)
     {
-        try {
-            $user = User::findOrFail($id);
-            if ($user->branch_id !== auth()->user()->branch_id) {
-                abort(403, 'Unauthorized branch action');
-            }
+        $user = User::findOrFail($id);
+        if ($user->branch_id !== auth()->user()->branch_id) {
+            abort(403, 'Unauthorized branch action');
+        }
 
+        try {
             if ($user->id === auth()->id()) {
                 return back()->withErrors(['error' => 'Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif digunakan.']);
             }
