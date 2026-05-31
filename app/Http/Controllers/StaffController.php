@@ -961,4 +961,47 @@ class StaffController extends Controller
             ->header('Content-Type', 'text/csv; charset=UTF-8')
             ->header('Content-Disposition', 'attachment; filename="data_anggota_staf_' . date('Ymd') . '.csv"');
     }
+
+    /**
+     * Export Rapat Anggota Tahunan (RAT) branch pertanggungjawaban report as PDF.
+     */
+    public function exportRATReportPdf()
+    {
+        $branchId = auth()->user()->branch_id;
+        $branch = \App\Models\Branch::findOrFail($branchId);
+        $staffName = auth()->user()->name;
+
+        // Financial volumes
+        $totalSales = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->sum('total_amount');
+        $totalCrops = CropAbsorption::where('branch_id', $branchId)->where('status', 'paid')->sum('total_payout');
+        $totalLoans = Loan::where('branch_id', $branchId)->where('status', 'active')->sum('amount_approved');
+        $totalSavings = MemberSaving::whereHas('member.user', function($q) use ($branchId) {
+            $q->where('branch_id', $branchId);
+        })->sum('amount');
+
+        // Operations metrics
+        $activeMembersCount = Member::where('status_aktif', true)->whereHas('user', function($q) use ($branchId) {
+            $q->where('branch_id', $branchId);
+        })->count();
+        $activeProductsCount = Product::where('branch_id', $branchId)->count();
+        
+        $salesToday = Order::where('branch_id', $branchId)
+            ->where('payment_status', 'paid')
+            ->whereDate('created_at', \Carbon\Carbon::today())
+            ->sum('total_amount');
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('staff.rat_report_pdf', compact(
+            'branch',
+            'staffName',
+            'totalSales',
+            'totalCrops',
+            'totalLoans',
+            'totalSavings',
+            'activeMembersCount',
+            'activeProductsCount',
+            'salesToday'
+        ));
+
+        return $pdf->download('laporan_rat_' . strtolower(str_replace(' ', '_', $branch->name)) . '.pdf');
+    }
 }

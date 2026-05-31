@@ -21,11 +21,18 @@
     <div class="main-column reveal-scale delay-2">
         @if($activeLoan)
             <div class="card card-flush" style="box-shadow: var(--shadow-sm);">
-                <h3 style="font-size: 18px; font-weight: 700; margin: 0; border-bottom: 1px solid var(--hairline-soft); padding: 20px; background: var(--surface-md); color: var(--ink); display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: 18px; font-weight: 700; margin: 0; border-bottom: 1px solid var(--hairline-soft); padding: 20px; background: var(--surface-md); color: var(--ink); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                     <span>Pinjaman Aktif Anda</span>
-                    <span class="badge {{ $activeLoan->status === 'active' ? 'badge-success' : ($activeLoan->status === 'draft' ? 'badge-warning' : 'badge-info') }}">
-                        {{ $activeLoan->status }}
-                    </span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        @if($activeLoan->status === 'active' || $activeLoan->status === 'approved')
+                            <a href="{{ route('member.loans.pdf', $activeLoan->id) }}" class="btn btn-secondary btn-sm" style="font-size: 12px; font-weight: 600; padding: 2px 12px; height: 26px; border-radius: 4px; border: 1.5px solid var(--hairline); display: inline-flex; align-items: center; gap: 4px;" data-no-loading>
+                                📥 Unduh Slip PDF
+                            </a>
+                        @endif
+                        <span class="badge {{ $activeLoan->status === 'active' ? 'badge-success' : ($activeLoan->status === 'draft' ? 'badge-warning' : 'badge-info') }}" style="margin: 0;">
+                            {{ $activeLoan->status }}
+                        </span>
+                    </div>
                 </h3>
 
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 24px; border-bottom: 1px solid var(--hairline-soft);">
@@ -128,6 +135,7 @@
                                 <th>Tenor</th>
                                 <th>Diajukan</th>
                                 <th style="text-align: center;">Status</th>
+                                <th style="text-align: center; width: 80px;">Slip</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -146,6 +154,15 @@
                                             <span class="badge badge-info">AKTIF</span>
                                         @else
                                             <span class="badge badge-warning">DRAFT</span>
+                                        @endif
+                                    </td>
+                                    <td style="text-align: center; vertical-align: middle;">
+                                        @if(in_array($loan->status, ['active', 'approved', 'paid_off']))
+                                            <a href="{{ route('member.loans.pdf', $loan->id) }}" class="btn btn-secondary btn-sm" style="padding: 2px 8px; height: auto; font-size: 11px; border-radius: 4px;" data-no-loading>
+                                                📥 PDF
+                                            </a>
+                                        @else
+                                            <span style="color: var(--muted); font-size: 11px; font-style: italic;">Pending</span>
                                         @endif
                                     </td>
                                 </tr>

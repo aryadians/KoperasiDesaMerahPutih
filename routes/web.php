@@ -78,8 +78,10 @@ Route::middleware('auth')->group(function () {
     Route::prefix('member')->name('member.')->group(function () {
         Route::get('/dashboard', [MemberController::class, 'dashboard'])->name('dashboard');
         Route::get('/savings', [MemberController::class, 'savings'])->name('savings');
+        Route::get('/savings/pdf', [MemberController::class, 'exportSavingsPdf'])->name('savings.pdf');
         Route::post('/savings/deposit', [MemberController::class, 'depositSaving'])->name('savings.deposit');
         Route::get('/loans', [MemberController::class, 'loans'])->name('loans');
+        Route::get('/loans/{id}/pdf', [MemberController::class, 'exportLoanPdf'])->name('loans.pdf');
         Route::post('/loans/apply', [MemberController::class, 'applyLoan'])->name('loans.apply');
         Route::get('/crops', [MemberController::class, 'crops'])->name('crops');
         Route::post('/crops/sell', [MemberController::class, 'sellCrop'])->name('crops.sell');
@@ -95,6 +97,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('staff')->name('staff.')->group(function () {
         Route::get('/dashboard', [StaffController::class, 'dashboard'])->name('dashboard');
         Route::get('/analytics', [StaffController::class, 'analytics'])->name('analytics');
+        Route::get('/analytics/rat/pdf', [StaffController::class, 'exportRATReportPdf'])->name('analytics.rat-pdf');
         
         // POS Kasir Offline
         Route::get('/pos', [StaffController::class, 'pos'])->name('pos');

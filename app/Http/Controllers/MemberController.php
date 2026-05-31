@@ -232,4 +232,31 @@ class MemberController extends Controller
             return back()->withErrors(['error' => 'Gagal membatalkan pesanan: ' . $e->getMessage()]);
         }
     }
+
+    /**
+     * Export savings mutation ledger as PDF.
+     */
+    public function exportSavingsPdf()
+    {
+        $member = Member::with(['user.branch'])->where('user_id', Auth::id())->firstOrFail();
+        $savings = MemberSaving::where('member_id', $member->id)->latest()->get();
+        $balances = $this->savingsService->getBalances($member->id);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('member.savings_pdf', compact('member', 'savings', 'balances'));
+        return $pdf->download('mutasi_simpanan_' . $member->nomor_anggota . '.pdf');
+    }
+
+    /**
+     * Export a specific loan details and amortization schedule as PDF.
+     */
+    public function exportLoanPdf($id)
+    {
+        $member = Member::where('user_id', Auth::id())->firstOrFail();
+        
+        // Find the loan and authorize that it belongs to the logged-in member
+        $loan = Loan::with(['payments', 'member.user.branch'])->where('member_id', $member->id)->findOrFail($id);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('member.loan_receipt_pdf', compact('loan'));
+        return $pdf->download('slip_pinjaman_' . $loan->loan_code . '.pdf');
+    }
 }

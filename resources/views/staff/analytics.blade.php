@@ -54,9 +54,14 @@ if (!function_exists('getSvgPoints')) {
             Statistik real-time, volume perputaran kas, penyerapan pertanian desa, dan outstanding kredit mikro.
         </p>
     </div>
-    <button onclick="window.print()" class="btn btn-md btn-secondary no-print" style="border-radius: 100px; display: inline-flex; align-items: center; gap: 8px; width: auto; font-size: 14px;">
-        🖨️ Cetak Analitik / PDF
-    </button>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;" class="no-print">
+        <a href="{{ route('staff.analytics.rat-pdf') }}" class="btn btn-md btn-primary" style="border-radius: 100px; display: inline-flex; align-items: center; gap: 8px; width: auto; font-size: 14px; background-color: var(--primary);" data-no-loading>
+            📄 Unduh Laporan RAT (PDF)
+        </a>
+        <button onclick="window.print()" class="btn btn-md btn-secondary" style="border-radius: 100px; display: inline-flex; align-items: center; gap: 8px; width: auto; font-size: 14px;">
+            🖨️ Cetak Halaman
+        </button>
+    </div>
 </div>
 
 {{-- ═══════════════════════ PRINT HEADER ═══════════════════════ --}}

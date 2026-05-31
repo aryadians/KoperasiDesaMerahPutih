@@ -13,7 +13,12 @@
     </a>
 </div>
 
-<h1 style="font-size: 28px; font-weight: 600; margin-bottom: 24px;">Tabungan Saku Koperasi</h1>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+    <h1 style="font-size: 28px; font-weight: 600; margin: 0;">Tabungan Saku Koperasi</h1>
+    <a href="{{ route('member.savings.pdf') }}" class="btn btn-secondary btn-sm" style="font-weight: 600; border-radius: 100px; padding: 0 20px; display: inline-flex; align-items: center; gap: 6px; width: auto; height: 36px; border: 1.5px solid var(--hairline);" data-no-loading>
+        📥 Unduh Laporan PDF
+    </a>
+</div>
 
 <!-- Balance Cards -->
 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px;">
