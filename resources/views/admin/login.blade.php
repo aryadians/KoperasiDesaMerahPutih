@@ -571,7 +571,7 @@
                 </div>
                 <h1 class="brand-title">KDKMP<br>Digital System</h1>
                 <p class="brand-subtitle">
-                    Platform manajemen Koperasi Desa Merah Putih — retail, simpan pinjam, penyerapan tani, dan SHU dalam satu dasbor.
+                    Platform manajemen Koperasi Desa — retail, simpan pinjam, penyerapan tani, dan SHU dalam satu dasbor.
                 </p>
             </div>
 
