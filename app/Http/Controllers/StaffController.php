@@ -8,6 +8,7 @@ use App\Models\Loan;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Member;
+use App\Models\User;
 use App\Models\MemberSaving;
 use App\Models\SystemConfig;
 use App\Services\TransactionService;
@@ -665,5 +666,255 @@ class StaffController extends Controller
         } catch (Exception $e) {
             return back()->withErrors(['error' => 'Gagal mengunduh struk PDF: ' . $e->getMessage()]);
         }
+    }
+
+    /**
+     * Show registered members and staff list.
+     */
+    public function members(Request $request)
+    {
+        $branchId = auth()->user()->branch_id;
+        $query = User::with(['member', 'branch'])->where('branch_id', $branchId);
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%')
+                  ->orWhereHas('member', function($mq) use ($search) {
+                      $mq->where('nik', 'like', '%' . $search . '%')
+                         ->orWhere('nomor_anggota', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        // Role filter
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        // Status filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $users = $query->latest()->paginate(10);
+        $roles = ['anggota' => 'Anggota', 'kasir' => 'Kasir', 'pengurus' => 'Pengurus'];
+
+        return view('staff.members', compact('users', 'roles'));
+    }
+
+    /**
+     * Store new member / staff account.
+     */
+    public function storeMember(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+            'role' => 'required|in:anggota,kasir,pengurus',
+            'status' => 'required|in:active,inactive',
+            'nik' => 'required_if:role,anggota|nullable|string|size:16|unique:members,nik',
+            'alamat_desa' => 'required_if:role,anggota|nullable|string',
+            'ktp_image' => 'nullable|string',
+        ], [
+            'email.unique' => 'Alamat email sudah terdaftar.',
+            'nik.unique' => 'NIK sudah terdaftar.',
+            'nik.required_if' => 'NIK wajib diisi untuk peran Anggota.',
+            'alamat_desa.required_if' => 'Alamat desa wajib diisi untuk peran Anggota.',
+        ]);
+
+        try {
+            DB::transaction(function() use ($request) {
+                $branchId = auth()->user()->branch_id;
+
+                $user = User::create([
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+                    'role' => $request->role,
+                    'status' => $request->status,
+                    'branch_id' => $branchId,
+                ]);
+
+                if ($request->role === 'anggota') {
+                    $nomorAnggota = 'MBR-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+                    Member::create([
+                        'user_id' => $user->id,
+                        'nik' => $request->nik,
+                        'nomor_anggota' => $nomorAnggota,
+                        'alamat_desa' => $request->alamat_desa,
+                        'tanggal_bergabung' => date('Y-m-d'),
+                        'total_poin' => 0,
+                        'status_aktif' => $request->status === 'active',
+                        'ktp_image' => $request->ktp_image,
+                    ]);
+                }
+            });
+
+            return redirect()->route('staff.members')->with('success', 'Akun pengguna berhasil ditambahkan!');
+        } catch (Exception $e) {
+            return back()->withErrors(['error' => 'Gagal menambahkan akun: ' . $e->getMessage()])->withInput();
+        }
+    }
+
+    /**
+     * Update member / staff account.
+     */
+    public function updateMember(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        if ($user->branch_id !== auth()->user()->branch_id) {
+            abort(403, 'Unauthorized branch action');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:8',
+            'role' => 'required|in:anggota,kasir,pengurus',
+            'status' => 'required|in:active,inactive',
+            'nik' => 'required_if:role,anggota|nullable|string|size:16|unique:members,nik,' . ($user->member->id ?? 0),
+            'alamat_desa' => 'required_if:role,anggota|nullable|string',
+            'ktp_image' => 'nullable|string',
+        ], [
+            'email.unique' => 'Alamat email sudah terdaftar.',
+            'nik.unique' => 'NIK sudah terdaftar.',
+            'nik.required_if' => 'NIK wajib diisi untuk peran Anggota.',
+            'alamat_desa.required_if' => 'Alamat desa wajib diisi untuk peran Anggota.',
+        ]);
+
+        try {
+            DB::transaction(function() use ($request, $user) {
+                $user->name = $request->name;
+                $user->email = $request->email;
+                if ($request->filled('password')) {
+                    $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+                }
+                $user->role = $request->role;
+                $user->status = $request->status;
+                $user->save();
+
+                if ($request->role === 'anggota') {
+                    $memberData = [
+                        'nik' => $request->nik,
+                        'alamat_desa' => $request->alamat_desa,
+                        'status_aktif' => $request->status === 'active',
+                    ];
+                    if ($request->filled('ktp_image')) {
+                        $memberData['ktp_image'] = $request->ktp_image;
+                    }
+                    if (!$user->member) {
+                        $memberData['nomor_anggota'] = 'MBR-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+                        $memberData['tanggal_bergabung'] = date('Y-m-d');
+                        $memberData['total_poin'] = 0;
+                    }
+                    Member::updateOrCreate(['user_id' => $user->id], $memberData);
+                } else {
+                    // If changed to other role, delete member profile if exists
+                    if ($user->member) {
+                        $user->member->delete();
+                    }
+                }
+            });
+
+            return redirect()->route('staff.members')->with('success', 'Akun pengguna berhasil diperbarui!');
+        } catch (Exception $e) {
+            return back()->withErrors(['error' => 'Gagal memperbarui akun: ' . $e->getMessage()])->withInput();
+        }
+    }
+
+    /**
+     * Delete user account.
+     */
+    public function deleteMember($id)
+    {
+        try {
+            $user = User::findOrFail($id);
+            if ($user->branch_id !== auth()->user()->branch_id) {
+                abort(403, 'Unauthorized branch action');
+            }
+
+            if ($user->id === auth()->id()) {
+                return back()->withErrors(['error' => 'Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif digunakan.']);
+            }
+
+            DB::transaction(function() use ($user) {
+                if ($user->member) {
+                    $user->member->delete();
+                }
+                $user->delete();
+            });
+
+            return redirect()->route('staff.members')->with('success', 'Akun pengguna berhasil dihapus!');
+        } catch (Exception $e) {
+            return back()->withErrors(['error' => 'Gagal menghapus akun: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Bulk delete user accounts.
+     */
+    public function bulkDeleteMembers(Request $request)
+    {
+        $request->validate(['ids' => 'required|string']);
+
+        try {
+            $ids = explode(',', $request->ids);
+            $branchId = auth()->user()->branch_id;
+            
+            DB::transaction(function() use ($ids, $branchId) {
+                foreach ($ids as $id) {
+                    if (intval($id) === auth()->id()) {
+                        continue; // Skip self deletion
+                    }
+                    $user = User::where('branch_id', $branchId)->find($id);
+                    if ($user) {
+                        if ($user->member) {
+                            $user->member->delete();
+                        }
+                        $user->delete();
+                    }
+                }
+            });
+
+            return redirect()->route('staff.members')->with('success', 'Akun-akun pengguna terpilih berhasil dihapus!');
+        } catch (Exception $e) {
+            return back()->withErrors(['error' => 'Gagal melakukan penghapusan massal: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Export members to CSV.
+     */
+    public function exportMembers(Request $request)
+    {
+        $branchId = auth()->user()->branch_id;
+        $query = User::with('member')->where('branch_id', $branchId);
+
+        if ($request->filled('ids')) {
+            $query->whereIn('id', explode(',', $request->ids));
+        }
+
+        $users = $query->latest()->get();
+
+        $csvData = "\xEF\xBB\xBF"; // UTF-8 BOM for Excel Indonesian local characters
+        $csvData .= "Nama,Email,Peran,Status,NIK,Nomor Anggota,Alamat Desa,Tanggal Bergabung,Poin Loyalitas\n";
+        
+        foreach ($users as $u) {
+            $nik = $u->member ? ($u->member->nik ?? '-') : '-';
+            $nomorAnggota = $u->member ? ($u->member->nomor_anggota ?? '-') : '-';
+            $alamat = ($u->member && $u->member->alamat_desa) ? '"' . str_replace('"', '""', $u->member->alamat_desa) . '"' : '-';
+            $tgl = ($u->member && $u->member->tanggal_bergabung) ? $u->member->tanggal_bergabung->format('Y-m-d') : '-';
+            $poin = $u->member ? ($u->member->total_poin ?? '0') : '0';
+            
+            $csvData .= "\"{$u->name}\",\"{$u->email}\",\"{$u->role}\",\"{$u->status}\",\"{$nik}\",\"{$nomorAnggota}\",{$alamat},\"{$tgl}\",\"{$poin}\"\n";
+        }
+
+        return response($csvData)
+            ->header('Content-Type', 'text/csv; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="data_anggota_staf_' . date('Ymd') . '.csv"');
     }
 }

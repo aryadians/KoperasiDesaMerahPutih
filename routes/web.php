@@ -135,6 +135,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/products/{id}/update-stock', [StaffController::class, 'updateProductStockInline'])->name('products.update-stock');
         Route::post('/products/{id}/delete', [StaffController::class, 'deleteProduct'])->name('products.delete');
 
+        // Member management (Admin/Staff)
+        Route::get('/members/export', [StaffController::class, 'exportMembers'])->name('members.export');
+        Route::post('/members/bulk-delete', [StaffController::class, 'bulkDeleteMembers'])->name('members.bulk-delete');
+        Route::get('/members', [StaffController::class, 'members'])->name('members');
+        Route::post('/members', [StaffController::class, 'storeMember'])->name('members.store');
+        Route::post('/members/{id}/update', [StaffController::class, 'updateMember'])->name('members.update');
+        Route::post('/members/{id}/delete', [StaffController::class, 'deleteMember'])->name('members.delete');
+
         // SHU Dividend Calculator
         Route::get('/shu', [StaffController::class, 'shu'])->name('shu');
     });

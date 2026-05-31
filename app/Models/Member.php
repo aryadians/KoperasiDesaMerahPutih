@@ -20,6 +20,7 @@ class Member extends Model
         'tanggal_bergabung',
         'total_poin',
         'status_aktif',
+        'ktp_image',
     ];
 
     protected $casts = [
