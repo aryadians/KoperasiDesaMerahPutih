@@ -28,7 +28,7 @@
     <header class="top-nav">
         <div class="container nav-container">
             <!-- Brand Logo -->
-            <a href="{{ route('catalog.index') }}" class="logo">
+            <a href="{{ route('home') }}" class="logo">
                 <svg width="32" height="32" viewBox="0 0 32 32">
                     <path d="M16 1C21 1 24.5 4.5 24.5 9.5C24.5 13.5 21.5 17.5 16 23C10.5 17.5 7.5 13.5 7.5 9.5C7.5 4.5 11 1 16 1ZM16 11.5C17.1 11.5 18 10.6 18 9.5C18 8.4 17.1 7.5 16 7.5C14.9 7.5 14 8.4 14 9.5C14 10.6 14.9 11.5 16 11.5Z"/>
                 </svg>
@@ -69,6 +69,9 @@
 
             <!-- Navigation Links (Centered) -->
             <nav class="product-tabs">
+                <a href="{{ route('home') }}" class="product-tab {{ Request::routeIs('home') ? 'active' : '' }}">
+                    Beranda
+                </a>
                 <a href="{{ route('catalog.index') }}" class="product-tab {{ Request::routeIs('catalog.index') ? 'active' : '' }}">
                     Gerai Retail
                 </a>

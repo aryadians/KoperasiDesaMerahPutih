@@ -1209,3 +1209,100 @@ footer.footer-light {
     body { padding-bottom: 76px; }
 }
 
+/* ================================================================
+   28. PREMIUM UI OVERRIDES & ANIMATIONS
+   ================================================================ */
+
+/* Spring floating animation */
+.animated-float {
+    animation: float-2d 4s ease-in-out infinite alternate;
+}
+@keyframes float-2d {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-10px); }
+}
+
+/* Float emoji */
+@keyframes float-emoji {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-8px) scale(1.08); }
+}
+
+/* Shimmer overlay effect */
+@keyframes shimmer {
+    0% { transform: skewX(-20deg) translateX(-150%); }
+    100% { transform: skewX(-20deg) translateX(150%); }
+}
+
+/* Interactive Leaflet Popup & Control Overrides */
+.leaflet-popup-content-wrapper {
+    border-radius: var(--r-md) !important;
+    border: 1px solid var(--hairline);
+    box-shadow: var(--shadow-lg) !important;
+    padding: 6px;
+    font-family: var(--font);
+}
+.leaflet-popup-tip {
+    border: 1.5px solid var(--hairline);
+}
+.leaflet-container a.leaflet-popup-close-button {
+    color: var(--muted) !important;
+    font-size: 16px !important;
+    padding: 8px !important;
+}
+
+/* Glassmorphism & Elastic Animation for Custom SweetAlert */
+.swal-overlay {
+    background-color: rgba(17, 24, 39, 0.4) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    transition: opacity 0.3s ease;
+}
+.swal-modal {
+    border: 1px solid var(--hairline) !important;
+    border-radius: 24px !important;
+    box-shadow: var(--shadow-xl) !important;
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.40s var(--ease-spring), opacity 0.3s ease;
+    overflow: hidden;
+}
+.swal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+.swal-overlay.active .swal-modal {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+.swal-icon {
+    transform: scale(0.5);
+    opacity: 0;
+    transition: transform 0.4s var(--ease-spring) 0.1s, opacity 0.4s ease 0.1s;
+}
+.swal-overlay.active .swal-icon {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Premium Card & Button micro-animations */
+.card-hover {
+    transition: transform var(--t-base) var(--ease-out), box-shadow var(--t-base) var(--ease-out);
+}
+.card-hover:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn, .button-primary, .button-secondary {
+    transition: transform var(--t-fast) var(--ease-out), box-shadow var(--t-fast) var(--ease-out), background-color var(--t-fast);
+}
+.btn:hover, .button-primary:hover, .button-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+.btn:active, .button-primary:active, .button-secondary:active {
+    transform: translateY(0);
+}
+
+

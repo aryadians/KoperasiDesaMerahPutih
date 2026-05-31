@@ -66,21 +66,56 @@
             <p style="color: var(--muted); font-size: 14px; margin-top: 6px; font-weight: 500;">Masuk ke portal anggota KDKMP Digital</p>
         </div>
 
+        @if(session('success'))
+            <div style="background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success); padding: 12px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; margin-bottom: 20px; line-height: 1.4;">
+                ✓ {{ session('success') }}
+            </div>
+        @endif
+
+        @if($errors->any())
+            <div style="background: var(--danger-bg); border: 1px solid var(--danger-border); color: var(--danger); padding: 12px 16px; border-radius: 12px; font-size: 13px; font-weight: 600; margin-bottom: 20px; line-height: 1.4;">
+                ✕ {{ $errors->first() }}
+            </div>
+        @endif
+
         <form action="{{ route('login') }}" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
             @csrf
             <div class="form-group" style="margin: 0;">
                 <label for="email" style="font-weight: 600; font-size: 13px; margin-bottom: 6px; color: var(--ink);">Alamat Email</label>
                 <input type="email" name="email" id="email" class="text-input" placeholder="name@domain.com" required style="height: 50px; font-size: 14px;">
             </div>
-            <div class="form-group" style="margin: 0;">
-                <label for="password" style="font-weight: 600; font-size: 13px; margin-bottom: 6px; color: var(--ink);">Kata Sandi</label>
-                <input type="password" name="password" id="password" class="text-input" placeholder="••••••••" required style="height: 50px; font-size: 14px;">
+            <div class="form-group" style="margin: 0; position: relative;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label for="password" style="font-weight: 600; font-size: 13px; color: var(--ink); margin: 0;">Kata Sandi</label>
+                    <a href="{{ route('password.request') }}" style="font-size: 12px; font-weight: 600; color: var(--primary); transition: color 0.2s;" onmouseover="this.style.color='var(--primary-dark)'" onmouseout="this.style.color='var(--primary)'">Lupa Kata Sandi?</a>
+                </div>
+                <input type="password" name="password" id="password" class="text-input" placeholder="••••••••" required style="height: 50px; font-size: 14px; padding-right: 45px;">
+                <button type="button" onclick="togglePassword()" style="position: absolute; right: 14px; top: 38px; background: none; border: none; color: var(--muted); cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; height: 24px; width: 24px;">
+                    <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--muted);">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
             </div>
             
             <button type="submit" class="btn btn-primary btn-full btn-lg" style="height: 50px; border-radius: 12px; font-weight: 700; font-size: 15px; margin-top: 10px;">
                 Masuk Sekarang
             </button>
         </form>
+
+        <script>
+            function togglePassword() {
+                const passwordInput = document.getElementById('password');
+                const eyeIcon = document.getElementById('eye-icon');
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+                } else {
+                    passwordInput.type = 'password';
+                    eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+                }
+            }
+        </script>
 
         <div style="margin-top: 32px; text-align: center; font-size: 14px; color: var(--muted); font-weight: 500; border-top: 1px solid var(--hairline-soft); padding-top: 24px;">
             Belum terdaftar sebagai anggota? <a href="{{ route('register') }}" style="color: var(--primary); font-weight: 700; transition: color 0.2s;" onmouseover="this.style.color='var(--primary-dark)'" onmouseout="this.style.color='var(--primary)'">Daftar sekarang</a>

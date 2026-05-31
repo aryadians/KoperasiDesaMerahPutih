@@ -9,9 +9,11 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\StaffController;
 
 // =====================================================================
-// ROOT: Redirect to guest storefront (no login required)
+// ROOT: Render welcome landing page (guest storefront link inside welcome)
 // =====================================================================
-Route::redirect('/', '/catalog');
+Route::get('/', function () {
+    return view('welcome');
+})->name('home');
 
 // =====================================================================
 // ADMIN / STAFF LOGIN — Panel khusus admin, pengurus, kasir, staf
@@ -26,13 +28,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
 // =====================================================================
 // MEMBER / ANGGOTA LOGIN & REGISTER — Untuk warga desa yang mau
 // mendaftar sebagai anggota koperasi dan checkout belanja.
-// URL: /login, /register
+// URL: /login, /register, /forgot-password, /reset-password
 // =====================================================================
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
+    
+    // Password Reset
+    Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.request');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('password.reset');
+    Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 });
 
 // =====================================================================

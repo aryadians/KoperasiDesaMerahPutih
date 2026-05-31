@@ -97,4 +97,89 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         return redirect()->route('catalog.index');
     }
+
+    /**
+     * Show the forgot password form.
+     */
+    public function showForgotPasswordForm()
+    {
+        return view('auth.forgot_password');
+    }
+
+    /**
+     * Send a simulated reset link email to the user.
+     */
+    public function sendResetLinkEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ], [
+            'email.exists' => 'Alamat email tidak terdaftar dalam sistem kami.',
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+        ]);
+
+        $token = \Illuminate\Support\Str::random(64);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $request->email],
+            [
+                'token' => $token,
+                'created_at' => \Carbon\Carbon::now()
+            ]
+        );
+
+        $resetUrl = route('password.reset', ['token' => $token, 'email' => $request->email]);
+        \Illuminate\Support\Facades\Log::info("Simulasi reset password link untuk {$request->email}: " . $resetUrl);
+
+        // Flash message and simulated link to session for local dev testing
+        return redirect()->back()
+            ->with('status', 'Tautan untuk meriset kata sandi telah dikirim ke email Anda.')
+            ->with('simulated_link', $resetUrl);
+    }
+
+    /**
+     * Show the reset password form.
+     */
+    public function showResetPasswordForm(Request $request, $token)
+    {
+        $email = $request->query('email');
+        return view('auth.reset_password', ['token' => $token, 'email' => $email]);
+    }
+
+    /**
+     * Reset the user's password in the database.
+     */
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'password.required' => 'Kata sandi baru wajib diisi.',
+            'password.min' => 'Kata sandi minimal terdiri dari 8 karakter.',
+            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
+            'email.exists' => 'Alamat email tidak terdaftar.',
+        ]);
+
+        $reset = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->where('token', $request->token)
+            ->first();
+
+        if (!$reset) {
+            return back()->withErrors(['email' => 'Token reset password tidak valid atau telah kedaluwarsa.']);
+        }
+
+        // Update the password
+        $user = User::where('email', $request->email)->first();
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        // Delete the token
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return redirect()->route('login')->with('success', 'Kata sandi Anda berhasil diperbarui! Silakan masuk.');
+    }
 }

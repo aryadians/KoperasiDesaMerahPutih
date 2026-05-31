@@ -815,6 +815,20 @@
     });
     </script>
 
+    <!-- Custom SweetAlert Overlay -->
+    <div class="swal-overlay" id="custom-swal-overlay" onclick="handleOverlayClick(event)">
+        <div class="swal-modal" id="swal-modal-box">
+            <div class="swal-icon" id="swal-modal-icon">✓</div>
+            <h3 class="swal-title" id="swal-modal-title">Judul</h3>
+            <p class="swal-text" id="swal-modal-text">Keterangan pesan dialog.</p>
+            <div class="swal-buttons">
+                <button type="button" class="btn btn-primary" style="height: 44px; padding: 0 32px; width: auto; border-radius: 100px; font-size: 14px;" onclick="closeSweetAlert()">
+                    OK, Mengerti
+                </button>
+            </div>
+        </div>
+    </div>
+
     @if(session()->has('sms_notification'))
         <!-- Phone WhatsApp/SMS Notification Simulator Widget -->
         <div id="phone-sms-widget" class="no-print" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; max-width: 320px; width: 100%; transform: translateY(150%); opacity: 0; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.6s ease; font-family: var(--font);">
