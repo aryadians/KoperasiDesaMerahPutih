@@ -43,9 +43,12 @@
     }
 </style>
 
-<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
-    <h1 style="font-size: 28px; font-weight: 600; color: var(--ink); margin: 0;">Inventaris Gerai Sembako</h1>
-    <a href="{{ route('staff.products.export') }}" class="btn btn-secondary btn-sm" style="font-weight: 600;" data-no-loading>
+<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+    <div>
+        <h1 style="font-size: 28px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.5px;">Inventaris Gerai Sembako</h1>
+        <p style="color: var(--muted); font-size: 14px; margin-top: 4px; font-family: var(--font);">📍 Kelola produk &amp; stok untuk <strong>{{ auth()->user()->branch->name }}</strong></p>
+    </div>
+    <a href="{{ route('staff.products.export') }}" class="btn btn-secondary btn-sm" style="font-weight: 600; border-radius: 100px; padding: 0 18px;" data-no-loading>
         📥 Export CSV
     </a>
 </div>
@@ -109,8 +112,7 @@
                                 </th>
                                 <th>Produk</th>
                                 <th>Kategori</th>
-                                <th style="white-space: nowrap;">Harga Anggota</th>
-                                <th style="white-space: nowrap;">Harga Umum</th>
+                                <th style="white-space: nowrap;">Harga Detail</th>
                                 <th>Stok</th>
                                 <th style="text-align: center; width: 80px;">Aksi</th>
                             </tr>
@@ -118,50 +120,55 @@
                         <tbody>
                             @foreach($products as $product)
                                 <tr>
-                                    <td style="text-align: center;">
+                                    <td style="text-align: center; vertical-align: middle;">
                                         <input type="checkbox" class="row-checkbox" value="{{ $product->id }}" onchange="updateBulkActionBar()" style="cursor: pointer; width: 16px; height: 16px;">
                                     </td>
                                     <td>
-                                        <div style="font-weight: 600; color: var(--ink); line-height: 1.3;">{{ $product->name }}</div>
-                                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap;">
-                                            <span style="font-size: 11px; background: var(--surface-soft); padding: 1px 6px; border-radius: 4px; color: var(--muted); border: 1px solid var(--hairline-soft); font-weight: 500;">{{ $product->unit }}</span>
-                                            @if($product->barcode)
-                                                <span style="font-size: 11px; color: var(--muted); font-family: monospace; background: var(--surface-soft); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--hairline-soft);">
-                                                    📋 {{ $product->barcode }}
-                                                </span>
-                                            @endif
-                                            @if($product->is_local_product)
-                                                <span style="font-size: 10px; color: var(--success); background-color: var(--success-bg); padding: 1px 6px; border-radius: var(--r-full); font-weight: 600; border: 1px solid var(--success-border); white-space: nowrap;">🌾 Tani Lokal</span>
-                                            @endif
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <img src="{{ $product->image_url ?? 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=80&q=80' }}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; border: 1px solid var(--hairline-soft); flex-shrink: 0; background: var(--surface);">
+                                            <div style="min-width: 0;">
+                                                <div style="font-weight: 700; color: var(--ink); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 250px;" title="{{ $product->name }}">{{ $product->name }}</div>
+                                                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap;">
+                                                    <span style="font-size: 10px; background: var(--surface-soft); padding: 1px 6px; border-radius: 4px; color: var(--muted); border: 1px solid var(--hairline-soft); font-weight: 600;">{{ $product->unit }}</span>
+                                                    @if($product->barcode)
+                                                        <span style="font-size: 10px; color: var(--muted); font-family: monospace; background: var(--surface-soft); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--hairline-soft);">
+                                                            📋 {{ $product->barcode }}
+                                                        </span>
+                                                    @endif
+                                                    @if($product->is_local_product)
+                                                        <span style="font-size: 9px; color: var(--success); background-color: var(--success-bg); padding: 1px 6px; border-radius: var(--r-full); font-weight: 700; border: 1px solid var(--success-border); white-space: nowrap;">🌾 Tani Lokal</span>
+                                                    @endif
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
-                                    <td>
-                                        <span style="background: var(--surface-md); padding: 2px 8px; border-radius: var(--r-full); font-size: 12px; color: var(--body); white-space: nowrap;">
+                                    <td style="vertical-align: middle;">
+                                        <span style="background: var(--surface-md); padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; color: var(--body); white-space: nowrap;">
                                             {{ $product->category->name }}
                                         </span>
                                     </td>
-                                    <td><strong style="color: var(--primary); white-space: nowrap;">Rp {{ number_format($product->price_member, 0, ',', '.') }}</strong></td>
-                                    <td style="white-space: nowrap;">Rp {{ number_format($product->price_non_member, 0, ',', '.') }}</td>
-                                    <td>
+                                    <td style="vertical-align: middle;">
+                                        <div style="font-size: 13px; font-weight: 700; color: var(--primary);">Rp {{ number_format($product->price_member, 0, ',', '.') }} <span style="font-size: 10px; color: var(--muted); font-weight: 500;">(Anggota)</span></div>
+                                        <div style="font-size: 11px; color: var(--muted); margin-top: 2px;">Rp {{ number_format($product->price_non_member, 0, ',', '.') }} <span style="font-size: 9px; color: var(--muted); font-weight: 500;">(Umum)</span></div>
+                                    </td>
+                                    <td style="vertical-align: middle;">
                                         <div style="display: flex; align-items: center; gap: 6px;">
                                             <input type="number" 
                                                    class="text-input inline-stock-input" 
                                                    value="{{ $product->current_stock }}" 
                                                    data-id="{{ $product->id }}" 
                                                    min="0"
-                                                   style="width: 60px; height: 30px; padding: 2px 6px; font-size: 13px; font-weight: 700; text-align: center; margin: 0; box-sizing: border-box;"
+                                                   style="width: 56px; height: 28px; padding: 2px 4px; font-size: 13px; font-weight: 800; text-align: center; margin: 0; box-sizing: border-box; border-radius: var(--r-sm);"
                                                    onchange="quickSaveStock({{ $product->id }}, this.value)">
-                                            <span style="font-size: 12px; color: var(--muted); font-weight: 500; white-space: nowrap;">{{ $product->unit }}</span>
+                                            <span style="font-size: 12px; color: var(--muted); font-weight: 600; white-space: nowrap;">{{ $product->unit }}</span>
                                         </div>
                                     </td>
-                                    <td style="text-align: center;">
-                                        <div style="display: flex; gap: 6px; justify-content: center;">
-                                            <button type="button" class="btn btn-secondary btn-sm"
-                                                data-product="{{ json_encode($product) }}"
-                                                onclick="loadEditForm(this)">
-                                                ✏️ Edit
-                                            </button>
-                                        </div>
+                                    <td style="text-align: center; vertical-align: middle;">
+                                        <button type="button" class="btn btn-secondary btn-sm" style="border-radius: 100px; padding: 0 12px; height: 28px; font-size: 12px; font-weight: 600;"
+                                            data-product="{{ json_encode($product) }}"
+                                            onclick="loadEditForm(this)">
+                                            ✏️ Edit
+                                        </button>
                                     </td>
                                 </tr>
                             @endforeach
