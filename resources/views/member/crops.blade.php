@@ -35,6 +35,7 @@
                             <th>Kuantitas</th>
                             <th>Harga per Kg/Unit</th>
                             <th>Total Payout</th>
+                            <th>Bukti Timbangan</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -47,6 +48,15 @@
                                 <td>Rp {{ number_format($crop->price_per_unit, 0, ',', '.') }}</td>
                                 <td style="font-weight: 600; color: #1a7f5a;">
                                     Rp {{ number_format($crop->total_payout, 0, ',', '.') }}
+                                </td>
+                                <td>
+                                    @if($crop->scale_image)
+                                        <button type="button" class="btn btn-secondary btn-sm" onclick="showScalePopup('{{ $crop->scale_image }}')" style="padding: 2px 8px; height: auto; font-size: 11px; border-radius: 4px;">
+                                            👁️ Lihat Timbangan
+                                        </button>
+                                    @else
+                                        <span style="color: var(--muted); font-size: 12px; font-style: italic;">Belum ditimbang</span>
+                                    @endif
                                 </td>
                                 <td>
                                     <span style="font-weight: 600; text-transform: uppercase; font-size: 11px;
@@ -180,6 +190,39 @@
         if (select.value !== '' && select.value !== 'custom') {
             nameInput.value = select.options[select.selectedIndex].dataset.name;
         }
+    });
+</script>
+
+{{-- Photo Scale Viewer Popup --}}
+<div style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9999; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;" id="scale-viewer-overlay" onclick="closeScalePopup()">
+    <img src="" style="max-width: 90%; max-height: 80vh; border-radius: var(--r-md); box-shadow: var(--shadow-xl); transform: scale(0.9); transition: transform 0.3s var(--ease-spring);" id="scale-viewer-img" onclick="event.stopPropagation()">
+</div>
+
+<script>
+    // --- Scale Viewer Modal ---
+    function showScalePopup(base64Src) {
+        const overlay = document.getElementById('scale-viewer-overlay');
+        const img = document.getElementById('scale-viewer-img');
+        img.src = base64Src;
+        overlay.style.display = 'flex';
+        setTimeout(() => {
+            overlay.style.opacity = '1';
+            img.style.transform = 'scale(1)';
+        }, 10);
+    }
+
+    function closeScalePopup() {
+        const overlay = document.getElementById('scale-viewer-overlay');
+        const img = document.getElementById('scale-viewer-img');
+        overlay.style.opacity = '0';
+        img.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 300);
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeScalePopup();
     });
 </script>
 @endsection

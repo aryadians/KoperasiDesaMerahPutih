@@ -177,14 +177,14 @@ class StaffController extends Controller
         return view('staff.crops', compact('crops'));
     }
 
-    public function updateCropStatus($id, $status)
+    public function updateCropStatus(Request $request, $id, $status)
     {
         try {
             $crop = CropAbsorption::findOrFail($id);
             if ($crop->branch_id !== auth()->user()->branch_id) {
                 abort(403, 'Unauthorized branch action');
             }
-            $this->cropService->updateStatus($id, $status);
+            $this->cropService->updateStatus($id, $status, $request->input('scale_image'));
             return back()->with('success', 'Status penyerapan hasil tani berhasil diperbarui.');
         } catch (Exception $e) {
             return back()->withErrors(['error' => 'Gagal memperbarui status penyerapan: ' . $e->getMessage()]);

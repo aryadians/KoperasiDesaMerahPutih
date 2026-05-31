@@ -19,6 +19,7 @@ class CropAbsorption extends Model
         'total_payout',
         'status',
         'absorption_date',
+        'scale_image',
     ];
 
     protected $casts = [

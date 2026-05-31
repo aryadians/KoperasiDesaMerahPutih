@@ -56,16 +56,17 @@ class CropAbsorptionService
      *
      * @param int $absorptionId
      * @param string $status 'pending'|'received'|'paid'
+     * @param string|null $scaleImage
      * @return CropAbsorption
      * @throws Exception
      */
-    public function updateStatus(int $absorptionId, string $status): CropAbsorption
+    public function updateStatus(int $absorptionId, string $status, ?string $scaleImage = null): CropAbsorption
     {
         if (!in_array($status, ['pending', 'received', 'paid'])) {
             throw new Exception("Status penyerapan tidak valid.");
         }
 
-        return DB::transaction(function () use ($absorptionId, $status) {
+        return DB::transaction(function () use ($absorptionId, $status, $scaleImage) {
             $absorption = CropAbsorption::where('id', $absorptionId)->lockForUpdate()->first();
             if (!$absorption) {
                 throw new Exception("Data penyerapan hasil tani tidak ditemukan.");
@@ -73,6 +74,10 @@ class CropAbsorptionService
 
             $oldStatus = $absorption->status;
             $absorption->status = $status;
+
+            if ($scaleImage) {
+                $absorption->scale_image = $scaleImage;
+            }
 
             if ($status === 'paid' && $oldStatus !== 'paid') {
                 // Check if member has an active loan to auto-deduct
