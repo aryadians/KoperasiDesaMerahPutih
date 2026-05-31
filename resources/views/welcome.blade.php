@@ -1,6 +1,8 @@
-@extends('layouts.app')
-
-@section('title', 'KDKMP Digital - Koperasi Desa Merah Putih')
+@php
+    $currentBranchId = Auth::check() ? Auth::user()->branch_id : session('active_branch_id', 1);
+    $currentBranch = \App\Models\Branch::find($currentBranchId) ?? \App\Models\Branch::first();
+@endphp
+@section('title', 'KDKMP Digital — Koperasi ' . $currentBranch->name)
 
 @section('content')
 
@@ -20,7 +22,7 @@
         </h1>
         
         <p style="font-size: 18px; line-height: 1.6; opacity: 0.9; margin-bottom: 32px;">
-            Platform modern Koperasi Desa Merah Putih. Belanja kebutuhan sembako harian dengan harga grosir, jual hasil panen langsung ke koperasi, dan nikmati Sisa Hasil Usaha (SHU) setiap tahunnya.
+            Platform modern Koperasi {{ $currentBranch->name }}. Belanja kebutuhan sembako harian dengan harga grosir, jual hasil panen langsung ke koperasi, dan nikmati Sisa Hasil Usaha (SHU) setiap tahunnya.
         </p>
         
         <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
@@ -76,8 +78,8 @@
 
 <div class="grid-4" style="margin-bottom: 64px;">
     @php
-        // Fetch up to 4 latest active products for the landing page
-        $featuredProducts = \App\Models\Product::with('category')->latest()->take(4)->get();
+        // Fetch up to 4 latest active products for the landing page scoped by active branch
+        $featuredProducts = \App\Models\Product::with('category')->where('branch_id', $currentBranchId)->latest()->take(4)->get();
     @endphp
 
     @forelse($featuredProducts as $idx => $product)
@@ -134,7 +136,7 @@
 <div class="reveal-scale" style="background: var(--surface); border: 1.5px solid var(--hairline); border-radius: var(--r-xl); padding: 48px; text-align: center; margin-bottom: 32px;">
     <h2 style="font-size: 28px; font-weight: 800; color: var(--ink); margin-bottom: 16px;">Jadilah Bagian dari Kemajuan Desa</h2>
     <p style="font-size: 15px; color: var(--muted); max-width: 600px; margin: 0 auto 32px; line-height: 1.6;">
-        Dengan bergabung sebagai anggota KDKMP, Anda tidak hanya berbelanja untuk diri sendiri, tetapi juga membantu menggerakkan roda ekonomi kerakyatan Desa Merah Putih.
+        Dengan bergabung sebagai anggota KDKMP, Anda tidak hanya berbelanja untuk diri sendiri, tetapi juga membantu menggerakkan roda ekonomi kerakyatan {{ $currentBranch->name }}.
     </p>
     <div style="display: flex; gap: 16px; justify-content: center;">
         <a href="{{ route('register') }}" class="btn btn-primary btn-lg" style="border-radius: 100px;">
