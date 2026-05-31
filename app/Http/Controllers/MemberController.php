@@ -140,8 +140,9 @@ class MemberController extends Controller
     {
         $member = Member::where('user_id', Auth::id())->firstOrFail();
         $crops = CropAbsorption::where('member_id', $member->id)->latest()->get();
+        $localProducts = \App\Models\Product::where('is_local_product', true)->get();
 
-        return view('member.crops', compact('crops'));
+        return view('member.crops', compact('crops', 'localProducts'));
     }
 
     /**

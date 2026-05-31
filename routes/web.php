@@ -91,6 +91,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/pos', [StaffController::class, 'pos'])->name('pos');
         Route::post('/pos/checkout', [StaffController::class, 'posCheckout'])->name('pos.checkout');
         Route::get('/pos/member/{nik}', [StaffController::class, 'posLookupMember'])->name('pos.member');
+        Route::get('/pos/receipt/{id}/pdf', [StaffController::class, 'downloadReceiptPdf'])->name('pos.receipt-pdf');
         Route::post('/autodebet', [StaffController::class, 'runAutodebet'])->name('autodebet');
 
         // System Config Panel

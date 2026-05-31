@@ -594,4 +594,30 @@ class StaffController extends Controller
             return back()->withErrors(['error' => 'Gagal menyimpan konfigurasi: ' . $e->getMessage()]);
         }
     }
+
+    /**
+     * Export a specific POS transaction receipt as a PDF.
+     */
+    public function downloadReceiptPdf($id)
+    {
+        try {
+            $order = Order::with(['items.product', 'user'])->findOrFail($id);
+            
+            $member = null;
+            if ($order->user && $order->user->role === 'anggota') {
+                $member = Member::where('user_id', $order->user_id)->first();
+            }
+
+            // Generate thermal layout PDF
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('staff.receipt_pdf', compact('order', 'member'));
+            
+            // 80mm thermal roll is approximately 226 points wide
+            // Height is set to 550 points to fit common retail orders
+            $pdf->setPaper([0, 0, 226, 550], 'portrait');
+            
+            return $pdf->download("struk_{$order->order_number}.pdf");
+        } catch (Exception $e) {
+            return back()->withErrors(['error' => 'Gagal mengunduh struk PDF: ' . $e->getMessage()]);
+        }
+    }
 }

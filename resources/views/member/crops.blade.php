@@ -74,18 +74,36 @@
                 @csrf
                 
                 <div class="form-group">
-                    <label for="product_name">Nama Hasil Panen</label>
-                    <input type="text" name="product_name" id="product_name" class="text-input" placeholder="Contoh: Cabai Rawit Merah, Bawang Merah, Gabah" required>
+                    <label for="crop_select">Komoditas Tani</label>
+                    <select id="crop_select" class="form-select" onchange="onCropSelectChange(this)" required>
+                        <option value="">-- Pilih Komoditas --</option>
+                        @foreach($localProducts as $prod)
+                            @php $buyPrice = round($prod->price_member * 0.85); @endphp
+                            <option value="{{ $prod->id }}" 
+                                    data-name="{{ $prod->name }}" 
+                                    data-price="{{ $buyPrice }}" 
+                                    data-unit="{{ $prod->unit }}">
+                                {{ $prod->name }} (Beli: Rp {{ number_format($buyPrice, 0, ',', '.') }}/{{ $prod->unit }})
+                            </option>
+                        @endforeach
+                        <option value="custom">Komoditas Lain (Tulis Manual)</option>
+                    </select>
+                </div>
+
+                <!-- Hidden or manual name input -->
+                <div class="form-group" id="manual-name-group" style="display: none;">
+                    <label for="product_name">Nama Komoditas Lain</label>
+                    <input type="text" name="product_name" id="product_name" class="text-input" placeholder="Contoh: Cabai Keriting Hijau">
                 </div>
 
                 <div class="form-group">
-                    <label for="quantity">Kuantitas Panen (Kg / Liter)</label>
-                    <input type="number" step="0.01" name="quantity" id="quantity" class="text-input" placeholder="Contoh: 50.5" oninput="calculateTotal()" required>
+                    <label for="quantity">Kuantitas Panen (<span id="unit-label">Unit</span>)</label>
+                    <input type="number" step="0.01" name="quantity" id="quantity" class="text-input" placeholder="Masukkan jumlah" oninput="calculateTotal()" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="price_per_unit">Harga Penawaran per Kg (Rupiah)</label>
-                    <input type="number" name="price_per_unit" id="price_per_unit" class="text-input" placeholder="Contoh: 25000" oninput="calculateTotal()" required>
+                    <label for="price_per_unit">Harga Penawaran Koperasi per <span id="price-unit-label">Unit</span> (Rupiah)</label>
+                    <input type="number" name="price_per_unit" id="price_per_unit" class="text-input" placeholder="Rp" oninput="calculateTotal()" required>
                 </div>
 
                 <!-- Live estimation display -->
@@ -101,6 +119,52 @@
 </div>
 
 <script>
+    function onCropSelectChange(select) {
+        const selected = select.options[select.selectedIndex];
+        const manualNameGroup = document.getElementById('manual-name-group');
+        const nameInput = document.getElementById('product_name');
+        const priceInput = document.getElementById('price_per_unit');
+        const unitLabel = document.getElementById('unit-label');
+        const priceUnitLabel = document.getElementById('price-unit-label');
+        
+        if (select.value === 'custom') {
+            manualNameGroup.style.display = 'flex';
+            nameInput.required = true;
+            nameInput.value = '';
+            
+            priceInput.readOnly = false;
+            priceInput.value = '';
+            priceInput.style.backgroundColor = '';
+            
+            unitLabel.textContent = 'Kg / Unit';
+            priceUnitLabel.textContent = 'Kg / Unit';
+        } else if (select.value !== '') {
+            manualNameGroup.style.display = 'none';
+            nameInput.required = false;
+            nameInput.value = selected.dataset.name;
+            
+            priceInput.readOnly = true;
+            priceInput.value = selected.dataset.price;
+            priceInput.style.backgroundColor = 'var(--surface-soft)';
+            
+            unitLabel.textContent = selected.dataset.unit;
+            priceUnitLabel.textContent = selected.dataset.unit;
+        } else {
+            manualNameGroup.style.display = 'none';
+            nameInput.required = false;
+            nameInput.value = '';
+            
+            priceInput.readOnly = false;
+            priceInput.value = '';
+            priceInput.style.backgroundColor = '';
+            
+            unitLabel.textContent = 'Unit';
+            priceUnitLabel.textContent = 'Unit';
+        }
+        
+        calculateTotal();
+    }
+
     function calculateTotal() {
         const qty = parseFloat(document.getElementById('quantity').value) || 0;
         const price = parseFloat(document.getElementById('price_per_unit').value) || 0;
@@ -108,5 +172,14 @@
         
         document.getElementById('payout-display').textContent = 'Rp ' + total.toLocaleString('id-ID');
     }
+    
+    // Set initial product name target on form submit
+    document.getElementById('sell-crop-form').addEventListener('submit', function(e) {
+        const select = document.getElementById('crop_select');
+        const nameInput = document.getElementById('product_name');
+        if (select.value !== '' && select.value !== 'custom') {
+            nameInput.value = select.options[select.selectedIndex].dataset.name;
+        }
+    });
 </script>
 @endsection

@@ -683,9 +683,12 @@
             <p>Sisa Hasil Usaha (SHU) koperasi desa dibagikan dari warga untuk warga.</p>
         </div>
 
-        <div style="display: flex; gap: 8px; margin-top: 16px;" class="no-print">
-            <button class="btn btn-primary btn-full" onclick="window.print()" style="flex: 1; height: 36px; font-size: 12px; background: #000; border-radius: 4px;">🖨️ Cetak</button>
-            <button class="btn btn-secondary btn-full" onclick="closePOSReceipt()" style="flex: 1; height: 36px; font-size: 12px; border-color: #777; border-radius: 4px; color: #555;">Selesai (ESC)</button>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;" class="no-print">
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-primary btn-full" onclick="window.print()" style="flex: 1; height: 36px; font-size: 12px; background: #000; border-radius: 4px;">🖨️ Cetak</button>
+                <a id="btn-download-pdf-receipt" href="#" class="btn btn-secondary btn-full" style="flex: 1; height: 36px; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; border-color: var(--primary); color: var(--primary); text-decoration: none;" target="_blank">📥 Unduh PDF</a>
+            </div>
+            <button class="btn btn-ghost btn-full" onclick="closePOSReceipt()" style="height: 34px; font-size: 12px; border-color: #ccc; border-radius: 4px; color: #555; background: none; border: 1px solid #ccc;">Selesai (ESC)</button>
         </div>
     </div>
 </div>
@@ -763,6 +766,78 @@
             clearPOSCart();
         } else if (e.key === 'Escape') {
             closePOSReceipt();
+        }
+    });
+
+    // --- Global Barcode Scanner Listener (Keyboard Emulation Interceptor) ---
+    let barcodeBuffer = '';
+    let lastKeyTime = 0;
+    
+    document.addEventListener('keypress', function(e) {
+        // Exclude inputs where the user might actually be typing manually
+        const activeEl = document.activeElement;
+        const isInput = activeEl && (
+            activeEl.tagName === 'INPUT' || 
+            activeEl.tagName === 'TEXTAREA' || 
+            activeEl.tagName === 'SELECT'
+        );
+        
+        // If the focused element is NOT the search box, intercept inputs for barcode
+        if (isInput && activeEl.id !== 'pos-search') {
+            return;
+        }
+
+        const currentTime = new Date().getTime();
+        
+        // Barcode scanners type very rapidly (time gap usually less than 40ms)
+        // If the gap is longer than 50ms, it is probably a human typing, so reset the buffer unless it's the search field
+        if (currentTime - lastKeyTime > 50 && activeEl.id !== 'pos-search') {
+            barcodeBuffer = '';
+        }
+        
+        lastKeyTime = currentTime;
+
+        // If it's a printable character and not Enter
+        if (e.key !== 'Enter' && e.key.length === 1) {
+            barcodeBuffer += e.key;
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        const activeEl = document.activeElement;
+        
+        // Intercept Enter key
+        if (e.key === 'Enter') {
+            const isInput = activeEl && (
+                activeEl.tagName === 'INPUT' || 
+                activeEl.tagName === 'TEXTAREA' || 
+                activeEl.tagName === 'SELECT'
+            );
+            
+            // If we have a buffered barcode and the active element is not another form field
+            if (barcodeBuffer.length >= 3 && (!isInput || activeEl.id === 'pos-search')) {
+                const scannedBarcode = barcodeBuffer;
+                barcodeBuffer = ''; // Reset buffer
+                
+                // Audio feedback on scan
+                playBeep();
+                
+                // Populate search field and scan
+                const searchInput = document.getElementById('pos-search');
+                if (searchInput) {
+                    searchInput.value = scannedBarcode;
+                    e.preventDefault(); // Stop default form submit
+                    
+                    // Trigger search
+                    handleBarcodeScan({
+                        key: 'Enter',
+                        preventDefault: () => {},
+                        target: searchInput
+                    });
+                }
+            } else {
+                barcodeBuffer = ''; // Reset on normal Enter
+            }
         }
     });
 
@@ -1183,6 +1258,7 @@
     // ── Receipt Struk Modal Handler
     function openPOSReceipt(order, cashAmount) {
         document.getElementById('rec-number').textContent = order.order_number;
+        document.getElementById('btn-download-pdf-receipt').href = '/staff/pos/receipt/' + order.id + '/pdf';
         document.getElementById('rec-date').textContent = new Date(order.created_at).toLocaleString('id-ID');
         document.getElementById('rec-member').textContent = order.user.name + (selectedMember ? ' (' + order.user.role + ')' : ' (Guest/Umum)');
 
