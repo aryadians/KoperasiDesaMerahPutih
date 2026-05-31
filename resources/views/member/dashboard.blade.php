@@ -73,6 +73,33 @@
 <div class="split-layout">
     <div class="main-column" style="display:flex;flex-direction:column;gap:20px;">
 
+        {{-- Iuran Wajib Status Alert --}}
+        <div class="card reveal-left" style="border-left: 5px solid {{ $iuranWajibPaidThisMonth ? 'var(--success)' : 'var(--danger)' }};">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+                <div style="display:flex;align-items:center;gap:14px;">
+                    <div style="font-size:32px;animation: emoji-bounce 3s ease-in-out infinite;">{{ $iuranWajibPaidThisMonth ? '✅' : '📅' }}</div>
+                    <div>
+                        <h4 style="font-size:14px;font-weight:700;color:var(--ink);margin:0;">Status Iuran Wajib Bulanan</h4>
+                        <p style="font-size:12px;color:var(--muted);margin-top:2px;">
+                            Bulan {{ Carbon\Carbon::now()->translatedFormat('F Y') }} · Tagihan: <strong>Rp {{ number_format($iuranWajibNominal, 0, ',', '.') }}</strong>
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    @if($iuranWajibPaidThisMonth)
+                        <span class="badge badge-success" style="font-size:12px;padding:6px 14px;border-radius:100px;">LUNAS</span>
+                    @else
+                        <span class="badge badge-danger" style="font-size:12px;padding:6px 14px;border-radius:100px;">BELUM DIBAYAR</span>
+                    @endif
+                </div>
+            </div>
+            @if(!$iuranWajibPaidThisMonth)
+                <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--hairline-soft);font-size:12px;color:var(--muted);line-height:1.5;">
+                    💡 Iuran wajib akan otomatis didebet oleh pengurus dari saldo <strong>Simpanan Sukarela</strong> Anda jika mencukupi. Pastikan saldo Anda mencukupi sebelum akhir bulan.
+                </div>
+            @endif
+        </div>
+
         {{-- Savings Summary --}}
         <div class="card reveal-left">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--hairline-soft);">

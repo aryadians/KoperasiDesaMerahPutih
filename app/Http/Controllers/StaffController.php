@@ -61,6 +61,39 @@ class StaffController extends Controller
         $totalCropPayout = CropAbsorption::where('branch_id', $branchId)->where('status', 'paid')->sum('total_payout');
         $activeLoansVolume = Loan::where('branch_id', $branchId)->where('status', 'active')->sum('amount_approved');
 
+        // Iuran Wajib and Autodebet stats
+        $iuranWajibNominal = (float) (SystemConfig::where('key', 'IURAN_WAJIB_NOMINAL')->first()->value ?? 50000.00);
+        $activeMembers = Member::where('status_aktif', true)->whereHas('user', function($q) use ($branchId) {
+            $q->where('branch_id', $branchId);
+        })->get();
+        
+        $paidCount = 0;
+        $unpaidCount = 0;
+        foreach ($activeMembers as $m) {
+            $hasPaid = MemberSaving::where('member_id', $m->id)
+                ->where('type', 'wajib')
+                ->where('amount', '>', 0)
+                ->whereMonth('transaction_date', date('m'))
+                ->whereYear('transaction_date', date('Y'))
+                ->exists();
+            if ($hasPaid) {
+                $paidCount++;
+            } else {
+                $unpaidCount++;
+            }
+        }
+
+        $autodebetLogs = MemberSaving::with('member.user')
+            ->whereHas('member.user', function($q) use ($branchId) {
+                $q->where('branch_id', $branchId);
+            })
+            ->where('type', 'sukarela')
+            ->where('amount', '<', 0)
+            ->where('notes', 'like', '%Autodebet%')
+            ->latest()
+            ->take(5)
+            ->get();
+
         return view('staff.dashboard', compact(
             'pendingOrdersCount',
             'pendingCropsCount',
@@ -68,7 +101,11 @@ class StaffController extends Controller
             'lowStockProducts',
             'totalSales',
             'totalCropPayout',
-            'activeLoansVolume'
+            'activeLoansVolume',
+            'iuranWajibNominal',
+            'paidCount',
+            'unpaidCount',
+            'autodebetLogs'
         ));
     }
 
@@ -515,7 +552,7 @@ class StaffController extends Controller
             $members = Member::where('status_aktif', true)->get();
             $successCount = 0;
             $failCount = 0;
-            $amount = 50000.00; // Standard monthly obligated saving
+            $amount = (float) (SystemConfig::where('key', 'IURAN_WAJIB_NOMINAL')->first()->value ?? 50000.00);
 
             DB::beginTransaction();
             foreach ($members as $member) {
@@ -605,6 +642,8 @@ class StaffController extends Controller
             'APP_DEBUG' => SystemConfig::where('key', 'APP_DEBUG')->first()->value ?? (config('app.debug') ? 'true' : 'false'),
             'SESSION_DRIVER' => SystemConfig::where('key', 'SESSION_DRIVER')->first()->value ?? config('session.driver'),
             'SESSION_LIFETIME' => SystemConfig::where('key', 'SESSION_LIFETIME')->first()->value ?? config('session.lifetime'),
+            'IURAN_WAJIB_NOMINAL' => SystemConfig::where('key', 'IURAN_WAJIB_NOMINAL')->first()->value ?? '50000',
+            'IURAN_POKOK_NOMINAL' => SystemConfig::where('key', 'IURAN_POKOK_NOMINAL')->first()->value ?? '100000',
         ];
 
         return view('staff.config', compact('configs'));
@@ -621,6 +660,8 @@ class StaffController extends Controller
             'app_debug' => 'required|in:true,false',
             'session_driver' => 'required|in:file,database,cookie',
             'session_lifetime' => 'required|integer|min:1',
+            'iuran_wajib_nominal' => 'required|numeric|min:0',
+            'iuran_pokok_nominal' => 'required|numeric|min:0',
         ]);
 
         try {
@@ -629,6 +670,8 @@ class StaffController extends Controller
             SystemConfig::updateOrCreate(['key' => 'APP_DEBUG'], ['value' => $request->app_debug]);
             SystemConfig::updateOrCreate(['key' => 'SESSION_DRIVER'], ['value' => $request->session_driver]);
             SystemConfig::updateOrCreate(['key' => 'SESSION_LIFETIME'], ['value' => $request->session_lifetime]);
+            SystemConfig::updateOrCreate(['key' => 'IURAN_WAJIB_NOMINAL'], ['value' => $request->iuran_wajib_nominal]);
+            SystemConfig::updateOrCreate(['key' => 'IURAN_POKOK_NOMINAL'], ['value' => $request->iuran_pokok_nominal]);
 
             // Clear config cache programmatically
             Artisan::call('optimize:clear');

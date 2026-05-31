@@ -66,10 +66,28 @@
                 </div>
 
                 {{-- SESSION_LIFETIME --}}
-                <div class="form-group" style="margin-top: 18px; margin-bottom: 24px;">
+                <div class="form-group" style="margin-top: 18px;">
                     <label for="session_lifetime">Durasi Masa Sesi (Menit - SESSION_LIFETIME)</label>
                     <input type="number" name="session_lifetime" id="session_lifetime" class="text-input" value="{{ $configs['SESSION_LIFETIME'] }}" min="1" required placeholder="120">
                     <span style="font-size: 12px; color: var(--muted); margin-top: 4px;">Batas waktu warga akan otomatis logout jika tidak ada aktivitas di sistem.</span>
+                </div>
+
+                <h3 style="font-size: 18px; font-weight: 700; margin-top: 32px; margin-bottom: 20px; border-bottom: 1px solid var(--hairline-soft); padding-bottom: 12px; color: var(--success);">
+                    Pengaturan Simpanan &amp; Iuran Anggota
+                </h3>
+
+                {{-- IURAN_WAJIB_NOMINAL --}}
+                <div class="form-group" style="margin-top: 18px;">
+                    <label for="iuran_wajib_nominal">Nominal Iuran Wajib Bulanan (Rp - IURAN_WAJIB_NOMINAL)</label>
+                    <input type="number" name="iuran_wajib_nominal" id="iuran_wajib_nominal" class="text-input" value="{{ $configs['IURAN_WAJIB_NOMINAL'] }}" min="0" required placeholder="50000">
+                    <span style="font-size: 12px; color: var(--muted); margin-top: 4px;">Jumlah nominal yang ditarik otomatis (autodebet) setiap bulannya dari simpanan sukarela anggota.</span>
+                </div>
+
+                {{-- IURAN_POKOK_NOMINAL --}}
+                <div class="form-group" style="margin-top: 18px; margin-bottom: 24px;">
+                    <label for="iuran_pokok_nominal">Nominal Iuran Pokok Pendaftaran (Rp - IURAN_POKOK_NOMINAL)</label>
+                    <input type="number" name="iuran_pokok_nominal" id="iuran_pokok_nominal" class="text-input" value="{{ $configs['IURAN_POKOK_NOMINAL'] }}" min="0" required placeholder="100000">
+                    <span style="font-size: 12px; color: var(--muted); margin-top: 4px;">Uang pangkal yang dibayarkan satu kali saat pertama kali menjadi anggota koperasi.</span>
                 </div>
 
                 <button type="submit" class="button-primary" style="height: 48px; border-radius: 100px;">

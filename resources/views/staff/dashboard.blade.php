@@ -179,20 +179,52 @@
         </div>
 
         {{-- Autodebet Setoran Wajib --}}
-        <div class="reservation-card" style="margin-top: 20px; border-color: var(--success-border); background: var(--success-bg);">
+        <div class="reservation-card" style="margin-top: 20px; border-color: var(--success-border); background: var(--success-bg); padding: 24px;">
             <div>
                 <div style="font-size: 32px; margin-bottom: 12px; animation: emoji-bounce 3s ease-in-out infinite;">🔄</div>
-                <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px; color: var(--success);">Autodebet Setoran Wajib</h3>
-                <p style="font-size: 13px; color: var(--muted); line-height: 1.6;">
-                    Jalankan pemotongan otomatis iuran wajib bulanan sebesar <strong>Rp 50.000</strong> dari saldo Simpanan Sukarela anggota yang aktif.
+                <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 6px; color: var(--success);">Autodebet Setoran Wajib</h3>
+                <p style="font-size: 13px; color: #35624f; line-height: 1.6; margin-bottom: 12px;">
+                    Besaran Bulanan: <strong style="color: #165c42;">Rp {{ number_format($iuranWajibNominal, 0, ',', '.') }}</strong>
                 </p>
+                
+                {{-- Payment stats --}}
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;">
+                    <div style="background: rgba(255,255,255,0.5); padding: 8px; border-radius: 8px; text-align: center;">
+                        <span style="font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase;">Lunas</span>
+                        <div style="font-size: 16px; font-weight: 800; color: var(--success); margin-top: 2px;">{{ $paidCount }}</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.5); padding: 8px; border-radius: 8px; text-align: center;">
+                        <span style="font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase;">Belum</span>
+                        <div style="font-size: 16px; font-weight: 800; color: var(--danger); margin-top: 2px;">{{ $unpaidCount }}</div>
+                    </div>
+                </div>
             </div>
-            <form action="{{ route('staff.autodebet') }}" method="POST" onsubmit="this.querySelector('button').disabled=true; this.querySelector('button').innerText='Memproses...';">
+
+            <form action="{{ route('staff.autodebet') }}" method="POST" onsubmit="this.querySelector('button').disabled=true; this.querySelector('button').innerText='Memproses...';" style="margin: 0;">
                 @csrf
-                <button type="submit" class="button-primary" style="background: linear-gradient(135deg, var(--success), #165c42); font-size: 14px; height: 44px; border-radius: 100px; width: 100%; border: none; cursor: pointer; color: white;">
+                <button type="submit" class="button-primary" style="background: linear-gradient(135deg, var(--success), #165c42); font-size: 13px; height: 40px; border-radius: 100px; width: 100%; border: none; cursor: pointer; color: white; font-weight: 700;">
                     Jalankan Autodebet ➔
                 </button>
             </form>
+
+            {{-- Autodebet Logs --}}
+            <div style="margin-top: 18px; border-top: 1px dashed rgba(22, 92, 66, 0.15); padding-top: 14px;">
+                <h4 style="font-size: 12px; font-weight: 700; color: #165c42; margin-bottom: 8px;">Log Autodebet Terakhir</h4>
+                @if($autodebetLogs->isEmpty())
+                    <div style="font-size: 11px; color: #628374; font-style: italic; text-align: center; padding: 10px 0;">
+                        Belum ada transaksi autodebet bulan ini.
+                    </div>
+                @else
+                    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px; max-height: 120px; overflow-y: auto; padding-right: 4px;">
+                        @foreach($autodebetLogs as $log)
+                            <div style="display: flex; justify-content: space-between; align-items: center; color: #1e3d30; padding: 6px 8px; background: rgba(255,255,255,0.4); border-radius: 6px; border: 1px solid rgba(255,255,255,0.35);">
+                                <span style="font-weight: 600;">{{ $log->member->user->name }}</span>
+                                <span style="font-weight: 700; color: var(--danger); font-family: monospace;">-Rp {{ number_format(abs($log->amount), 0, ',', '.') }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
         </div>
 
         {{-- Quick links --}}

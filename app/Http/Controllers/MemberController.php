@@ -50,7 +50,16 @@ class MemberController extends Controller
         $recentOrders = Order::where('user_id', $user->id)->latest()->take(5)->get();
         $activeLoan = Loan::where('member_id', $member->id)->whereIn('status', ['draft', 'approved', 'active'])->first();
 
-        return view('member.dashboard', compact('member', 'savingsBalances', 'recentOrders', 'activeLoan'));
+        // Check monthly obliged iuran status
+        $iuranWajibPaidThisMonth = MemberSaving::where('member_id', $member->id)
+            ->where('type', 'wajib')
+            ->where('amount', '>', 0)
+            ->whereMonth('transaction_date', date('m'))
+            ->whereYear('transaction_date', date('Y'))
+            ->exists();
+        $iuranWajibNominal = (float) (\App\Models\SystemConfig::where('key', 'IURAN_WAJIB_NOMINAL')->first()->value ?? 50000.00);
+
+        return view('member.dashboard', compact('member', 'savingsBalances', 'recentOrders', 'activeLoan', 'iuranWajibPaidThisMonth', 'iuranWajibNominal'));
     }
 
     /**
