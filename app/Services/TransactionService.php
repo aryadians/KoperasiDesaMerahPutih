@@ -7,6 +7,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Member;
 use App\Services\SavingsService;
+use App\Events\ProductStockUpdated;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
@@ -64,6 +65,8 @@ class TransactionService
                 // Deduct stock
                 $product->current_stock -= $quantity;
                 $product->save();
+
+                event(new ProductStockUpdated($product));
 
                 // Determine price (member vs non-member)
                 $user = DB::table('users')->where('id', $userId)->first();
@@ -181,6 +184,8 @@ class TransactionService
                 if ($product) {
                     $product->current_stock += $item->quantity;
                     $product->save();
+
+                    event(new ProductStockUpdated($product));
                 }
             }
 

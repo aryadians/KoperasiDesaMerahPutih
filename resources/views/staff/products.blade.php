@@ -4,6 +4,45 @@
 
 @section('content')
 
+<style>
+    /* Responsive Split Layout & Table compact overrides */
+    .split-layout {
+        display: flex;
+        gap: 24px;
+        align-items: flex-start;
+    }
+    .sticky-rail {
+        flex: 0 0 340px !important; /* Reduced from 380px to give table more breathing room */
+        position: sticky;
+        top: 96px;
+        height: fit-content;
+    }
+    .main-column {
+        flex: 1;
+        min-width: 0;
+    }
+    @media (max-width: 1280px) {
+        .split-layout {
+            flex-direction: column;
+            gap: 24px;
+        }
+        .sticky-rail {
+            position: static;
+            flex: 1;
+            width: 100%;
+        }
+    }
+    /* Compact table typography and padding */
+    table.clean-table th {
+        font-size: 11px;
+        letter-spacing: 0.5px;
+        padding: 10px 12px !important;
+    }
+    table.clean-table td {
+        padding: 10px 12px !important;
+    }
+</style>
+
 <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
     <h1 style="font-size: 28px; font-weight: 600; color: var(--ink); margin: 0;">Inventaris Gerai Sembako</h1>
     <a href="{{ route('staff.products.export') }}" class="btn btn-secondary btn-sm" style="font-weight: 600;" data-no-loading>
@@ -34,6 +73,27 @@
                     </div>
                 </form>
             </div>
+
+            <!-- Search & Filter Panel (Stock Opname optimization) -->
+            <div style="padding: 12px 20px; background: var(--surface); border-bottom: 1px solid var(--hairline-soft); display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                <form action="{{ route('staff.products') }}" method="GET" style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap; margin: 0;">
+                    <div style="position: relative; flex: 1; min-width: 200px;">
+                        <input type="text" name="search" placeholder="Cari nama barang / barcode..." value="{{ request('search') }}" class="text-input" style="height: 36px; padding-left: 12px; font-size: 13px;">
+                    </div>
+                    <div style="width: 180px;">
+                        <select name="category_id" class="form-select" style="height: 36px; font-size: 13px; padding: 0 10px; margin: 0;" onchange="this.form.submit()">
+                            <option value="">Semua Kategori</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-secondary btn-sm" style="height: 36px; padding: 0 16px; font-size: 13px;">Filter 🔍</button>
+                    @if(request('search') || request('category_id'))
+                        <a href="{{ route('staff.products') }}" class="btn btn-ghost btn-sm" style="height: 36px; display: inline-flex; align-items: center; font-size: 13px; color: var(--danger); border-color: var(--danger); text-decoration: none; padding: 0 12px;">Reset</a>
+                    @endif
+                </form>
+            </div>
             
             @if($products->isEmpty())
                 <div style="padding: 32px; text-align: center; color: var(--muted);">
@@ -48,12 +108,11 @@
                                     <input type="checkbox" id="select-all" onclick="toggleSelectAll(this)" style="cursor: pointer; width: 16px; height: 16px;">
                                 </th>
                                 <th>Produk</th>
-                                <th>Barcode</th>
                                 <th>Kategori</th>
-                                <th>Harga Anggota</th>
-                                <th>Harga Umum</th>
+                                <th style="white-space: nowrap;">Harga Anggota</th>
+                                <th style="white-space: nowrap;">Harga Umum</th>
                                 <th>Stok</th>
-                                <th style="text-align: center; width: 150px;">Aksi</th>
+                                <th style="text-align: center; width: 80px;">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -63,36 +122,37 @@
                                         <input type="checkbox" class="row-checkbox" value="{{ $product->id }}" onchange="updateBulkActionBar()" style="cursor: pointer; width: 16px; height: 16px;">
                                     </td>
                                     <td>
-                                        <div style="font-weight: 600; color: var(--ink);">{{ $product->name }}</div>
-                                        <span style="font-size: 11px; color: var(--muted);">Unit: {{ $product->unit }}</span>
-                                        @if($product->is_local_product)
-                                            <span style="font-size: 10px; color: var(--success); background-color: var(--success-bg); padding: 2px 6px; border-radius: var(--r-full); font-weight: 600; margin-left: 6px;">🌾 Tani Lokal</span>
-                                        @endif
+                                        <div style="font-weight: 600; color: var(--ink); line-height: 1.3;">{{ $product->name }}</div>
+                                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap;">
+                                            <span style="font-size: 11px; background: var(--surface-soft); padding: 1px 6px; border-radius: 4px; color: var(--muted); border: 1px solid var(--hairline-soft); font-weight: 500;">{{ $product->unit }}</span>
+                                            @if($product->barcode)
+                                                <span style="font-size: 11px; color: var(--muted); font-family: monospace; background: var(--surface-soft); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--hairline-soft);">
+                                                    📋 {{ $product->barcode }}
+                                                </span>
+                                            @endif
+                                            @if($product->is_local_product)
+                                                <span style="font-size: 10px; color: var(--success); background-color: var(--success-bg); padding: 1px 6px; border-radius: var(--r-full); font-weight: 600; border: 1px solid var(--success-border); white-space: nowrap;">🌾 Tani Lokal</span>
+                                            @endif
+                                        </div>
                                     </td>
                                     <td>
-                                        @if($product->barcode)
-                                            <code style="background: var(--surface-soft); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 11px; color: var(--ink); border: 1px solid var(--hairline);">{{ $product->barcode }}</code>
-                                        @else
-                                            <span style="font-size: 11px; color: var(--muted); font-style: italic;">Belum set</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <span style="background: var(--surface-md); padding: 2px 8px; border-radius: var(--r-full); font-size: 12px; color: var(--body);">
+                                        <span style="background: var(--surface-md); padding: 2px 8px; border-radius: var(--r-full); font-size: 12px; color: var(--body); white-space: nowrap;">
                                             {{ $product->category->name }}
                                         </span>
                                     </td>
-                                    <td><strong style="color: var(--primary);">Rp {{ number_format($product->price_member, 0, ',', '.') }}</strong></td>
-                                    <td>Rp {{ number_format($product->price_non_member, 0, ',', '.') }}</td>
+                                    <td><strong style="color: var(--primary); white-space: nowrap;">Rp {{ number_format($product->price_member, 0, ',', '.') }}</strong></td>
+                                    <td style="white-space: nowrap;">Rp {{ number_format($product->price_non_member, 0, ',', '.') }}</td>
                                     <td>
-                                        @if($product->current_stock <= 5)
-                                            <span style="color: var(--danger); font-weight: 700; background: var(--danger-bg); padding: 2px 8px; border-radius: var(--r-full); font-size: 12px;">
-                                                {{ $product->current_stock }} {{ $product->unit }}
-                                            </span>
-                                        @else
-                                            <span style="color: var(--success); font-weight: 700; font-size: 14px;">
-                                                {{ $product->current_stock }} <span style="font-size: 12px; color: var(--muted); font-weight: 500;">{{ $product->unit }}</span>
-                                            </span>
-                                        @endif
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <input type="number" 
+                                                   class="text-input inline-stock-input" 
+                                                   value="{{ $product->current_stock }}" 
+                                                   data-id="{{ $product->id }}" 
+                                                   min="0"
+                                                   style="width: 60px; height: 30px; padding: 2px 6px; font-size: 13px; font-weight: 700; text-align: center; margin: 0; box-sizing: border-box;"
+                                                   onchange="quickSaveStock({{ $product->id }}, this.value)">
+                                            <span style="font-size: 12px; color: var(--muted); font-weight: 500; white-space: nowrap;">{{ $product->unit }}</span>
+                                        </div>
                                     </td>
                                     <td style="text-align: center;">
                                         <div style="display: flex; gap: 6px; justify-content: center;">
@@ -180,9 +240,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="form-image-url">URL Gambar Produk (dari internet)</label>
-                    <input type="url" name="image_url" id="form-image-url" class="text-input" placeholder="https://images.unsplash.com/photo-...">
-                </div>
+                                    <label for="form-image-file">Gambar Produk (File Upload / Base64)</label>
+                                    <input type="file" id="form-image-file" class="text-input" accept="image/*" onchange="convertImageToBase64(this)" style="padding-top: 6px;">
+                                    <input type="hidden" name="image_url" id="form-image-url">
+                                    <div id="image-preview-container" style="margin-top: 8px; display: none; text-align: center; background: var(--surface-soft); padding: 10px; border-radius: var(--r-md); border: 1px dashed var(--hairline);">
+                                        <img id="image-preview" src="" style="max-width: 100%; max-height: 120px; border-radius: var(--r-sm); border: 1px solid var(--hairline); object-fit: cover;">
+                                        <button type="button" class="btn btn-ghost btn-sm" onclick="clearPreviewImage()" style="color: var(--danger); font-size: 11px; padding: 2px 8px; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; border-color: var(--danger-border); background: var(--danger-bg);">🗑️ Hapus Gambar</button>
+                                    </div>
+                                </div>
 
                 <div class="form-group">
                     <label for="unit">Satuan Jual (UOM)</label>
@@ -258,7 +323,21 @@
         document.getElementById('form-barcode').value = product.barcode || '';
         document.getElementById('form-category-id').value = product.category_id;
         document.getElementById('form-description').value = product.description || '';
-        document.getElementById('form-image-url').value = product.image_url || '';
+        
+        // Populate image preview
+        const imageUrl = product.image_url || '';
+        document.getElementById('form-image-url').value = imageUrl;
+        const previewImg = document.getElementById('image-preview');
+        const previewContainer = document.getElementById('image-preview-container');
+        if (imageUrl) {
+            previewImg.src = imageUrl;
+            previewContainer.style.display = 'block';
+        } else {
+            previewImg.src = '';
+            previewContainer.style.display = 'none';
+        }
+        document.getElementById('form-image-file').value = '';
+
         document.getElementById('form-unit').value = product.unit;
         document.getElementById('form-price-member').value = Math.round(product.price_member);
         document.getElementById('form-price-non-member').value = Math.round(product.price_non_member);
@@ -279,6 +358,79 @@
         form.action = "{{ route('staff.products.store') }}";
         form.reset();
         document.getElementById('form-barcode').value = '';
+        
+        clearPreviewImage();
+    }
+
+    // --- Base64 File upload helpers ---
+    function convertImageToBase64(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64String = e.target.result;
+                document.getElementById('form-image-url').value = base64String;
+                
+                const previewImg = document.getElementById('image-preview');
+                const previewContainer = document.getElementById('image-preview-container');
+                previewImg.src = base64String;
+                previewContainer.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function clearPreviewImage() {
+        document.getElementById('form-image-url').value = '';
+        document.getElementById('form-image-file').value = '';
+        document.getElementById('image-preview').src = '';
+        document.getElementById('image-preview-container').style.display = 'none';
+    }
+
+    // --- AJAX Stock Opname Inline Quick Update ---
+    function quickSaveStock(productId, value) {
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const input = document.querySelector(`.inline-stock-input[data-id="${productId}"]`);
+        
+        // Disable temporarily to prevent multiple inputs
+        input.disabled = true;
+        input.style.opacity = '0.5';
+
+        fetch(`/staff/products/${productId}/update-stock`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': token,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                current_stock: parseInt(value)
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            input.disabled = false;
+            input.style.opacity = '1';
+            
+            if (data.success) {
+                // Success visual flash effect
+                const originalBg = input.style.backgroundColor;
+                const originalBorder = input.style.borderColor;
+                input.style.backgroundColor = '#e6f7ed';
+                input.style.borderColor = 'var(--success)';
+                setTimeout(() => {
+                    input.style.backgroundColor = originalBg;
+                    input.style.borderColor = originalBorder;
+                }, 800);
+            } else {
+                window.showSweetAlert('Gagal', data.message || 'Gagal menyimpan stok.', 'error');
+            }
+        })
+        .catch(err => {
+            input.disabled = false;
+            input.style.opacity = '1';
+            window.showSweetAlert('Error Jaringan', 'Terjadi kesalahan jaringan saat memperbarui stok.', 'error');
+        });
     }
 
     // --- Bulk Selection Logic ---
