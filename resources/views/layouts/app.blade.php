@@ -198,15 +198,15 @@
                 <div class="footer-column">
                     <h4>Bantuan & Kontak</h4>
                     <ul>
-                        <li><a href="javascript:void(0)" onclick="window.showSweetAlert('Hubungi Pengurus', 'Anda dapat menghubungi pengurus desa di Balai Desa Merah Putih pada jam kerja.', 'info')">Hubungi Pengurus</a></li>
+                        <li><a href="javascript:void(0)" onclick="window.showSweetAlert('Hubungi Pengurus', 'Anda dapat menghubungi pengurus desa di Balai {{ $activeBranch->name }} pada jam kerja.', 'info')">Hubungi Pengurus</a></li>
                         <li><a href="javascript:void(0)" onclick="window.showSweetAlert('Segera Hadir', 'Buku Panduan Aplikasi sedang dalam tahap penyusunan.', 'info')">Panduan Aplikasi</a></li>
                         <li><a href="javascript:void(0)" onclick="window.showSweetAlert('Segera Hadir', 'Dokumen Syarat & Ketentuan sedang dalam tahap penyusunan.', 'info')">Syarat & Ketentuan</a></li>
                     </ul>
                 </div>
             </div>
             <div class="legal-band">
-                <span>© 2026 Koperasi Desa Merah Putih (KDKMP). All Rights Reserved.</span>
-                <span>Desa Merah Putih, Indonesia</span>
+                <span>© 2026 Koperasi {{ $activeBranch->name }} (KDKMP {{ strtoupper($activeBranch->code) }}). All Rights Reserved.</span>
+                <span>{{ $activeBranch->address ?? $activeBranch->name }}</span>
             </div>
         </div>
     </footer>

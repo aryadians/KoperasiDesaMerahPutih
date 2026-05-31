@@ -82,9 +82,9 @@
 </head>
 <body>
     <div class="header text-center">
-        <h2>KDKMP MERAH PUTIH</h2>
+        <h2>KDKMP {{ strtoupper($order->branch->code) }}</h2>
         <p>Gerai Sembako Koperasi Desa</p>
-        <p>Desa Merah Putih, Indonesia</p>
+        <p>{{ $order->branch->name }}, Indonesia</p>
     </div>
 
     <table class="info-table">

@@ -6,8 +6,8 @@
 {{-- THERMAL POS RECEIPT (Print Only) --}}
 <div class="print-header receipt-container">
     <div class="receipt-brand">
-        <h2>KDKMP MERAH PUTIH</h2>
-        <p>Jl. Desa Merah Putih No.1, Indonesia</p>
+        <h2>KDKMP {{ strtoupper($order->branch->code) }}</h2>
+        <p>{{ $order->branch->address ?? $order->branch->name }}</p>
         <p>Telp: (021) 555-1234</p>
     </div>
     <div class="receipt-divider">================================</div>
@@ -172,7 +172,7 @@
                         @if($order->payment_method === 'qris_desa')
                             {{-- QRIS Simulation Section --}}
                             <div style="text-align: center; background: white; border: 1.5px solid var(--hairline); border-radius: var(--r-lg); padding: 24px; box-shadow: var(--shadow-sm);">
-                                <div style="font-weight: 800; font-size: 15px; color: var(--primary-dark); margin-bottom: 16px;">QRIS KDKMP MERAH PUTIH</div>
+                                <div style="font-weight: 800; font-size: 15px; color: var(--primary-dark); margin-bottom: 16px;">QRIS KDKMP {{ strtoupper($order->branch->code) }}</div>
                                 
                                 {{-- Mock QR Code in SVG --}}
                                 <svg width="180" height="180" viewBox="0 0 100 100" style="margin: 0 auto 16px; display: block;">
@@ -219,7 +219,7 @@
                                 <div style="font-size: 24px;">ℹ️</div>
                                 <div>
                                     <strong style="display: block; margin-bottom: 4px;">Tunjukkan ke Kasir</strong>
-                                    Simpan nomor pesanan ini dan lakukan pembayaran tunai di meja kasir KDKMP Desa Merah Putih.
+                                    Simpan nomor pesanan ini dan lakukan pembayaran tunai di meja kasir KDKMP {{ $order->branch->name }}.
                                 </div>
                             </div>
                         @endif

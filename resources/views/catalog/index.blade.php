@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'KDKMP — Gerai Sembako Digital Desa Merah Putih')
+@php
+    $currentBranchId = Auth::check() ? Auth::user()->branch_id : session('active_branch_id', 1);
+    $currentBranch = \App\Models\Branch::find($currentBranchId) ?? \App\Models\Branch::first();
+@endphp
+@section('title', 'KDKMP — Gerai Sembako Digital ' . ($currentBranch ? $currentBranch->name : 'Desa'))
 
 @section('content')
 

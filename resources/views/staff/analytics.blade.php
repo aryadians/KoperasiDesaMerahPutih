@@ -61,7 +61,7 @@ if (!function_exists('getSvgPoints')) {
 
 {{-- ═══════════════════════ PRINT HEADER ═══════════════════════ --}}
 <div class="print-header">
-    <h1>KOPERASI DESA MERAH PUTIH (KDKMP)</h1>
+    <h1>KOPERASI {{ strtoupper(auth()->user()->branch->name) }} (KDKMP {{ strtoupper(auth()->user()->branch->code) }})</h1>
     <p>Laporan Analitik Finansial, Kasir Ritel, dan Agro Tani Desa</p>
     <p style="font-size: 11px; color: #555;">Tanggal Cetak: {{ \Carbon\Carbon::now()->translatedFormat('d F Y H:i') }} &nbsp;·&nbsp; Oleh: {{ auth()->user()->name }}</p>
 </div>

@@ -188,7 +188,7 @@ class MemberController extends Controller
      */
     public function showOrder($id)
     {
-        $order = Order::with(['items.product'])->where('user_id', Auth::id())->findOrFail($id);
+        $order = Order::with(['items.product', 'branch'])->where('user_id', Auth::id())->findOrFail($id);
         return view('member.order_details', compact('order'));
     }
 

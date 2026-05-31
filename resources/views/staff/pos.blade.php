@@ -639,9 +639,9 @@
 <div class="swal-overlay" id="pos-receipt-overlay">
     <div class="swal-modal" style="max-width: 320px; text-align: left; padding: 20px; font-family: 'Courier New', Courier, monospace; color: #000; border-radius: 4px; background: white;" id="pos-receipt-box">
         <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 12px; margin-bottom: 12px;">
-            <h4 style="font-weight: 800; font-size: 15px; margin-bottom: 2px;">KDKMP MERAH PUTIH</h4>
+            <h4 style="font-weight: 800; font-size: 15px; margin-bottom: 2px;">KDKMP {{ strtoupper(auth()->user()->branch->code) }}</h4>
             <p style="font-size: 11px; margin: 0;">Gerai Sembako Koperasi Desa</p>
-            <p style="font-size: 10px; margin: 0; color: #555;">Desa Merah Putih, Indonesia</p>
+            <p style="font-size: 10px; margin: 0; color: #555;">{{ auth()->user()->branch->name }}, Indonesia</p>
         </div>
         
         <div style="font-size: 11px; margin-bottom: 12px; line-height: 1.4;">

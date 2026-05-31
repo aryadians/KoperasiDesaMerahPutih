@@ -464,6 +464,9 @@
             <div class="sidebar-user-info">
                 <span class="sidebar-user-name">{{ auth()->user()->name }}</span>
                 <span class="sidebar-user-role">{{ auth()->user()->role }}</span>
+                <span style="font-size: 10px; color: var(--muted); margin-top: 4px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                    📍 {{ auth()->user()->branch->name }}
+                </span>
             </div>
         </div>
 

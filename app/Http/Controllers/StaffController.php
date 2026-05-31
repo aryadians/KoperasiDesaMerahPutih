@@ -644,7 +644,7 @@ class StaffController extends Controller
     public function downloadReceiptPdf($id)
     {
         try {
-            $order = Order::with(['items.product', 'user'])->findOrFail($id);
+            $order = Order::with(['items.product', 'user', 'branch'])->findOrFail($id);
             if ($order->branch_id !== auth()->user()->branch_id) {
                 abort(403, 'Unauthorized branch action');
             }

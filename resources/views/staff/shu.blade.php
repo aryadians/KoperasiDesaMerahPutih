@@ -5,7 +5,7 @@
 @section('content')
 {{-- Printable Header (Visible only when printing) --}}
 <div class="print-header">
-    <h1>KOPERASI DESA MERAH PUTIH (KDKMP)</h1>
+    <h1>KOPERASI {{ strtoupper(auth()->user()->branch->name) }} (KDKMP {{ strtoupper(auth()->user()->branch->code) }})</h1>
     <p>Laporan Estimasi Pembagian Sisa Hasil Usaha (SHU) Anggota Aktif</p>
     <p style="font-size: 11px; color: #555;">Tanggal Cetak: {{ \Carbon\Carbon::now()->translatedFormat('d F Y H:i') }}</p>
 </div>

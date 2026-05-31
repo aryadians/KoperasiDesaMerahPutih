@@ -44,7 +44,7 @@
         <div class="card reveal-up delay-1" style="margin-bottom: 24px;">
             <h2 style="font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 16px; border-bottom: 1px solid var(--hairline); padding-bottom: 12px;">Deskripsi Produk</h2>
             <p style="font-size: 15px; color: var(--body); line-height: 1.65;">
-                {{ $product->description ?? 'Bahan makanan pokok berkualitas tinggi disuplai langsung melalui Koperasi Desa Merah Putih untuk menjamin harga terbaik bagi masyarakat desa.' }}
+                {{ $product->description ?? 'Bahan makanan pokok berkualitas tinggi disuplai langsung melalui Koperasi ' . $product->branch->name . ' untuk menjamin harga terbaik bagi masyarakat desa.' }}
             </p>
         </div>
 
@@ -57,7 +57,7 @@
                 </div>
                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--hairline-soft); padding-bottom: 10px;">
                     <span style="color: var(--muted); font-size: 14px;">Asal Komoditas</span>
-                    <span style="font-weight: 700; color: var(--ink);">{{ $product->is_local_product ? 'Petani Lokal Desa Merah Putih' : 'Distributor Nasional' }}</span>
+                    <span style="font-weight: 700; color: var(--ink);">{{ $product->is_local_product ? 'Petani Lokal ' . $product->branch->name : 'Distributor Nasional' }}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding-bottom: 4px;">
                     <span style="color: var(--muted); font-size: 14px;">Ketersediaan Stok</span>
