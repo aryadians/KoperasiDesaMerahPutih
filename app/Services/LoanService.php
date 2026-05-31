@@ -32,7 +32,7 @@ class LoanService
         }
 
         return DB::transaction(function () use ($memberId, $amountRequested, $interestRate, $tenorMonths) {
-            $member = Member::find($memberId);
+            $member = Member::with('user')->find($memberId);
             if (!$member) {
                 throw new Exception("Anggota tidak ditemukan.");
             }
@@ -53,6 +53,7 @@ class LoanService
             $loanCode = 'LN-' . strtoupper(uniqid());
 
             return Loan::create([
+                'branch_id' => $member->user->branch_id,
                 'member_id' => $memberId,
                 'loan_code' => $loanCode,
                 'amount_requested' => $amountRequested,

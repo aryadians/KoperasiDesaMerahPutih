@@ -13,6 +13,7 @@ class Loan extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'branch_id',
         'member_id',
         'loan_code',
         'amount_requested',
@@ -28,6 +29,14 @@ class Loan extends Model
         'interest_rate' => 'decimal:2',
         'tenor_months' => 'integer',
     ];
+
+    /**
+     * Get the branch this loan belongs to.
+     */
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
     /**
      * Get the member associated with this loan.

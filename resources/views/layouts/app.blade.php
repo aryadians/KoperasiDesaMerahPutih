@@ -35,6 +35,38 @@
                 <span>KDKMP Desa</span>
             </a>
 
+            <!-- Village Switcher -->
+            @php
+                $globalBranches = \App\Models\Branch::all();
+                $activeBranchId = Auth::check() ? Auth::user()->branch_id : session('active_branch_id', 1);
+                $activeBranch = $globalBranches->where('id', $activeBranchId)->first() ?? $globalBranches->first();
+            @endphp
+            @if($globalBranches->count() > 0)
+                <div class="village-switcher no-print" style="position: relative; margin-left: 12px; font-family: var(--font);">
+                    @auth
+                        <!-- If logged in, show static badge of user's branch (cannot switch since bound to account) -->
+                        <div style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--hairline-soft); border-radius: 100px; background: var(--surface); font-size: 13px; font-weight: 600; color: var(--ink); white-space: nowrap;">
+                            <span style="color: var(--primary);">📍</span> {{ $activeBranch->name }}
+                        </div>
+                    @else
+                        <!-- If guest, show interactive dropdown selector -->
+                        <form action="" id="branch-switch-form" method="POST" style="margin: 0; display: inline-flex; align-items: center;">
+                            @csrf
+                            <div style="position: relative; display: flex; align-items: center;">
+                                <select onchange="this.form.action='{{ url('/catalog/set-branch') }}/' + this.value; this.form.submit();" style="appearance: none; -webkit-appearance: none; background: var(--surface); border: 1px solid var(--hairline); border-radius: 100px; padding: 6px 32px 6px 12px; font-size: 13px; font-weight: 600; color: var(--ink); cursor: pointer; outline: none; transition: all var(--t-fast); line-height: 1.5; font-family: var(--font); width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">
+                                    @foreach($globalBranches as $branch)
+                                        <option value="{{ $branch->id }}" {{ $branch->id == $activeBranchId ? 'selected' : '' }}>
+                                            📍 {{ $branch->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <span style="position: absolute; right: 12px; pointer-events: none; font-size: 10px; color: var(--muted);">▼</span>
+                            </div>
+                        </form>
+                    @endauth
+                </div>
+            @endif
+
             <!-- Navigation Links (Centered) -->
             <nav class="product-tabs">
                 <a href="{{ route('catalog.index') }}" class="product-tab {{ Request::routeIs('catalog.index') ? 'active' : '' }}">

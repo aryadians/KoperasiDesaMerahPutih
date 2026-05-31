@@ -11,6 +11,7 @@ class CropAbsorption extends Model
     use HasFactory;
 
     protected $fillable = [
+        'branch_id',
         'member_id',
         'product_name',
         'quantity',
@@ -26,6 +27,14 @@ class CropAbsorption extends Model
         'total_payout' => 'decimal:2',
         'absorption_date' => 'datetime',
     ];
+
+    /**
+     * Get the branch this crop absorption belongs to.
+     */
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
     /**
      * Get the member (farmer) who sold this crop absorption.

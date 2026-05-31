@@ -10,14 +10,37 @@ use Illuminate\Support\Facades\Auth;
 class CatalogController extends Controller
 {
     /**
+     * Resolve the active branch ID for catalog views.
+     */
+    protected function getActiveBranchId()
+    {
+        if (Auth::check()) {
+            return Auth::user()->branch_id;
+        }
+        return session('active_branch_id', 1);
+    }
+
+    /**
+     * Set active branch for guest users.
+     */
+    public function setBranch($id)
+    {
+        if (\App\Models\Branch::where('id', $id)->exists()) {
+            session(['active_branch_id' => $id]);
+        }
+        return back();
+    }
+
+    /**
      * Show catalog page.
      */
     public function index(Request $request)
     {
         $categories = Category::all();
+        $branchId = $this->getActiveBranchId();
 
         // Eager load category to prevent N+1 query problem
-        $query = Product::with(['category']);
+        $query = Product::with(['category'])->where('branch_id', $branchId);
 
         // Search filter
         if ($request->filled('search')) {
@@ -44,7 +67,10 @@ class CatalogController extends Controller
      */
     public function show($id)
     {
-        $product = Product::with(['category'])->findOrFail($id);
+        $branchId = $this->getActiveBranchId();
+        $product = Product::with(['category'])
+            ->where('branch_id', $branchId)
+            ->findOrFail($id);
         return view('catalog.show', compact('product'));
     }
 
@@ -53,7 +79,8 @@ class CatalogController extends Controller
      */
     public function agroDashboard()
     {
-        $products = Product::where('is_local_product', true)->get();
+        $branchId = $this->getActiveBranchId();
+        $products = Product::where('branch_id', $branchId)->where('is_local_product', true)->get();
         
         // Generate mock historical price trends for the past 6 days + today
         $historyDays = [];

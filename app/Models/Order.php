@@ -13,6 +13,7 @@ class Order extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'branch_id',
         'user_id',
         'order_number',
         'total_amount',
@@ -26,6 +27,14 @@ class Order extends Model
         'total_amount' => 'decimal:2',
         'points_earned' => 'integer',
     ];
+
+    /**
+     * Get the branch this order belongs to.
+     */
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
     /**
      * Get the user who placed the order.

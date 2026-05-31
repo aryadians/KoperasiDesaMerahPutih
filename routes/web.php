@@ -40,6 +40,7 @@ Route::middleware('guest')->group(function () {
 Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/catalog/agro-dashboard', [CatalogController::class, 'agroDashboard'])->name('catalog.agro');
 Route::get('/catalog/product/{id}', [CatalogController::class, 'show'])->name('catalog.show');
+Route::post('/catalog/set-branch/{id}', [CatalogController::class, 'setBranch'])->name('catalog.set-branch');
 
 // Keranjang belanja — guest bisa tambah cart (tapi checkout butuh login anggota)
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');

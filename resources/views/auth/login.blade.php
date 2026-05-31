@@ -1,34 +1,89 @@
 @extends('layouts.app')
 
-@section('title', 'Login - KDKMP Digital')
+@section('title', 'Masuk Anggota - KDKMP Digital')
 
 @section('content')
-<div style="display: flex; justify-content: center; align-items: center; min-height: 70vh; padding: 20px;">
-    <div class="card reveal-scale" style="width: 100%; max-width: 420px; box-shadow: var(--shadow-lg); border: 1.5px solid var(--hairline);">
+<style>
+    :root {
+        --primary: #ff385c;
+        --primary-dark: #d70f38;
+        --primary-glow: rgba(255, 56, 92, 0.18);
+        --primary-light: #fff0f2;
+        --primary-muted: #ffb3c0;
+    }
+    
+    .auth-card {
+        background: var(--canvas);
+        border: 1px solid var(--hairline);
+        border-radius: 24px;
+        padding: 40px;
+        width: 100%;
+        max-width: 440px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .auth-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 48px rgba(255, 56, 92, 0.06), 0 16px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-group input {
+        border-radius: 12px;
+        border-color: var(--hairline);
+        transition: all 0.2s ease;
+    }
+
+    .form-group input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-glow);
+    }
+    
+    .logo-container {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        background: var(--primary-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px auto;
+        color: var(--primary);
+        font-size: 28px;
+        box-shadow: 0 8px 16px rgba(255, 56, 92, 0.1);
+    }
+</style>
+
+<div style="display: flex; justify-content: center; align-items: center; min-height: 70vh; padding: 40px 20px;">
+    <div class="auth-card reveal-scale">
         <div style="text-align: center; margin-bottom: 32px;">
-            <div style="font-size: 48px; margin-bottom: 12px;">🔐</div>
-            <h1 style="font-size: 24px; font-weight: 800; color: var(--ink);">Masuk ke Akun</h1>
-            <p style="color: var(--muted); font-size: 14px; margin-top: 4px;">Gerai Digital Koperasi Desa Merah Putih</p>
+            <div class="logo-container">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
+                    <path d="M16 1C21 1 24.5 4.5 24.5 9.5C24.5 13.5 21.5 17.5 16 23C10.5 17.5 7.5 13.5 7.5 9.5C7.5 4.5 11 1 16 1ZM16 11.5C17.1 11.5 18 10.6 18 9.5C18 8.4 17.1 7.5 16 7.5C14.9 7.5 14 8.4 14 9.5C14 10.6 14.9 11.5 16 11.5Z"/>
+                </svg>
+            </div>
+            <h1 style="font-size: 26px; font-weight: 800; color: var(--ink); letter-spacing: -0.5px;">Selamat Datang</h1>
+            <p style="color: var(--muted); font-size: 14px; margin-top: 6px; font-weight: 500;">Masuk ke portal anggota KDKMP Digital</p>
         </div>
 
-        <form action="{{ route('login') }}" method="POST">
+        <form action="{{ route('login') }}" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
             @csrf
-            <div class="form-group">
-                <label for="email">Alamat Email</label>
-                <input type="email" name="email" id="email" class="text-input" placeholder="contoh@kdkmp.org" required>
+            <div class="form-group" style="margin: 0;">
+                <label for="email" style="font-weight: 600; font-size: 13px; margin-bottom: 6px; color: var(--ink);">Alamat Email</label>
+                <input type="email" name="email" id="email" class="text-input" placeholder="name@domain.com" required style="height: 50px; font-size: 14px;">
             </div>
-            <div class="form-group">
-                <label for="password">Kata Sandi</label>
-                <input type="password" name="password" id="password" class="text-input" placeholder="••••••••" required>
+            <div class="form-group" style="margin: 0;">
+                <label for="password" style="font-weight: 600; font-size: 13px; margin-bottom: 6px; color: var(--ink);">Kata Sandi</label>
+                <input type="password" name="password" id="password" class="text-input" placeholder="••••••••" required style="height: 50px; font-size: 14px;">
             </div>
             
-            <button type="submit" class="btn btn-primary btn-full btn-xl" style="font-weight: 700; margin-top: 16px;">
+            <button type="submit" class="btn btn-primary btn-full btn-lg" style="height: 50px; border-radius: 12px; font-weight: 700; font-size: 15px; margin-top: 10px;">
                 Masuk Sekarang
             </button>
         </form>
 
-        <div style="margin-top: 24px; text-align: center; font-size: 14px; color: var(--body);">
-            Belum punya akun anggota? <a href="{{ route('register') }}" style="color: var(--primary); font-weight: 600;">Daftar di sini</a>
+        <div style="margin-top: 32px; text-align: center; font-size: 14px; color: var(--muted); font-weight: 500; border-top: 1px solid var(--hairline-soft); padding-top: 24px;">
+            Belum terdaftar sebagai anggota? <a href="{{ route('register') }}" style="color: var(--primary); font-weight: 700; transition: color 0.2s;" onmouseover="this.style.color='var(--primary-dark)'" onmouseout="this.style.color='var(--primary)'">Daftar sekarang</a>
         </div>
     </div>
 </div>

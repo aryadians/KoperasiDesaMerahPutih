@@ -12,6 +12,7 @@ class Product extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
+        'branch_id',
         'category_id',
         'barcode',
         'name',
@@ -30,6 +31,14 @@ class Product extends Model
         'current_stock' => 'integer',
         'is_local_product' => 'boolean',
     ];
+
+    /**
+     * Get the branch this product belongs to.
+     */
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
     /**
      * Get the category that the product belongs to.

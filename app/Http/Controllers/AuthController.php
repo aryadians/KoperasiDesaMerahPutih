@@ -39,7 +39,8 @@ class AuthController extends Controller
 
     public function showRegister()
     {
-        return view('auth.register');
+        $branches = \App\Models\Branch::all();
+        return view('auth.register', compact('branches'));
     }
 
     public function register(Request $request)
@@ -50,6 +51,7 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'nik' => 'required|string|size:16|unique:members',
             'alamat_desa' => 'required|string',
+            'branch_id' => 'required|exists:branches,id',
         ]);
 
         try {
@@ -61,6 +63,7 @@ class AuthController extends Controller
                     'password' => Hash::make($request->password),
                     'role' => 'anggota',
                     'status' => 'active',
+                    'branch_id' => $request->branch_id,
                 ]);
 
                 // 2. Generate Nomor Anggota (e.g. MBR-YYYYMMDD-XXXX)

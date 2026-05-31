@@ -48,16 +48,17 @@ class StaffController extends Controller
      */
     public function dashboard()
     {
-        $pendingOrdersCount = Order::where('payment_status', 'pending')->count();
-        $pendingCropsCount = CropAbsorption::where('status', 'pending')->count();
-        $pendingLoansCount = Loan::where('status', 'draft')->count();
+        $branchId = auth()->user()->branch_id;
+        $pendingOrdersCount = Order::where('branch_id', $branchId)->where('payment_status', 'pending')->count();
+        $pendingCropsCount = CropAbsorption::where('branch_id', $branchId)->where('status', 'pending')->count();
+        $pendingLoansCount = Loan::where('branch_id', $branchId)->where('status', 'draft')->count();
         
-        $lowStockProducts = Product::where('current_stock', '<', 5)->get();
+        $lowStockProducts = Product::where('branch_id', $branchId)->where('current_stock', '<', 5)->get();
 
         // Statistics
-        $totalSales = Order::where('payment_status', 'paid')->sum('total_amount');
-        $totalCropPayout = CropAbsorption::where('status', 'paid')->sum('total_payout');
-        $activeLoansVolume = Loan::where('status', 'active')->sum('amount_approved');
+        $totalSales = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->sum('total_amount');
+        $totalCropPayout = CropAbsorption::where('branch_id', $branchId)->where('status', 'paid')->sum('total_payout');
+        $activeLoansVolume = Loan::where('branch_id', $branchId)->where('status', 'active')->sum('amount_approved');
 
         return view('staff.dashboard', compact(
             'pendingOrdersCount',
@@ -74,7 +75,8 @@ class StaffController extends Controller
     {
         $request->validate(['type' => 'required|in:pdf,csv', 'ids' => 'nullable|string']);
         
-        $query = Order::with('user');
+        $branchId = auth()->user()->branch_id;
+        $query = Order::with('user')->where('branch_id', $branchId);
         if ($request->filled('ids')) {
             $query->whereIn('id', explode(',', $request->ids));
         }
@@ -104,13 +106,18 @@ class StaffController extends Controller
      */
     public function orders()
     {
-        $orders = Order::with('user')->latest()->get();
+        $branchId = auth()->user()->branch_id;
+        $orders = Order::with('user')->where('branch_id', $branchId)->latest()->get();
         return view('staff.orders', compact('orders'));
     }
 
     public function updateOrderStatus($id, $status)
     {
         try {
+            $order = Order::findOrFail($id);
+            if ($order->branch_id !== auth()->user()->branch_id) {
+                abort(403, 'Unauthorized branch action');
+            }
             if ($status === 'paid') {
                 $this->transactionService->markAsPaid($id);
             } elseif ($status === 'cancelled') {
@@ -127,13 +134,18 @@ class StaffController extends Controller
      */
     public function crops()
     {
-        $crops = CropAbsorption::with('member.user')->latest()->get();
+        $branchId = auth()->user()->branch_id;
+        $crops = CropAbsorption::with('member.user')->where('branch_id', $branchId)->latest()->get();
         return view('staff.crops', compact('crops'));
     }
 
     public function updateCropStatus($id, $status)
     {
         try {
+            $crop = CropAbsorption::findOrFail($id);
+            if ($crop->branch_id !== auth()->user()->branch_id) {
+                abort(403, 'Unauthorized branch action');
+            }
             $this->cropService->updateStatus($id, $status);
             return back()->with('success', 'Status penyerapan hasil tani berhasil diperbarui.');
         } catch (Exception $e) {
@@ -146,13 +158,18 @@ class StaffController extends Controller
      */
     public function loans()
     {
-        $loans = Loan::with('member.user')->latest()->get();
+        $branchId = auth()->user()->branch_id;
+        $loans = Loan::with('member.user')->where('branch_id', $branchId)->latest()->get();
         return view('staff.loans', compact('loans'));
     }
 
     public function updateLoanStatus(Request $request, $id, $status)
     {
         try {
+            $loan = Loan::findOrFail($id);
+            if ($loan->branch_id !== auth()->user()->branch_id) {
+                abort(403, 'Unauthorized branch action');
+            }
             $amountApproved = $request->input('amount_approved');
             $this->loanService->updateStatus($id, $status, $amountApproved);
             return back()->with('success', 'Status pinjaman berhasil diperbarui.');
@@ -174,6 +191,10 @@ class StaffController extends Controller
         ]);
 
         try {
+            $loan = Loan::findOrFail($request->loan_id);
+            if ($loan->branch_id !== auth()->user()->branch_id) {
+                abort(403, 'Unauthorized branch action');
+            }
             $this->loanService->recordPayment(
                 $request->loan_id,
                 $request->amount_paid,
@@ -194,8 +215,9 @@ class StaffController extends Controller
     {
         $search = $request->input('search');
         $categoryId = $request->input('category_id');
+        $branchId = auth()->user()->branch_id;
 
-        $query = Product::with('category')->latest();
+        $query = Product::with('category')->where('branch_id', $branchId)->latest();
 
         if ($search) {
             $query->where(function($q) use ($search) {
@@ -217,7 +239,8 @@ class StaffController extends Controller
 
     public function exportProducts()
     {
-        $products = Product::with('category')->latest()->get();
+        $branchId = auth()->user()->branch_id;
+        $products = Product::with('category')->where('branch_id', $branchId)->latest()->get();
         $csvData = "ID,Nama Produk,Kategori,Harga Anggota,Harga Umum,Stok,Unit,Komoditas Lokal\n";
         
         foreach($products as $p) {
@@ -240,7 +263,8 @@ class StaffController extends Controller
 
         $ids = explode(',', $request->ids);
         if (count($ids) > 0) {
-            Product::whereIn('id', $ids)->delete();
+            $branchId = auth()->user()->branch_id;
+            Product::whereIn('id', $ids)->where('branch_id', $branchId)->delete();
             return back()->with('success', count($ids) . ' produk berhasil dihapus secara massal.');
         }
 
@@ -263,6 +287,7 @@ class StaffController extends Controller
         ]);
 
         $product = Product::create([
+            'branch_id' => auth()->user()->branch_id,
             'category_id' => $request->category_id,
             'barcode' => $request->barcode,
             'name' => $request->name,
@@ -297,6 +322,9 @@ class StaffController extends Controller
         ]);
 
         $product = Product::findOrFail($id);
+        if ($product->branch_id !== auth()->user()->branch_id) {
+            abort(403, 'Unauthorized branch action');
+        }
         $product->update([
             'category_id' => $request->category_id,
             'barcode' => $request->barcode,
@@ -327,6 +355,12 @@ class StaffController extends Controller
 
         try {
             $product = Product::findOrFail($id);
+            if ($product->branch_id !== auth()->user()->branch_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Aksi cabang tidak sah.'
+                ], 403);
+            }
             $product->current_stock = $request->current_stock;
             $product->save();
 
@@ -349,6 +383,9 @@ class StaffController extends Controller
     public function deleteProduct($id)
     {
         $product = Product::findOrFail($id);
+        if ($product->branch_id !== auth()->user()->branch_id) {
+            abort(403, 'Unauthorized branch action');
+        }
         $product->delete();
         return back()->with('success', 'Produk berhasil dihapus (Soft Delete).');
     }
@@ -387,7 +424,8 @@ class StaffController extends Controller
      */
     public function pos()
     {
-        $products = Product::with('category')->where('current_stock', '>', 0)->get();
+        $branchId = auth()->user()->branch_id;
+        $products = Product::with('category')->where('branch_id', $branchId)->where('current_stock', '>', 0)->get();
         $categories = Category::all();
         return view('staff.pos', compact('products', 'categories'));
     }
@@ -521,14 +559,19 @@ class StaffController extends Controller
      */
     public function analytics()
     {
-        $salesToday = Order::where('payment_status', 'paid')
+        $branchId = auth()->user()->branch_id;
+
+        $salesToday = Order::where('branch_id', $branchId)
+            ->where('payment_status', 'paid')
             ->whereDate('created_at', \Carbon\Carbon::today())
             ->sum('total_amount');
         
-        $totalSales = Order::where('payment_status', 'paid')->sum('total_amount');
-        $totalCrops = CropAbsorption::where('status', 'paid')->sum('total_payout');
-        $totalLoans = Loan::whereIn('status', ['active', 'paid_off'])->sum('amount_approved');
-        $totalSavings = MemberSaving::sum('amount');
+        $totalSales = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->sum('total_amount');
+        $totalCrops = CropAbsorption::where('branch_id', $branchId)->where('status', 'paid')->sum('total_payout');
+        $totalLoans = Loan::where('branch_id', $branchId)->whereIn('status', ['active', 'paid_off'])->sum('amount_approved');
+        $totalSavings = MemberSaving::whereHas('member.user', function($q) use ($branchId) {
+            $q->where('branch_id', $branchId);
+        })->sum('amount');
 
         $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei'];
         $salesTrend = [1200000, 2500000, 4100000, 5800000, max(6800000, $totalSales)];
@@ -602,6 +645,9 @@ class StaffController extends Controller
     {
         try {
             $order = Order::with(['items.product', 'user'])->findOrFail($id);
+            if ($order->branch_id !== auth()->user()->branch_id) {
+                abort(403, 'Unauthorized branch action');
+            }
             
             $member = null;
             if ($order->user && $order->user->role === 'anggota') {

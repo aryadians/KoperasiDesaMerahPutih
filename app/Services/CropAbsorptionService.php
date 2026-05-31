@@ -27,7 +27,7 @@ class CropAbsorptionService
         }
 
         return DB::transaction(function () use ($memberId, $productName, $quantity, $pricePerUnit) {
-            $member = Member::find($memberId);
+            $member = Member::with('user')->find($memberId);
             if (!$member) {
                 throw new Exception("Anggota tidak ditemukan.");
             }
@@ -39,6 +39,7 @@ class CropAbsorptionService
             $totalPayout = $quantity * $pricePerUnit;
 
             return CropAbsorption::create([
+                'branch_id' => $member->user->branch_id,
                 'member_id' => $memberId,
                 'product_name' => $productName,
                 'quantity' => $quantity,

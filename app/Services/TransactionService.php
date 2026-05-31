@@ -92,9 +92,15 @@ class TransactionService
                 $pointsEarned = (int) floor($totalAmount / 10000);
             }
 
+            // Get branch ID from the first product's branch
+            $firstProductId = count($items) > 0 ? $items[0]['product_id'] : null;
+            $firstProduct = $firstProductId ? Product::find($firstProductId) : null;
+            $branchId = $firstProduct ? $firstProduct->branch_id : 1;
+
             // 3. Create the Order
             $orderNumber = 'ORD-' . strtoupper(uniqid());
             $order = Order::create([
+                'branch_id' => $branchId,
                 'user_id' => $userId,
                 'order_number' => $orderNumber,
                 'total_amount' => $totalAmount,
