@@ -84,18 +84,29 @@
     /* Map card active state */
     .map-branch-card {
         cursor: pointer;
-        transition: all 0.3s var(--ease-bounce);
-        border-left: 4px solid transparent;
+        background: #ffffff !important;
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        border-left: 5px solid transparent !important;
+        border-radius: var(--r-md);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.02), inset 0 1px 0 #ffffff !important;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .map-branch-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.06), inset 0 1px 0 #ffffff !important;
+        border-color: rgba(0, 0, 0, 0.12) !important;
     }
     .map-branch-card.active {
-        border-left-color: var(--primary);
-        background: var(--primary-light) !important;
-        transform: translateX(6px);
+        border-left: 5px solid var(--primary) !important;
+        background: linear-gradient(135deg, #ffffff, #fff1f2) !important;
+        box-shadow: 0 12px 28px rgba(228, 0, 43, 0.08), inset 0 1px 0 #ffffff !important;
+        transform: translateY(-2px) scale(1.02);
+        border-color: rgba(228, 0, 43, 0.15) !important;
     }
 </style>
 
 {{-- ═══════════════════════ HERO SECTION ═══════════════════════ --}}
-<div class="reveal-scale" style="background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 50%, #450a0a 100%); color: white; border-radius: var(--r-xl); padding: 75px 40px 60px 40px; text-align: center; margin-bottom: 48px; position: relative; overflow: hidden; box-shadow: var(--shadow-xl);">
+<div class="reveal-scale" style="background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 50%, #450a0a 100%); color: white; border-radius: var(--r-xl); padding: 75px 40px 60px 40px; text-align: center; margin-bottom: 72px; position: relative; overflow: hidden; box-shadow: var(--shadow-xl);">
     <!-- Decorative background blobs -->
     <div style="position: absolute; top: -50px; right: -50px; width: 300px; height: 300px; border-radius: 50%; background: rgba(228, 0, 43, 0.25); filter: blur(50px); pointer-events: none;"></div>
     <div style="position: absolute; bottom: -80px; left: -80px; width: 320px; height: 320px; border-radius: 50%; background: rgba(0, 91, 170, 0.2); filter: blur(60px); pointer-events: none;"></div>
@@ -148,7 +159,7 @@
 </div>
 
 {{-- ═══════════════════════ INTERACTIVE LOYALTY & SHU CALCULATOR ═══════════════════════ --}}
-<div class="reveal-up" style="background: linear-gradient(135deg, var(--surface) 0%, var(--surface-md) 100%); border: 1px solid var(--hairline); border-radius: var(--r-xl); padding: 48px 40px; margin-bottom: 64px;">
+<div class="reveal-up" style="background: linear-gradient(135deg, var(--surface) 0%, var(--surface-md) 100%); border: 1px solid var(--hairline); border-radius: var(--r-xl); padding: 48px 40px; margin-bottom: 80px;">
     <div class="grid-2" style="gap: 40px; align-items: center;">
         <div>
             <span class="animated-float-slow" style="font-size: 28px; display: inline-block; margin-bottom: 12px;">📊</span>
@@ -212,50 +223,38 @@
     </div>
 </div>
 
-{{-- ═══════════════════════ PROGRAM DESCRIPTION & PHOTO ═══════════════════════ --}}
-<div class="grid-2 reveal-up" style="gap: 40px; margin-bottom: 64px; align-items: center;">
-    <div style="display: flex; flex-direction: column; gap: 20px;">
+{{-- ═══════════════════════ PROGRAM DESCRIPTION ═══════════════════════ --}}
+<div class="reveal-up" style="margin-bottom: 80px; max-width: 900px; margin-left: auto; margin-right: auto;">
+    <div style="display: flex; flex-direction: column; gap: 24px; text-align: center; align-items: center;">
         <span style="display: inline-flex; align-items: center; gap: 6px; background: var(--primary-light); color: var(--primary); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 5px 14px; border-radius: 100px; width: fit-content; box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);">
             📢 Mengenal Program
         </span>
         <h2 style="font-size: 32px; font-weight: 800; color: var(--ink); line-height: 1.25; letter-spacing: -0.8px; margin: 0;">
             Pilar Ekonomi Desa Digital Merah Putih
         </h2>
-        <p style="font-size: 14.5px; color: var(--body); line-height: 1.65; margin: 0;">
+        <p style="font-size: 15px; color: var(--body); line-height: 1.7; margin: 0; max-width: 800px;">
             Program Koperasi Desa Merah Putih (KDKMP) Digital adalah inisiatif modernisasi ekonomi pedesaan dengan memadukan <strong>ekosistem ritel terpadu ala minimarket modern</strong> dengan layanan keuangan mikro warga.
         </p>
-        <p style="font-size: 14.5px; color: var(--body); line-height: 1.65; margin: 0;">
+        <p style="font-size: 15px; color: var(--body); line-height: 1.7; margin: 0; max-width: 800px;">
             Sistem kami memotong rantai distribusi pangan yang panjang dengan menyerap hasil tani lokal secara langsung, mendistribusikannya kembali sebagai sembako murah bagi warga, serta membagikan keuntungan bersih kembali kepada seluruh anggota dalam bentuk dividen <strong>Sisa Hasil Usaha (SHU)</strong> tahunan.
         </p>
-        <div style="display: flex; gap: 20px; margin-top: 12px;">
-            <div style="flex: 1; background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 20px; box-shadow: var(--shadow-sm); border-left: 4px solid var(--primary); transition: all 0.3s var(--ease-bounce);" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';">
-                <div style="font-size: 24px; margin-bottom: 8px;">🛒</div>
-                <h4 style="font-weight: 700; color: var(--ink); margin-bottom: 6px; font-size: 14px;">Ritel Modern</h4>
-                <p style="font-size: 12px; color: var(--muted); margin: 0; line-height: 1.5;">Belanja sembako online dengan harga khusus anggota &amp; antar ke rumah.</p>
+        <div style="display: flex; gap: 24px; margin-top: 16px; width: 100%; max-width: 720px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 280px; background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 24px 20px; box-shadow: var(--shadow-sm); border-left: 4px solid var(--primary); transition: all 0.3s var(--ease-bounce); text-align: left;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';">
+                <div style="font-size: 28px; margin-bottom: 8px;">🛒</div>
+                <h4 style="font-weight: 700; color: var(--ink); margin-bottom: 6px; font-size: 15px;">Ritel Modern</h4>
+                <p style="font-size: 12.5px; color: var(--muted); margin: 0; line-height: 1.55;">Belanja sembako online dengan harga khusus anggota &amp; antar ke rumah.</p>
             </div>
-            <div style="flex: 1; background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 20px; box-shadow: var(--shadow-sm); border-left: 4px solid var(--success); transition: all 0.3s var(--ease-bounce);" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';">
-                <div style="font-size: 24px; margin-bottom: 8px;">🌾</div>
-                <h4 style="font-weight: 700; color: var(--success); margin-bottom: 6px; font-size: 14px;">Pemberdayaan Tani</h4>
-                <p style="font-size: 12px; color: var(--muted); margin: 0; line-height: 1.5;">Jaminan penyerapan panen hortikultura dengan timbangan transparan.</p>
+            <div style="flex: 1; min-width: 280px; background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 24px 20px; box-shadow: var(--shadow-sm); border-left: 4px solid var(--success); transition: all 0.3s var(--ease-bounce); text-align: left;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';">
+                <div style="font-size: 28px; margin-bottom: 8px;">🌾</div>
+                <h4 style="font-weight: 700; color: var(--success); margin-bottom: 6px; font-size: 15px;">Pemberdayaan Tani</h4>
+                <p style="font-size: 12.5px; color: var(--muted); margin: 0; line-height: 1.55;">Jaminan penyerapan panen hortikultura dengan timbangan transparan.</p>
             </div>
-        </div>
-    </div>
-    <div style="position: relative; border-radius: var(--r-xl); overflow: hidden; box-shadow: 0 30px 60px -15px rgba(0,0,0,0.12), 0 12px 24px -10px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.4); border: 1.5px solid white; transition: all 0.5s var(--ease-bounce);" onmouseover="this.style.transform='translateY(-6px) scale(1.01)'; this.style.boxShadow='0 40px 80px -20px rgba(0,0,0,0.18), 0 16px 32px -12px rgba(0,0,0,0.08)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 30px 60px -15px rgba(0,0,0,0.12), 0 12px 24px -10px rgba(0,0,0,0.06)';">
-        <img src="{{ asset('images/koperasi_kdkmp.png') }}" alt="Gedung Koperasi KDKMP" style="width: 100%; object-fit: cover; aspect-ratio: 4/3; transition: transform 0.8s ease;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
-        <div style="position: absolute; bottom: 16px; left: 16px; right: 16px; background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: var(--r-md); padding: 14px 20px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
-            <div>
-                <h4 style="margin: 0; font-weight: 700; font-size: 14px; letter-spacing: -0.2px;">Kantor Pusat KDKMP</h4>
-                <p style="margin: 3px 0 0 0; font-size: 11px; color: rgba(255, 255, 255, 0.7); font-weight: 500;">Pusat Ritel &amp; Simpan Pinjam Desa</p>
-            </div>
-            <span style="font-size: 11px; background: linear-gradient(135deg, var(--success), #10b981); padding: 4px 12px; border-radius: 100px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);">
-                <span style="width: 6px; height: 6px; background: white; border-radius: 50%; display: inline-block;"></span> Aktif 📍
-            </span>
         </div>
     </div>
 </div>
 
 {{-- ═══════════════════════ VISI & MISI SECTION ═══════════════════════ --}}
-<div class="reveal-up" style="background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--r-xl); padding: 50px 40px; margin-bottom: 64px;">
+<div class="reveal-up" style="background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--r-xl); padding: 50px 40px; margin-bottom: 80px;">
     <div style="text-align: center; max-width: 600px; margin: 0 auto 40px auto;">
         <div style="font-weight: 800; font-size: 13px; text-transform: uppercase; color: var(--primary); letter-spacing: 1px; margin-bottom: 12px;">
             🎯 Landasan Nilai Kami
@@ -308,7 +307,7 @@
     </a>
 </div>
 
-<div class="grid-4" style="margin-bottom: 64px;">
+<div class="grid-4" style="margin-bottom: 80px;">
     @php
         $featuredProducts = \App\Models\Product::with('category')->where('branch_id', $currentBranchId)->latest()->take(4)->get();
     @endphp
@@ -363,18 +362,18 @@
 </div>
 
 {{-- ═══════════════════════ MAPS INTEGRATION ═══════════════════════ --}}
-<div class="reveal-up" style="margin-bottom: 64px;">
-    <div style="text-align: center; max-width: 600px; margin: 0 auto 32px auto;">
+<div class="reveal-up" style="margin-bottom: 80px;">
+    <div style="text-align: center; max-width: 600px; margin: 0 auto 36px auto;">
         <div style="font-weight: 800; font-size: 13px; text-transform: uppercase; color: var(--primary); letter-spacing: 1px; margin-bottom: 12px;">
             🗺️ Jaringan Sebaran Desa
         </div>
         <h2 style="font-size: 28px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.5px;">Lokasi Gerai KDKMP</h2>
-        <p style="font-size: 14px; color: var(--muted); margin-top: 8px; line-height: 1.5;">Kunjungi gerai fisik KDKMP terdekat di desa Anda atau klik gerai di bawah ini untuk memfokuskan peta secara interaktif.</p>
+        <p style="font-size: 14.5px; color: var(--muted); margin-top: 8px; line-height: 1.55;">Kunjungi gerai fisik KDKMP terdekat di desa Anda atau klik gerai di bawah ini untuk memfokuskan peta secara interaktif.</p>
     </div>
     
     <div class="grid-2" style="gap: 32px; align-items: stretch;">
         <div style="display: flex; flex-direction: column; justify-content: center; gap: 16px;">
-            <div id="branch-card-1" class="map-branch-card active" onclick="focusBranch(1, -7.2278, 107.9087)" style="background: white; border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 20px; box-shadow: var(--shadow-sm); display: flex; gap: 16px; align-items: flex-start;">
+            <div id="branch-card-1" class="map-branch-card active" onclick="focusBranch(1, -7.2278, 107.9087)" style="padding: 20px; display: flex; gap: 16px; align-items: flex-start;">
                 <span style="font-size: 24px; background: var(--primary-light); padding: 8px; border-radius: 10px; color: var(--primary); flex-shrink: 0;">📍</span>
                 <div>
                     <h4 style="font-weight: 700; color: var(--ink); margin: 0 0 4px 0;">Cabang 1: Desa Merah Putih (Kantor Pusat)</h4>
@@ -383,7 +382,7 @@
                 </div>
             </div>
             
-            <div id="branch-card-2" class="map-branch-card" onclick="focusBranch(2, -7.2420, 107.8820)" style="background: white; border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 20px; box-shadow: var(--shadow-sm); display: flex; gap: 16px; align-items: flex-start;">
+            <div id="branch-card-2" class="map-branch-card" onclick="focusBranch(2, -7.2420, 107.8820)" style="padding: 20px; display: flex; gap: 16px; align-items: flex-start;">
                 <span style="font-size: 24px; background: var(--info-bg); padding: 8px; border-radius: 10px; color: var(--info); flex-shrink: 0;">📍</span>
                 <div>
                     <h4 style="font-weight: 700; color: var(--ink); margin: 0 0 4px 0;">Cabang 2: Desa Gotong Royong</h4>
@@ -393,14 +392,14 @@
             </div>
         </div>
         
-        <div style="position: relative; height: 350px; border-radius: var(--r-lg); overflow: hidden; border: 1.5px solid var(--hairline); box-shadow: var(--shadow-lg);">
+        <div style="position: relative; height: 360px; border-radius: var(--r-lg); overflow: hidden; border: 1.5px solid rgba(0, 0, 0, 0.08); box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.08), 0 5px 15px -5px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.4); background: #ffffff;">
             <div id="map" style="height: 100%; width: 100%; z-index: 1;"></div>
         </div>
     </div>
 </div>
 
 {{-- ═══════════════════════ CTA SECTION ═══════════════════════ --}}
-<div class="reveal-scale" style="background: linear-gradient(135deg, var(--surface) 0%, var(--surface-md) 100%); border: 1.5px solid var(--hairline); border-radius: var(--r-xl); padding: 48px; text-align: center; margin-bottom: 32px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden;">
+<div class="reveal-scale" style="background: linear-gradient(135deg, var(--surface) 0%, var(--surface-md) 100%); border: 1.5px solid var(--hairline); border-radius: var(--r-xl); padding: 48px; text-align: center; margin-bottom: 48px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden;">
     <div style="position: absolute; top: -30%; left: -10%; width: 250px; height: 250px; border-radius: 50%; background: rgba(228, 0, 43, 0.03); filter: blur(40px); pointer-events: none;"></div>
     
     <h2 style="font-size: 28px; font-weight: 800; color: var(--ink); margin-bottom: 16px;">Jadilah Bagian dari Kemajuan Desa</h2>
