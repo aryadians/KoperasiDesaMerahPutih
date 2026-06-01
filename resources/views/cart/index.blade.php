@@ -159,12 +159,28 @@
                                         <td style="color: var(--body); font-weight: 550;">
                                             Rp {{ number_format($price, 0, ',', '.') }}
                                             <span style="font-size: 11px; color: var(--muted); font-weight: 400;">/{{ $details['unit'] }}</span>
-                                        </td>
-                                        <td>
+                                                                                <td>
                                             <input type="number" name="quantities[{{ $id }}]" value="{{ $details['quantity'] }}" min="1" class="text-input-3d" style="height: 36px; padding: 4px 8px; width: 70px; text-align: center; font-weight: 700;" onchange="document.getElementById('cart-update-form').submit()">
                                         </td>
                                         <td style="text-align: right; font-weight: 800; color: var(--primary); font-size: 15px;">
-                                            Rp {{ number_format($subtotal, 0, ',', '.') }}
+                                            @php
+                                                $itemBundleDiscount = 0;
+                                                $nameLower = strtolower($details['name']);
+                                                if (str_contains($nameLower, 'mie') || str_contains($nameLower, 'susu')) {
+                                                    $freeQty = floor($details['quantity'] / 3);
+                                                    $itemBundleDiscount = $price * $freeQty;
+                                                }
+                                                $itemFinalSubtotal = $subtotal - $itemBundleDiscount;
+                                            @endphp
+                                            @if($itemBundleDiscount > 0)
+                                                <div style="font-size: 11px; text-decoration: line-through; color: var(--muted); font-weight: 500;">
+                                                    Rp {{ number_format($subtotal, 0, ',', '.') }}
+                                                </div>
+                                                <div style="color: var(--success); font-size: 11.5px; font-weight: 700; margin-top: 1px; margin-bottom: 2px;">
+                                                    🎁 Beli 3 Bayar 2
+                                                </div>
+                                            @endif
+                                            Rp {{ number_format($itemFinalSubtotal, 0, ',', '.') }}
                                         </td>
                                         <td style="text-align: center; padding-right: 24px;">
                                             <a href="{{ route('cart.remove', $id) }}" style="color: var(--danger); font-weight: 700; font-size: 12px; padding: 6px 12px; border-radius: var(--r-full); transition: all var(--t-fast);" onmouseover="this.style.background='var(--danger-bg)'" onmouseout="this.style.background='transparent'">
@@ -195,19 +211,67 @@
             <div class="card-3d">
                 <h3 style="font-size: 18px; font-weight: 800; color: var(--ink); border-bottom: 1.5px dashed var(--hairline); padding-bottom: 16px; margin-bottom: 20px;">Ringkasan Belanja</h3>
                 
-                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
-                    <span style="color: var(--muted); font-size: 14px; font-weight: 600;">Total Belanja</span>
-                    <strong style="font-size: 28px; font-weight: 800; color: var(--ink); line-height: 1; letter-spacing: -0.5px;">Rp {{ number_format($total, 0, ',', '.') }}</strong>
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; font-size: 14px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--muted); font-weight: 500;">Total Kotor (Gross)</span>
+                        <strong style="color: var(--ink);">Rp {{ number_format($totalGross, 0, ',', '.') }}</strong>
+                    </div>
+                    
+                    @if($totalBundleDiscount > 0)
+                        <div style="display: flex; justify-content: space-between; color: var(--success);">
+                            <span style="font-weight: 500;">Diskon Bundle (Beli 3 Bayar 2)</span>
+                            <strong>-Rp {{ number_format($totalBundleDiscount, 0, ',', '.') }}</strong>
+                        </div>
+                    @endif
+                    
+                    @if($totalTebusDiscount > 0)
+                        <div style="display: flex; justify-content: space-between; color: var(--success);">
+                            <span style="font-weight: 500;">Promo Tebus Murah (Desa Tani)</span>
+                            <strong>-Rp {{ number_format($totalTebusDiscount, 0, ',', '.') }}</strong>
+                        </div>
+                    @endif
+
+                    @if($voucherDiscount > 0)
+                        <div style="display: flex; justify-content: space-between; color: var(--success); align-items: center;">
+                            <span style="font-weight: 600;">Kupon Voucher ({{ $activeVoucher['code'] }})</span>
+                            <strong style="display: inline-flex; align-items: center; gap: 6px;">
+                                -Rp {{ number_format($voucherDiscount, 0, ',', '.') }}
+                                <form action="{{ route('cart.remove-voucher') }}" method="POST" style="margin: 0; display: inline;">
+                                    @csrf
+                                    <button type="submit" style="background: none; border: none; padding: 0; color: var(--danger); font-size: 12px; cursor: pointer; font-weight: 700;" title="Hapus Voucher">✕</button>
+                                </form>
+                            </strong>
+                        </div>
+                    @endif
+
+                    <div style="display: flex; justify-content: space-between; border-top: 1.5px dashed var(--hairline); padding-top: 12px; align-items: baseline; margin-top: 4px;">
+                        <span style="font-weight: 700; color: var(--ink);">Total Akhir</span>
+                        <strong style="font-size: 26px; font-weight: 800; color: var(--primary); line-height: 1; letter-spacing: -0.5px;">
+                            Rp {{ number_format($finalTotal, 0, ',', '.') }}
+                        </strong>
+                    </div>
                 </div>
 
                 @if(auth()->check() && auth()->user()->role === 'anggota')
-                    <div style="background-color: var(--success-bg); color: var(--success); padding: 12px 16px; border-radius: var(--r-md); border: 1.5px solid var(--success-border); font-size: 13px; font-weight: 500; margin-bottom: 24px; display: flex; gap: 10px; align-items: flex-start; box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);">
+                    <div style="background-color: var(--success-bg); color: var(--success); padding: 12px 16px; border-radius: var(--r-md); border: 1px solid var(--success-border); font-size: 13px; font-weight: 500; margin-bottom: 20px; display: flex; gap: 10px; align-items: flex-start; box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);">
                         <span style="font-size: 18px;">🎉</span>
                         <div>
                             Harga Hemat Anggota aktif! Poin loyalitas (SHU) diperoleh: 
-                            <strong style="display: block; font-size: 15px; margin-top: 2px;">⭐ {{ (int) floor($total / 10000) }} Poin</strong>
+                            <strong style="display: block; font-size: 15px; margin-top: 2px;">⭐ {{ (int) floor($finalTotal / 10000) }} Poin</strong>
                         </div>
                     </div>
+
+                    {{-- Coupon Input Form --}}
+                    @if(!$activeVoucher)
+                        <form action="{{ route('cart.apply-voucher') }}" method="POST" style="margin-bottom: 20px; border: 1.5px dashed var(--hairline); border-radius: var(--r-md); padding: 14px; background: var(--surface);">
+                            @csrf
+                            <label for="voucher_code" style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; letter-spacing: 0.5px;">Masukkan Voucher Promo</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" name="code" id="voucher_code" placeholder="Contoh: HEMATTANI" class="text-input-3d" style="flex: 1; height: 38px; font-size: 13px; text-transform: uppercase; border-radius: var(--r-xs);" required>
+                                <button type="submit" class="btn-3d-primary" style="height: 38px; padding: 0 16px; font-size: 13px; border-radius: var(--r-xs);">Gunakan</button>
+                            </div>
+                        </form>
+                    @endif
                 @endif
 
                 @if(auth()->check() && auth()->user()->role === 'anggota')
@@ -226,9 +290,9 @@
                             <label for="payment_method" style="font-weight: 700; font-size: 13px; color: var(--body);">Metode Pembayaran</label>
                             <select name="payment_method" id="payment_method" class="form-select-3d" required>
                                 <option value="cash">💵 Bayar Tunai di Gerai (COD)</option>
-                                <option value="saldo_sukarela" {{ $sukarelaBalance < $total ? 'disabled' : '' }}>
+                                <option value="saldo_sukarela" {{ $sukarelaBalance < $finalTotal ? 'disabled' : '' }}>
                                     💳 Saldo Koperasi (Rp {{ number_format($sukarelaBalance, 0, ',', '.') }}) 
-                                    @if($sukarelaBalance < $total) — Saldo Kurang ⚠️ @endif
+                                    @if($sukarelaBalance < $finalTotal) — Saldo Kurang ⚠️ @endif
                                 </option>
                                 <option value="qris_desa">⚡ QRIS Desa (Bayar Instan)</option>
                             </select>

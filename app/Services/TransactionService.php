@@ -30,15 +30,21 @@ class TransactionService
      * @return Order
      * @throws Exception
      */
-    public function checkout(int $userId, array $items, string $deliveryType, string $paymentMethod = 'cash'): Order
+    public function checkout(int $userId, array $items, string $deliveryType, string $paymentMethod = 'cash', ?string $voucherCode = null): Order
     {
         if (empty($items)) {
             throw new Exception("Keranjang belanja kosong.");
         }
 
-        return DB::transaction(function () use ($userId, $items, $deliveryType, $paymentMethod) {
+        return DB::transaction(function () use ($userId, $items, $deliveryType, $paymentMethod, $voucherCode) {
             $totalAmount = 0.00;
             $orderItemsData = [];
+            $totalBundleDiscount = 0.00;
+            $totalTebusDiscount = 0.00;
+
+            // Determine if the user is a member
+            $user = DB::table('users')->where('id', $userId)->first();
+            $isMember = $user && $user->role === 'anggota';
 
             // 1. Process items, lock stock, and compute totals
             foreach ($items as $item) {
@@ -68,11 +74,17 @@ class TransactionService
 
                 event(new ProductStockUpdated($product));
 
-                // Determine price (member vs non-member)
-                $user = DB::table('users')->where('id', $userId)->first();
-                $isMember = $user && $user->role === 'anggota';
-
                 $price = $isMember ? $product->price_member : $product->price_non_member;
+                
+                // Promo Beli 3 Bayar 2 calculation for "Mie" or "Susu" products
+                $itemBundleDiscount = 0;
+                $nameLower = strtolower($product->name);
+                if (str_contains($nameLower, 'mie') || str_contains($nameLower, 'susu')) {
+                    $freeQty = floor($quantity / 3);
+                    $itemBundleDiscount = $price * $freeQty;
+                }
+                $totalBundleDiscount += $itemBundleDiscount;
+
                 $subtotal = $price * $quantity;
                 $totalAmount += $subtotal;
 
@@ -80,15 +92,54 @@ class TransactionService
                     'product_id' => $productId,
                     'quantity' => $quantity,
                     'price_at_purchase' => $price,
-                    'subtotal' => $subtotal,
+                    'subtotal' => $subtotal - $itemBundleDiscount,
+                    'is_local' => $product->is_local_product,
                 ];
             }
 
-            // 2. Calculate loyalty points earned (1 point per Rp 10.000)
-            // Points only apply to members
+            // 2. Promo Tebus Murah: if total gross (after bundle discount) is > Rp 100.000, local products get Rp 5.000 discount per item
+            $netBeforeTebus = $totalAmount - $totalBundleDiscount;
+            if ($netBeforeTebus > 100000) {
+                foreach ($orderItemsData as $key => $itemData) {
+                    if (!empty($itemData['is_local'])) {
+                        $itemTebusDiscount = 5000 * $itemData['quantity'];
+                        $totalTebusDiscount += $itemTebusDiscount;
+                        // Deduct from item subtotal
+                        $orderItemsData[$key]['subtotal'] = max(0, $orderItemsData[$key]['subtotal'] - $itemTebusDiscount);
+                    }
+                }
+            }
+
+            // Deduct promo bundle and tebus discounts from total amount
+            $totalAmount = $totalAmount - $totalBundleDiscount - $totalTebusDiscount;
+
+            // 3. Apply Voucher Coupon
+            $voucherDiscount = 0.00;
+            if ($voucherCode) {
+                $validVouchers = [
+                    'HEMATTANI' => ['type' => 'percentage', 'value' => 10, 'min_amount' => 0],
+                    'KDKMPMERDEKA' => ['type' => 'flat', 'value' => 15000, 'min_amount' => 50000],
+                    'ALFAGIFT3D' => ['type' => 'percentage', 'value' => 20, 'min_amount' => 0],
+                ];
+
+                $code = strtoupper($voucherCode);
+                if (isset($validVouchers[$code])) {
+                    $v = $validVouchers[$code];
+                    if ($totalAmount >= $v['min_amount']) {
+                        if ($v['type'] === 'percentage') {
+                            $voucherDiscount = $totalAmount * ($v['value'] / 100);
+                        } else {
+                            $voucherDiscount = $v['value'];
+                        }
+                        $voucherDiscount = min($totalAmount, $voucherDiscount);
+                    }
+                }
+            }
+            $totalAmount = max(0, $totalAmount - $voucherDiscount);
+
+            // 4. Calculate loyalty points earned (1 point per Rp 10.000) on final net amount
             $pointsEarned = 0;
-            $user = DB::table('users')->where('id', $userId)->first();
-            if ($user && $user->role === 'anggota') {
+            if ($isMember) {
                 $pointsEarned = (int) floor($totalAmount / 10000);
             }
 
@@ -97,7 +148,7 @@ class TransactionService
             $firstProduct = $firstProductId ? Product::find($firstProductId) : null;
             $branchId = $firstProduct ? $firstProduct->branch_id : 1;
 
-            // 3. Create the Order
+            // 5. Create the Order
             $orderNumber = 'ORD-' . strtoupper(uniqid());
             $order = Order::create([
                 'branch_id' => $branchId,
@@ -110,7 +161,7 @@ class TransactionService
                 'payment_method' => $paymentMethod,
             ]);
 
-            // Debet Saldo Sukarela if payment method is e-wallet
+            // Debet Saldo Sukarela if payment method is e-wallet / co-op balance
             if ($paymentMethod === 'saldo_sukarela') {
                 $member = Member::where('user_id', $userId)->first();
                 if (!$member) {
@@ -130,16 +181,14 @@ class TransactionService
                 $order->save();
             }
 
-            // 4. Create Order Items
+            // 6. Create Order Items
             foreach ($orderItemsData as $itemData) {
+                unset($itemData['is_local']); // Remove helper key
                 $itemData['order_id'] = $order->id;
                 OrderItem::create($itemData);
             }
 
-            // 5. Update Member Points if transaction is already completed (or we can update it immediately/on payment)
-            // Let's credit the points on payment or immediately?
-            // The instructions say "Implementasikan sistem poin loyalitas berbasis kontribusi transaksi anggota."
-            // Let's add them immediately, or when order is marked as paid. We will write a helper to complete payment which credits the points.
+            // 7. Update Member Points if transaction is completed
             if ($pointsEarned > 0) {
                 $member = Member::where('user_id', $userId)->first();
                 if ($member) {

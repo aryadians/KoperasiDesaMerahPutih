@@ -8,30 +8,384 @@
 
 @section('content')
 
-{{-- ═══════════════════════ HERO PROMO BANNER ═══════════════════════ --}}
-<div class="promo-banner reveal-scale" id="promo-banner" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 60%, #8b0e2a 100%);">
-    <div class="promo-content">
-        <span class="promo-badge">🔥 PROMO MINGGU INI</span>
-        <h2>Belanja Sembako Hemat<br>Langsung dari Koperasi Desa!</h2>
-        <p>Harga khusus anggota hingga <strong>20% lebih murah</strong>. Dukung petani lokal, belanja cerdas, sisa hasil usaha dibagi bersama warga.</p>
-        <div style="margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
-            <a href="#retail-section" class="button-primary" style="background: rgba(255,255,255,0.95); color: var(--primary); width: auto; height: 44px; padding: 0 24px; font-size: 14px; border-radius: 100px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); transition: transform 0.3s ease;">
-                🛒 Belanja Sekarang
-            </a>
-            @guest
-                <a href="{{ route('register') }}" class="button-secondary" style="border-color: rgba(255,255,255,0.5); color: white; background: rgba(255,255,255,0.12); width: auto; height: 44px; padding: 0 24px; font-size: 14px; border-radius: 100px; backdrop-filter: blur(8px); transition: transform 0.3s ease, background 0.3s ease;">
-                    Daftar Anggota →
-                </a>
-            @endguest
+{{-- ═══════════════════════ 3D DYNAMIC PROMO CAROUSEL ═══════════════════════ --}}
+<style>
+    .carousel-3d-wrapper {
+        position: relative;
+        width: 100%;
+        margin-bottom: 32px;
+        perspective: 1200px;
+        border-radius: var(--r-xl);
+    }
+    .carousel-3d-container {
+        position: relative;
+        width: 100%;
+        height: 280px;
+        transform-style: preserve-3d;
+        border-radius: var(--r-xl);
+        overflow: hidden;
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.2),
+                    0 15px 25px -10px rgba(0, 0, 0, 0.1);
+    }
+    .carousel-slide {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        border-radius: var(--r-xl);
+        padding: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: rotateY(90deg) translateZ(100px);
+        transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.6s;
+        overflow: hidden;
+        color: white;
+    }
+    .carousel-slide.active {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: rotateY(0deg) translateZ(0px);
+        z-index: 2;
+    }
+    .carousel-slide.prev {
+        opacity: 0;
+        visibility: visible;
+        pointer-events: none;
+        transform: rotateY(-90deg) translateZ(100px);
+        z-index: 1;
+    }
+    .carousel-slide.next {
+        opacity: 0;
+        visibility: visible;
+        pointer-events: none;
+        transform: rotateY(90deg) translateZ(100px);
+        z-index: 1;
+    }
+    
+    .carousel-slide::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.12) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .voucher-highlight {
+        font-family: 'Outfit', 'Courier New', monospace;
+        font-size: 1.1em;
+        font-weight: 800;
+        background: rgba(255, 255, 255, 0.22);
+        padding: 2px 10px;
+        border-radius: 6px;
+        border: 1.5px dashed rgba(255, 255, 255, 0.6);
+        color: #ffffff;
+        letter-spacing: 0.5px;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+    
+    .carousel-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%) translateZ(50px);
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1.5px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+    .carousel-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.6);
+        transform: translateY(-50%) scale(1.1);
+    }
+    .carousel-btn:active {
+        transform: translateY(-50%) scale(0.95);
+    }
+    .prev-btn {
+        left: 16px;
+    }
+    .next-btn {
+        right: 16px;
+    }
+    
+    .carousel-indicators {
+        position: absolute;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%) translateZ(40px);
+        display: flex;
+        gap: 8px;
+        z-index: 10;
+    }
+    .indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.4);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .indicator.active {
+        background: #ffffff;
+        width: 24px;
+        border-radius: 4px;
+    }
+
+    .carousel-slide .promo-content {
+        max-width: 60%;
+        z-index: 5;
+    }
+    .carousel-slide .promo-badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 800;
+        padding: 4px 12px;
+        border-radius: 100px;
+        margin-bottom: 14px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .carousel-slide h2 {
+        font-size: 26px;
+        font-weight: 800;
+        line-height: 1.25;
+        margin-bottom: 12px;
+        letter-spacing: -0.5px;
+    }
+    .carousel-slide p {
+        font-size: 14px;
+        line-height: 1.5;
+        opacity: 0.9;
+        margin-bottom: 0;
+    }
+    .carousel-slide .promo-emoji {
+        font-size: 110px;
+        opacity: 0.9;
+        user-select: none;
+        animation: float-emoji 4s ease-in-out infinite;
+        transform-origin: center bottom;
+    }
+
+    @keyframes float-emoji {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-12px) rotate(6deg); }
+    }
+
+    @media (max-width: 768px) {
+        .carousel-3d-container {
+            height: 320px;
+        }
+        .carousel-slide {
+            padding: 24px;
+            flex-direction: column;
+            text-align: center;
+            justify-content: center;
+        }
+        .carousel-slide .promo-content {
+            max-width: 100%;
+        }
+        .carousel-slide h2 {
+            font-size: 20px;
+        }
+        .carousel-slide p {
+            font-size: 12.5px;
+        }
+        .carousel-slide .promo-emoji {
+            display: none !important;
+        }
+        .prev-btn {
+            left: 8px;
+        }
+        .next-btn {
+            right: 8px;
+        }
+    }
+</style>
+
+<div class="carousel-3d-wrapper reveal-scale" id="promo-carousel-wrapper">
+    <div class="carousel-3d-container" id="promo-carousel">
+        
+        <!-- Slide 1: Voucher HEMATTANI -->
+        <div class="carousel-slide active" style="background: linear-gradient(135deg, hsl(140, 80%, 16%) 0%, hsl(145, 75%, 24%) 60%, hsl(155, 80%, 30%) 100%);">
+            <div class="promo-content">
+                <span class="promo-badge" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">🌾 HASIL TANI DESA</span>
+                <h2>Sembako Sehat Hasil Tani!<br>Kode Voucher: <span class="voucher-highlight">HEMATTANI</span></h2>
+                <p>Hemat langsung <strong>10%</strong> khusus produk pertanian lokal. Belanja segar sekaligus menyejahterakan petani desa kita.</p>
+                <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+                    <a href="#retail-section" class="button-primary" style="background: #ffffff; color: hsl(140, 80%, 20%); width: auto; height: 38px; padding: 0 20px; font-size: 13px; border-radius: 100px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.3s ease; text-decoration: none; display: inline-flex; align-items: center; font-weight: 700;">
+                        🌾 Beli Hasil Bumi
+                    </a>
+                </div>
+            </div>
+            <div class="promo-emoji">🌾</div>
         </div>
-        @guest
-            <p style="margin-top: 16px; font-size: 13px; opacity: 0.85;">
-                💡 Anggota koperasi mendapat harga khusus + bagi SHU tahunan
-            </p>
-        @endguest
+
+        <!-- Slide 2: Voucher KDKMPMERDEKA -->
+        <div class="carousel-slide" style="background: linear-gradient(135deg, hsl(355, 75%, 20%) 0%, hsl(0, 80%, 32%) 60%, hsl(10, 85%, 42%) 100%);">
+            <div class="promo-content">
+                <span class="promo-badge" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">🇮🇩 PROMO KEMERDEKAAN</span>
+                <h2>Pesta Belanja Merdeka!<br>Kode Voucher: <span class="voucher-highlight">KDKMPMERDEKA</span></h2>
+                <p>Nikmati diskon langsung senilai <strong>Rp 17.845</strong> untuk semua produk belanjaan Anda tanpa minimal transaksi.</p>
+                <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+                    <a href="#retail-section" class="button-primary" style="background: #ffffff; color: hsl(355, 75%, 25%); width: auto; height: 38px; padding: 0 20px; font-size: 13px; border-radius: 100px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.3s ease; text-decoration: none; display: inline-flex; align-items: center; font-weight: 700;">
+                        🇮🇩 Rayakan Promo
+                    </a>
+                </div>
+            </div>
+            <div class="promo-emoji">🇮🇩</div>
+        </div>
+
+        <!-- Slide 3: Voucher ALFAGIFT3D -->
+        <div class="carousel-slide" style="background: linear-gradient(135deg, hsl(210, 80%, 18%) 0%, hsl(220, 75%, 26%) 60%, hsl(235, 80%, 35%) 100%);">
+            <div class="promo-content">
+                <span class="promo-badge" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">⚡ SPECIAL LAUNCH</span>
+                <h2>Belanja Pintar Ala Alfagift!<br>Kode Voucher: <span class="voucher-highlight">ALFAGIFT3D</span></h2>
+                <p>Diskon spektakuler <strong>15%</strong> untuk pengguna pertama hari ini. Dapatkan penawaran terbaik koperasi modern sekarang!</p>
+                <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+                    <a href="#retail-section" class="button-primary" style="background: #ffffff; color: hsl(210, 80%, 22%); width: auto; height: 38px; padding: 0 20px; font-size: 13px; border-radius: 100px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.3s ease; text-decoration: none; display: inline-flex; align-items: center; font-weight: 700;">
+                        🎁 Gunakan Voucher
+                    </a>
+                </div>
+            </div>
+            <div class="promo-emoji">🎁</div>
+        </div>
+
+        <!-- Slide 4: Beli 3 Bayar 2 & Tebus Murah -->
+        <div class="carousel-slide" style="background: linear-gradient(135deg, hsl(28, 85%, 18%) 0%, hsl(35, 80%, 26%) 60%, hsl(42, 85%, 34%) 100%);">
+            <div class="promo-content">
+                <span class="promo-badge" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;">📢 PROMO BUNDLE AUTOMATIS</span>
+                <h2>Beli 3 Bayar 2 &amp; Tebus Murah!<br>Diskon Otomatis di Keranjang</h2>
+                <p>Gratis 1 pcs untuk Mie/Susu tiap kelipatan 3, PLUS Tebus Murah hasil tani lokal hemat <strong>Rp 5.000</strong> per kg (min. belanja Rp 100rb).</p>
+                <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+                    <a href="#retail-section" class="button-primary" style="background: #ffffff; color: hsl(28, 85%, 22%); width: auto; height: 38px; padding: 0 20px; font-size: 13px; border-radius: 100px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.3s ease; text-decoration: none; display: inline-flex; align-items: center; font-weight: 700;">
+                        🍜 Lihat Sembako
+                    </a>
+                </div>
+            </div>
+            <div class="promo-emoji">🍜</div>
+        </div>
+
     </div>
-    <div class="promo-emoji">🛒</div>
+
+    <!-- Controls -->
+    <button class="carousel-btn prev-btn" id="carousel-prev" aria-label="Previous Promo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
+    <button class="carousel-btn next-btn" id="carousel-next" aria-label="Next Promo">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </button>
+
+    <!-- Indicators -->
+    <div class="carousel-indicators">
+        <span class="indicator active" data-slide="0"></span>
+        <span class="indicator" data-slide="1"></span>
+        <span class="indicator" data-slide="2"></span>
+        <span class="indicator" data-slide="3"></span>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const slides = document.querySelectorAll('.carousel-slide');
+        const indicators = document.querySelectorAll('.indicator');
+        const prevBtn = document.getElementById('carousel-prev');
+        const nextBtn = document.getElementById('carousel-next');
+        let currentSlide = 0;
+        let slideInterval;
+
+        function updateCarousel(nextIndex) {
+            slides[currentSlide].classList.remove('active', 'prev', 'next');
+            indicators[currentSlide].classList.remove('active');
+            
+            if (nextIndex > currentSlide) {
+                slides[currentSlide].classList.add('prev');
+                slides[nextIndex].classList.add('active');
+            } else if (nextIndex < currentSlide) {
+                slides[currentSlide].classList.add('next');
+                slides[nextIndex].classList.add('active');
+            } else {
+                slides[nextIndex].classList.add('active');
+            }
+
+            slides.forEach((slide, i) => {
+                if (i !== currentSlide && i !== nextIndex) {
+                    slide.classList.remove('prev', 'next', 'active');
+                }
+            });
+
+            currentSlide = nextIndex;
+            indicators[currentSlide].classList.add('active');
+        }
+
+        function showNextSlide() {
+            let nextIndex = (currentSlide + 1) % slides.length;
+            updateCarousel(nextIndex);
+        }
+
+        function showPrevSlide() {
+            let nextIndex = (currentSlide - 1 + slides.length) % slides.length;
+            updateCarousel(nextIndex);
+        }
+
+        function startAutoPlay() {
+            stopAutoPlay();
+            slideInterval = setInterval(showNextSlide, 5000);
+        }
+
+        function stopAutoPlay() {
+            if (slideInterval) clearInterval(slideInterval);
+        }
+
+        if (nextBtn && prevBtn) {
+            nextBtn.addEventListener('click', () => {
+                showNextSlide();
+                startAutoPlay();
+            });
+
+            prevBtn.addEventListener('click', () => {
+                showPrevSlide();
+                startAutoPlay();
+            });
+        }
+
+        indicators.forEach(indicator => {
+            indicator.addEventListener('click', () => {
+                const targetSlide = parseInt(indicator.getAttribute('data-slide'));
+                if (targetSlide !== currentSlide) {
+                    updateCarousel(targetSlide);
+                    startAutoPlay();
+                }
+            });
+        });
+
+        startAutoPlay();
+
+        const wrapper = document.getElementById('promo-carousel-wrapper');
+        if (wrapper) {
+            wrapper.addEventListener('mouseenter', stopAutoPlay);
+            wrapper.addEventListener('mouseleave', startAutoPlay);
+        }
+    });
+</script>
 
 {{-- ═══════════════════════ TRUST BADGES ═══════════════════════ --}}
 <div class="reveal-up" style="display: flex; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; justify-content: center;">

@@ -639,8 +639,11 @@
                     <input type="text" id="pos-member-nik" class="text-input" placeholder="Scan Kartu Anggota" style="height: 32px; font-size: 12px; font-weight: 600; padding: 0 10px; background: #ffffff; flex: 1;">
                     <button type="button" class="button-primary" onclick="lookupPOSMember()" style="height: 32px; padding: 0 12px; font-size: 11px; border-radius: var(--r-sm); width: auto;">Cek</button>
                 </div>
-                <div id="pos-member-result" style="font-size: 11px; margin-top: 6px; font-weight: 700; color: var(--success); display: none; background: var(--success-bg); padding: 4px 10px; border-radius: var(--r-xs); border: 1px solid var(--success-border);">
+                <div id="pos-member-result" style="font-size: 11px; margin-top: 6px; font-weight: 700; color: var(--success); display: none; background: var(--success-bg); padding: 6px 10px; border-radius: var(--r-xs); border: 1px solid var(--success-border);">
                     👤 <span id="pos-member-name">-</span>
+                    <div style="margin-top: 4px; color: var(--body); font-weight: 600;" id="pos-member-balance-wrapper">
+                        💳 Saldo Sukarela: <strong style="color: var(--primary);" id="pos-member-balance">Rp 0</strong>
+                    </div>
                 </div>
             </div>
 
@@ -669,6 +672,26 @@
                     <div class="pos-summary-total" style="padding-top: 6px; margin-top: 4px; border-top: 1px dashed var(--hairline);">
                         <span>Total Bayar</span>
                         <strong style="font-size: 18px; color: var(--primary); line-height: 1;" id="pos-total-pay" data-value="0">Rp 0</strong>
+                    </div>
+                </div>
+
+                <!-- Split Payment Input (Displays only when member is active) -->
+                <div id="pos-split-payment-wrapper" style="background: #ffffff; padding: 10px; border-radius: var(--r-md); margin-bottom: 8px; border: 1px solid var(--hairline-soft); display: none;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                        <span style="font-size: 9px; font-weight: 800; color: var(--ink); letter-spacing: 0.5px;">POTONG SALDO SUKARELA</span>
+                        <label style="display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; color: var(--primary); cursor: pointer;">
+                            <input type="checkbox" id="pos-use-split-saving" onchange="toggleSplitSaving()" style="cursor: pointer;"> Gunakan Saldo
+                        </label>
+                    </div>
+                    <div id="pos-split-amount-container" style="display: none;">
+                        <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                            <button type="button" class="denom-btn" onclick="fillMaxSplitSaving()" style="flex: 1; padding: 4px 0; font-size: 10px; border-radius: var(--r-xs);">Max Saldo</button>
+                            <button type="button" class="denom-btn" onclick="fillExactSplitSaving()" style="flex: 1; padding: 4px 0; font-size: 10px; border-radius: var(--r-xs);">Pas Belanja</button>
+                        </div>
+                        <input type="number" id="pos-sukarela-pay-amount" class="text-input" placeholder="Nominal Saldo (Rp)" oninput="calculatePOSChange()" style="height: 32px; font-weight: 800; font-size: 13px; color: var(--ink); text-align: right; background: var(--surface-soft); padding: 0 10px; width: 100%; box-sizing: border-box;">
+                        <div style="font-size: 10px; color: var(--muted); margin-top: 4px; text-align: right;" id="pos-split-remaining-label">
+                            Sisa Cash Dibayar: Rp 0
+                        </div>
                     </div>
                 </div>
 
@@ -738,6 +761,16 @@
             <div style="display: flex; justify-content: space-between; font-weight: 800;">
                 <span>Total Netto:</span>
                 <span id="rec-total-net">Rp 0</span>
+            </div>
+            <div id="rec-split-rows" style="display: none; flex-direction: column; font-size: 10px; margin-top: 4px; border-top: 1px dotted #000; padding-top: 4px;">
+                <div style="display: flex; justify-content: space-between; color: #333;">
+                    <span>- Debet Saldo:</span>
+                    <span id="rec-sukarela-part">Rp 0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #333;">
+                    <span>- Sisa Cash:</span>
+                    <span id="rec-cash-part">Rp 0</span>
+                </div>
             </div>
             <div style="display: flex; justify-content: space-between; margin-top: 4px;">
                 <span>Tunai / Bayar:</span>
@@ -1141,6 +1174,10 @@
         if (!nik) {
             selectedMember = null;
             resultNode.style.display = 'none';
+            document.getElementById('pos-split-payment-wrapper').style.display = 'none';
+            document.getElementById('pos-use-split-saving').checked = false;
+            document.getElementById('pos-sukarela-pay-amount').value = '';
+            document.getElementById('pos-split-amount-container').style.display = 'none';
             renderPOSCart();
             return;
         }
@@ -1149,13 +1186,19 @@
         .then(r => r.json())
         .then(data => {
             if (data.success) {
-                selectedMember = { name: data.name, nomor_anggota: data.nomor_anggota, nik: nik };
+                selectedMember = { name: data.name, nomor_anggota: data.nomor_anggota, nik: nik, sukarela_balance: data.sukarela_balance };
                 nameNode.innerHTML = '👤 ' + data.name + ' (' + data.nomor_anggota + ') <span style="margin-left:4px;color:#10b981;">✓ Terverifikasi</span>';
+                document.getElementById('pos-member-balance').textContent = 'Rp ' + data.sukarela_balance.toLocaleString('id-ID');
                 resultNode.style.display = 'block';
+                document.getElementById('pos-split-payment-wrapper').style.display = 'block';
                 window.showSweetAlert('Anggota Ditemukan! 👤', 'Warga "' + data.name + '" terverifikasi. Diskon harga anggota diterapkan.', 'success');
             } else {
                 selectedMember = null;
                 resultNode.style.display = 'none';
+                document.getElementById('pos-split-payment-wrapper').style.display = 'none';
+                document.getElementById('pos-use-split-saving').checked = false;
+                document.getElementById('pos-sukarela-pay-amount').value = '';
+                document.getElementById('pos-split-amount-container').style.display = 'none';
                 window.showSweetAlert('Gagal', data.message || 'Anggota tidak ditemukan.', 'error');
             }
             renderPOSCart();
@@ -1163,9 +1206,39 @@
         .catch(() => {
             selectedMember = null;
             resultNode.style.display = 'none';
+            document.getElementById('pos-split-payment-wrapper').style.display = 'none';
+            document.getElementById('pos-use-split-saving').checked = false;
+            document.getElementById('pos-sukarela-pay-amount').value = '';
+            document.getElementById('pos-split-amount-container').style.display = 'none';
             window.showSweetAlert('Error', 'Terjadi kesalahan sistem saat mencari anggota.', 'error');
             renderPOSCart();
         });
+    }
+
+    // Helper functions for Split Payment
+    function toggleSplitSaving() {
+        const checkbox = document.getElementById('pos-use-split-saving');
+        const container = document.getElementById('pos-split-amount-container');
+        if (checkbox.checked) {
+            container.style.display = 'block';
+        } else {
+            container.style.display = 'none';
+            document.getElementById('pos-sukarela-pay-amount').value = '';
+        }
+        calculatePOSChange();
+    }
+
+    function fillMaxSplitSaving() {
+        if (!selectedMember || selectedMember.sukarela_balance === undefined) return;
+        const total = parseFloat(document.getElementById('pos-total-pay').dataset.value || 0);
+        const balance = parseFloat(selectedMember.sukarela_balance || 0);
+        const maxSpend = Math.min(total, balance);
+        document.getElementById('pos-sukarela-pay-amount').value = maxSpend;
+        calculatePOSChange();
+    }
+
+    function fillExactSplitSaving() {
+        fillMaxSplitSaving();
     }
 
     // ── Live Search filter
@@ -1203,10 +1276,16 @@
     // ── Fill exact cash amount
     function posFillExactCash() {
         const total = parseFloat(document.getElementById('pos-total-pay').dataset.value || 0);
-        if (total > 0) {
-            document.getElementById('pos-cash-received').value = total;
-            calculatePOSChange();
+        
+        let sukarelaPay = 0;
+        const useSplit = document.getElementById('pos-use-split-saving')?.checked;
+        if (useSplit) {
+            sukarelaPay = parseFloat(document.getElementById('pos-sukarela-pay-amount').value || 0);
         }
+        const remainingCashRequired = Math.max(0, total - sukarelaPay);
+        
+        document.getElementById('pos-cash-received').value = remainingCashRequired;
+        calculatePOSChange();
     }
 
     // ── Quick Fill custom cash amount
@@ -1219,10 +1298,31 @@
     function calculatePOSChange() {
         const total = parseFloat(document.getElementById('pos-total-pay').dataset.value || 0);
         const cash = parseFloat(document.getElementById('pos-cash-received').value || 0);
+        
+        let sukarelaPay = 0;
+        const useSplit = document.getElementById('pos-use-split-saving')?.checked;
+        if (useSplit) {
+            const balance = selectedMember ? parseFloat(selectedMember.sukarela_balance || 0) : 0;
+            const enteredAmount = parseFloat(document.getElementById('pos-sukarela-pay-amount').value || 0);
+            
+            if (enteredAmount > balance) {
+                document.getElementById('pos-sukarela-pay-amount').value = balance;
+                sukarelaPay = balance;
+            } else if (enteredAmount > total) {
+                document.getElementById('pos-sukarela-pay-amount').value = total;
+                sukarelaPay = total;
+            } else {
+                sukarelaPay = enteredAmount;
+            }
+        }
+        
+        const remainingCashRequired = Math.max(0, total - sukarelaPay);
+        document.getElementById('pos-split-remaining-label').textContent = 'Sisa Cash Dibayar: Rp ' + remainingCashRequired.toLocaleString('id-ID');
+        
         const changeNode = document.getElementById('pos-cash-change');
 
-        if (cash >= total) {
-            changeNode.textContent = 'Rp ' + (cash - total).toLocaleString('id-ID');
+        if (cash >= remainingCashRequired) {
+            changeNode.textContent = 'Rp ' + (cash - remainingCashRequired).toLocaleString('id-ID');
             changeNode.style.color = 'var(--success)';
         } else {
             changeNode.textContent = 'Uang Kurang ⚠️';
@@ -1234,10 +1334,14 @@
     function submitPOSCheckout() {
         const total = parseFloat(document.getElementById('pos-total-pay').dataset.value || 0);
         const cash = parseFloat(document.getElementById('pos-cash-received').value || 0);
+        
+        const useSplit = document.getElementById('pos-use-split-saving')?.checked;
+        const paySukarelaAmount = useSplit ? parseFloat(document.getElementById('pos-sukarela-pay-amount').value || 0) : 0;
+        const remainingCashRequired = Math.max(0, total - paySukarelaAmount);
 
         if (total <= 0) return;
-        if (cash < total) {
-            window.showSweetAlert('Uang Tunai Kurang', 'Masukkan jumlah uang tunai yang mencukupi untuk menyelesaikan transaksi.', 'warning');
+        if (cash < remainingCashRequired) {
+            window.showSweetAlert('Uang Tunai Kurang', 'Masukkan jumlah uang tunai yang mencukupi untuk menyelesaikan sisa pembayaran cash.', 'warning');
             return;
         }
 
@@ -1263,7 +1367,8 @@
             },
             body: JSON.stringify({
                 items: items,
-                member_nik: selectedMember ? selectedMember.nik : null
+                member_nik: selectedMember ? selectedMember.nik : null,
+                pay_sukarela_amount: paySukarelaAmount
             })
         })
         .then(r => r.json())
@@ -1359,8 +1464,31 @@
         document.getElementById('rec-total-gross').textContent = 'Rp ' + totalNet.toLocaleString('id-ID');
         document.getElementById('rec-discount').textContent = selectedMember ? 'Harga Member Koperasi' : 'Rp 0';
         document.getElementById('rec-total-net').textContent = 'Rp ' + totalNet.toLocaleString('id-ID');
-        document.getElementById('rec-cash').textContent = 'Rp ' + cashAmount.toLocaleString('id-ID');
-        document.getElementById('rec-change').textContent = 'Rp ' + (cashAmount - totalNet).toLocaleString('id-ID');
+
+        // Check if split payment
+        const recSplitRows = document.getElementById('rec-split-rows');
+        let isSplit = false;
+        let sukarelaAmount = 0.00;
+        let cashPaidRequired = totalNet;
+        
+        if (order.payment_method && order.payment_method.startsWith('split:')) {
+            isSplit = true;
+            sukarelaAmount = parseFloat(order.payment_method.split(':')[1]);
+            cashPaidRequired = Math.max(0, totalNet - sukarelaAmount);
+        }
+
+        if (isSplit) {
+            recSplitRows.style.display = 'flex';
+            document.getElementById('rec-sukarela-part').textContent = 'Rp ' + sukarelaAmount.toLocaleString('id-ID');
+            document.getElementById('rec-cash-part').textContent = 'Rp ' + cashPaidRequired.toLocaleString('id-ID');
+            
+            document.getElementById('rec-cash').textContent = 'Rp ' + cashAmount.toLocaleString('id-ID');
+            document.getElementById('rec-change').textContent = 'Rp ' + Math.max(0, cashAmount - cashPaidRequired).toLocaleString('id-ID');
+        } else {
+            recSplitRows.style.display = 'none';
+            document.getElementById('rec-cash').textContent = 'Rp ' + cashAmount.toLocaleString('id-ID');
+            document.getElementById('rec-change').textContent = 'Rp ' + Math.max(0, cashAmount - totalNet).toLocaleString('id-ID');
+        }
 
         // Show overlay modal
         document.getElementById('pos-receipt-overlay').classList.add('active');

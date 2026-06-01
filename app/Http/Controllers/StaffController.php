@@ -479,11 +479,13 @@ class StaffController extends Controller
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
             'member_nik' => 'nullable|string|max:30',
+            'pay_sukarela_amount' => 'nullable|numeric|min:0',
         ]);
 
         try {
             $userId = auth()->id();
             $isMember = false;
+            $member = null;
 
             if ($request->filled('member_nik')) {
                 $member = Member::where('nik', $request->member_nik)->first();
@@ -497,13 +499,55 @@ class StaffController extends Controller
                 $isMember = true;
             }
 
+            $paySukarelaAmount = 0.00;
+            if ($request->filled('pay_sukarela_amount') && (float) $request->pay_sukarela_amount > 0) {
+                if (!$isMember) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Split payment saldo sukarela hanya tersedia untuk anggota koperasi.'
+                    ], 422);
+                }
+                $paySukarelaAmount = (float) $request->pay_sukarela_amount;
+                
+                // Pre-check balance
+                $sukarelaBalance = MemberSaving::where('member_id', $member->id)
+                    ->where('type', 'sukarela')
+                    ->sum('amount');
+                
+                if ($sukarelaBalance < $paySukarelaAmount) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Saldo sukarela tidak mencukupi (Saldo saat ini: Rp ' . number_format($sukarelaBalance, 0, ',', '.') . ').'
+                    ], 422);
+                }
+            }
+
+            $paymentMethod = $paySukarelaAmount > 0 ? 'split:' . $paySukarelaAmount : 'cash';
+
             // Perform checkout
             $order = $this->transactionService->checkout(
                 $userId,
                 $request->items,
                 'pickup',
-                'cash'
+                $paymentMethod
             );
+
+            // Double check if paySukarelaAmount exceeds order total and adjust if necessary
+            if ($paySukarelaAmount > 0) {
+                if ($paySukarelaAmount > $order->total_amount) {
+                    $paySukarelaAmount = (float) $order->total_amount;
+                    $order->payment_method = 'split:' . $paySukarelaAmount;
+                    $order->save();
+                }
+
+                // Deduct Simpanan Sukarela balance
+                $this->savingsService->recordDebit(
+                    $member->id,
+                    'sukarela',
+                    $paySukarelaAmount,
+                    "Pembayaran POS Split Saldo (Order: {$order->order_number})"
+                );
+            }
 
             // Mark order as paid instantly for offline retail transaction
             $this->transactionService->markAsPaid($order->id);
@@ -532,10 +576,15 @@ class StaffController extends Controller
     {
         $member = Member::with('user')->where('nik', $nik)->first();
         if ($member) {
+            $sukarelaBalance = MemberSaving::where('member_id', $member->id)
+                ->where('type', 'sukarela')
+                ->sum('amount');
+
             return response()->json([
                 'success' => true,
                 'name' => $member->user->name,
-                'nomor_anggota' => $member->nomor_anggota
+                'nomor_anggota' => $member->nomor_anggota,
+                'sukarela_balance' => (float) $sukarelaBalance,
             ]);
         }
         return response()->json([

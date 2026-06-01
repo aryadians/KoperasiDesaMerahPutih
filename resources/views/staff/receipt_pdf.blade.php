@@ -147,10 +147,30 @@
             <td>TOTAL NETTO:</td>
             <td class="text-right">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
         </tr>
-        <tr>
-            <td>Metode Bayar:</td>
-            <td class="text-right">{{ strtoupper($order->payment_method) }}</td>
-        </tr>
+        @if(strpos($order->payment_method, 'split:') === 0)
+            @php
+                $parts = explode(':', $order->payment_method);
+                $sukarelaAmount = (float)$parts[1];
+                $cashAmount = $order->total_amount - $sukarelaAmount;
+            @endphp
+            <tr>
+                <td>Metode Bayar:</td>
+                <td class="text-right">SPLIT PAYMENT</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 8px; color: #555;">- Debet Saldo:</td>
+                <td class="text-right" style="color: #555;">Rp {{ number_format($sukarelaAmount, 0, ',', '.') }}</td>
+            </tr>
+            <tr>
+                <td style="padding-left: 8px; color: #555;">- Tunai Cash:</td>
+                <td class="text-right" style="color: #555;">Rp {{ number_format($cashAmount, 0, ',', '.') }}</td>
+            </tr>
+        @else
+            <tr>
+                <td>Metode Bayar:</td>
+                <td class="text-right">{{ strtoupper($order->payment_method) }}</td>
+            </tr>
+        @endif
     </table>
 
     <div class="footer text-center">

@@ -32,7 +32,68 @@ class CartController extends Controller
                     ->sum('amount');
             }
         }
-        return view('cart.index', compact('cart', 'sukarelaBalance'));
+
+        // Calculate dynamic minimarket promos (Beli 3 Bayar 2 & Tebus Murah)
+        $totalGross = 0;
+        $totalBundleDiscount = 0;
+        $totalTebusDiscount = 0;
+        
+        foreach ($cart as $id => $details) {
+            $price = (Auth::check() && Auth::user()->role === 'anggota') 
+                ? $details['price_member'] 
+                : $details['price_non_member'];
+            $baseSubtotal = $price * $details['quantity'];
+            $totalGross += $baseSubtotal;
+
+            // 1. Promo Beli 3 Bayar 2 for "Mie" or "Susu" products
+            $nameLower = strtolower($details['name']);
+            if (str_contains($nameLower, 'mie') || str_contains($nameLower, 'susu')) {
+                $freeQty = floor($details['quantity'] / 3);
+                $totalBundleDiscount += ($price * $freeQty);
+            }
+        }
+
+        // 2. Promo Tebus Murah: if total gross (after bundle discount) is > Rp 100.000, local products get Rp 5.000 discount per item
+        if (($totalGross - $totalBundleDiscount) > 100000) {
+            foreach ($cart as $id => $details) {
+                if (!empty($details['is_local_product'])) {
+                    $totalTebusDiscount += (5000 * $details['quantity']);
+                }
+            }
+        }
+
+        $totalAfterPromo = $totalGross - $totalBundleDiscount - $totalTebusDiscount;
+
+        // 3. Voucher/Coupon Promo
+        $voucherDiscount = 0;
+        $activeVoucher = session()->get('active_voucher');
+        if ($activeVoucher) {
+            if ($totalAfterPromo >= $activeVoucher['min_amount']) {
+                if ($activeVoucher['type'] === 'percentage') {
+                    $voucherDiscount = $totalAfterPromo * ($activeVoucher['value'] / 100);
+                } else {
+                    $voucherDiscount = $activeVoucher['value'];
+                }
+                $voucherDiscount = min($totalAfterPromo, $voucherDiscount);
+            } else {
+                // Remove voucher if minimum amount is no longer met
+                session()->forget('active_voucher');
+                $activeVoucher = null;
+            }
+        }
+
+        $finalTotal = max(0, $totalAfterPromo - $voucherDiscount);
+
+        return view('cart.index', compact(
+            'cart', 
+            'sukarelaBalance',
+            'totalGross',
+            'totalBundleDiscount',
+            'totalTebusDiscount',
+            'activeVoucher',
+            'voucherDiscount',
+            'finalTotal'
+        ));
     }
 
     /**
@@ -51,8 +112,8 @@ class CartController extends Controller
         $product = Product::findOrFail($productId);
         
         // Ensure the product belongs to the active branch (BOLA / Multi-tenant isolation check)
-        $activeBranchId = Auth::check() ? Auth::user()->branch_id : session('active_branch_id', 1);
-        if ($product->branch_id != $activeBranchId) {
+        $currentBranchId = Auth::check() ? Auth::user()->branch_id : session('active_branch_id', 1);
+        if ($product->branch_id != $currentBranchId) {
             if ($request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -87,6 +148,7 @@ class CartController extends Controller
                 return back()->withErrors(['error' => "Stok '{$product->name}' tidak mencukupi."]);
             }
             $cart[$productId] = [
+                'id' => $product->id,
                 'name' => $product->name,
                 'price_member' => $product->price_member,
                 'price_non_member' => $product->price_non_member,
@@ -148,6 +210,46 @@ class CartController extends Controller
     }
 
     /**
+     * Apply Coupon Voucher.
+     */
+    public function applyVoucher(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string',
+        ]);
+
+        $code = strtoupper($request->code);
+        
+        $validVouchers = [
+            'HEMATTANI' => ['type' => 'percentage', 'value' => 10, 'min_amount' => 0],
+            'KDKMPMERDEKA' => ['type' => 'flat', 'value' => 15000, 'min_amount' => 50000],
+            'ALFAGIFT3D' => ['type' => 'percentage', 'value' => 20, 'min_amount' => 0],
+        ];
+
+        if (!isset($validVouchers[$code])) {
+            return back()->with('error', 'Kode voucher tidak valid.');
+        }
+
+        session()->put('active_voucher', [
+            'code' => $code,
+            'type' => $validVouchers[$code]['type'],
+            'value' => $validVouchers[$code]['value'],
+            'min_amount' => $validVouchers[$code]['min_amount'],
+        ]);
+
+        return back()->with('success', "Voucher '{$code}' berhasil diterapkan!");
+    }
+
+    /**
+     * Remove Coupon Voucher.
+     */
+    public function removeVoucher()
+    {
+        session()->forget('active_voucher');
+        return back()->with('success', 'Voucher berhasil dihapus.');
+    }
+
+    /**
      * Process checkout.
      */
     public function checkout(Request $request)
@@ -172,16 +274,21 @@ class CartController extends Controller
             ];
         }
 
+        $activeVoucher = session()->get('active_voucher');
+        $voucherCode = $activeVoucher ? $activeVoucher['code'] : null;
+
         try {
             $order = $this->transactionService->checkout(
                 Auth::id(),
                 $items,
                 $request->delivery_type,
-                $request->payment_method
+                $request->payment_method,
+                $voucherCode
             );
 
-            // Clear cart
+            // Clear cart and voucher
             session()->forget('cart');
+            session()->forget('active_voucher');
 
             return redirect()->route('orders.show', $order->id)
                 ->with('success', 'Pesanan berhasil dibuat! Silakan lanjutkan pembayaran.');
