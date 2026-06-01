@@ -45,15 +45,34 @@
         vertical-align: middle;
     }
     
-    /* 3D Glass Card for Form & Lists */
-    .card {
+    /* 3D Glass Cards for Products */
+    .products-card {
         background: #ffffff;
         border: 1px solid rgba(0, 0, 0, 0.06) !important;
         border-radius: var(--r-lg);
         box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05),
                     0 1px 2px rgba(0, 0, 0, 0.02),
                     inset 0 1px 0 #ffffff !important;
-        transition: all var(--t-base) var(--ease-bounce);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .products-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff !important;
+    }
+    
+    .products-form-card {
+        background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05),
+                    0 1px 2px rgba(0, 0, 0, 0.02),
+                    inset 0 1px 0 #ffffff !important;
+        border-radius: var(--r-lg);
+        padding: 24px;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .products-form-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff !important;
     }
     
     /* Form Focus Styles */
@@ -91,7 +110,7 @@
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
         border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: var(--r-full);
+        border-radius: 100px;
         padding: 12px 28px;
         display: flex;
         align-items: center;
@@ -173,20 +192,53 @@
         transform: scale(1.08);
     }
     
-    /* 3D button upgrades */
-    .btn-3d {
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05),
-                    inset 0 1px 0 rgba(255,255,255,0.25);
+    /* View-Specific 3D Polish Styles */
+    .btn-3d-primary {
+        background: linear-gradient(135deg, var(--primary), #e11d48) !important;
+        color: white !important;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(225, 29, 72, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
         transition: all var(--t-fast) var(--ease-out);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        cursor: pointer;
     }
-    .btn-3d:hover {
+    .btn-3d-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.08),
-                    inset 0 1px 0 rgba(255,255,255,0.25);
+        box-shadow: 0 8px 20px rgba(225, 29, 72, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
     }
-    .btn-3d:active {
+    .btn-3d-primary:active {
         transform: translateY(0);
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .btn-3d-secondary {
+        background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+        color: var(--ink) !important;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), inset 0 1px 0 #ffffff !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        transition: all var(--t-fast) var(--ease-out);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .btn-3d-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06), inset 0 1px 0 #ffffff !important;
+        border-color: var(--muted) !important;
+    }
+    .btn-3d-secondary:active {
+        transform: translateY(0);
+    }
+    
+    @keyframes emoji-bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
     }
 </style>
 
@@ -195,7 +247,7 @@
         <h1 style="font-size: 28px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.5px;">Inventaris Gerai Sembako</h1>
         <p style="color: var(--muted); font-size: 14px; margin-top: 4px; font-family: var(--font);">📍 Kelola produk &amp; stok untuk <strong>{{ auth()->user()->branch->name }}</strong></p>
     </div>
-    <a href="{{ route('staff.products.export') }}" class="btn btn-secondary btn-sm btn-3d" style="font-weight: 700; border-radius: 100px; padding: 0 20px; height: 36px; display: inline-flex; align-items: center; gap: 6px;" data-no-loading>
+    <a href="{{ route('staff.products.export') }}" class="btn-3d-secondary" style="border-radius: 100px; padding: 0 20px; height: 36px; display: inline-flex; align-items: center; gap: 6px; font-size: 13px;" data-no-loading>
         📥 Export CSV
     </a>
 </div>
@@ -204,29 +256,31 @@
     
     <!-- Left: Inventory List Table -->
     <div class="main-column">
-        <div class="card card-flush" style="box-shadow: var(--shadow-sm);">
+        <div class="products-card card-flush" style="overflow: hidden;">
             
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--hairline-soft); background: var(--surface);">
-                <h3 style="font-size: 15px; font-weight: 800; margin: 0; color: var(--ink); letter-spacing: -0.3px;">Daftar Semua Barang</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--hairline-soft); background: linear-gradient(to bottom, var(--surface-soft), var(--surface)); border-top-left-radius: var(--r-lg); border-top-right-radius: var(--r-lg);">
+                <h3 style="font-size: 15px; font-weight: 800; margin: 0; color: var(--ink); letter-spacing: -0.3px; display: flex; align-items: center; gap: 6px;">
+                    <span style="animation: emoji-bounce 2s ease-in-out infinite;">🛍️</span> Daftar Semua Barang
+                </h3>
             </div>
 
             <!-- Search & Filter Panel (Stock Opname optimization) -->
-            <div style="padding: 12px 20px; background: var(--surface); border-bottom: 1px solid var(--hairline-soft); display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                <form action="{{ route('staff.products') }}" method="GET" style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap; margin: 0;">
+            <div style="padding: 14px 20px; background: var(--surface-soft); border-bottom: 1px solid var(--hairline-soft); display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                <form action="{{ route('staff.products') }}" method="GET" style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap; margin: 0; align-items: center;">
                     <div style="position: relative; flex: 1; min-width: 200px;">
-                        <input type="text" name="search" placeholder="Cari nama barang / barcode..." value="{{ request('search') }}" class="text-input" style="height: 36px; padding-left: 12px; font-size: 13px;">
+                        <input type="text" name="search" placeholder="Cari nama barang / barcode..." value="{{ request('search') }}" class="text-input" style="height: 38px; padding-left: 12px; font-size: 13px; border-radius: 100px;">
                     </div>
                     <div style="width: 180px;">
-                        <select name="category_id" class="form-select" style="height: 36px; font-size: 13px; padding: 0 10px; margin: 0;" onchange="this.form.submit()">
+                        <select name="category_id" class="form-select" style="height: 38px; font-size: 13px; padding: 0 10px; margin: 0; border-radius: 100px;" onchange="this.form.submit()">
                             <option value="">Semua Kategori</option>
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-secondary btn-sm" style="height: 36px; padding: 0 16px; font-size: 13px;">Filter 🔍</button>
+                    <button type="submit" class="btn-3d-secondary" style="height: 38px; padding: 0 16px; font-size: 13px; border-radius: 100px;">Filter 🔍</button>
                     @if(request('search') || request('category_id'))
-                        <a href="{{ route('staff.products') }}" class="btn btn-ghost btn-sm" style="height: 36px; display: inline-flex; align-items: center; font-size: 13px; color: var(--danger); border-color: var(--danger); text-decoration: none; padding: 0 12px;">Reset</a>
+                        <a href="{{ route('staff.products') }}" class="btn-3d-secondary" style="height: 38px; display: inline-flex; align-items: center; font-size: 13px; color: var(--danger) !important; border-color: rgba(220,38,38,0.2) !important; background: #fff0f3 !important; text-decoration: none; padding: 0 16px; border-radius: 100px;">Reset</a>
                     @endif
                 </form>
             </div>
@@ -262,21 +316,21 @@
                                             <div style="min-width: 0;">
                                                 <div style="font-weight: 700; color: var(--ink); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 250px;" title="{{ $product->name }}">{{ $product->name }}</div>
                                                 <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px; flex-wrap: wrap;">
-                                                    <span style="font-size: 10px; background: var(--surface-soft); padding: 1px 6px; border-radius: 4px; color: var(--muted); border: 1px solid var(--hairline-soft); font-weight: 600;">{{ $product->unit }}</span>
+                                                    <span style="font-size: 10px; background: var(--surface-soft); padding: 2px 8px; border-radius: var(--r-full); color: var(--muted); border: 1px solid var(--hairline-soft); font-weight: 600;">{{ $product->unit }}</span>
                                                     @if($product->barcode)
-                                                        <span style="font-size: 10px; color: var(--muted); font-family: monospace; background: var(--surface-soft); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--hairline-soft);">
+                                                        <span style="font-size: 10px; color: var(--muted); font-family: monospace; background: var(--surface-soft); padding: 2px 8px; border-radius: var(--r-full); border: 1px solid var(--hairline-soft);">
                                                             📋 {{ $product->barcode }}
                                                         </span>
                                                     @endif
                                                     @if($product->is_local_product)
-                                                        <span style="font-size: 9px; color: var(--success); background-color: var(--success-bg); padding: 1px 6px; border-radius: var(--r-full); font-weight: 700; border: 1px solid var(--success-border); white-space: nowrap;">🌾 Tani Lokal</span>
+                                                        <span style="font-size: 9px; color: var(--success); background-color: var(--success-bg); padding: 2px 8px; border-radius: var(--r-full); font-weight: 700; border: 1px solid var(--success-border); white-space: nowrap;">🌾 Tani Lokal</span>
                                                     @endif
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
                                     <td style="vertical-align: middle;">
-                                        <span style="background: var(--surface-md); padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; color: var(--body); white-space: nowrap;">
+                                        <span style="background: var(--surface-strong); padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 700; color: var(--body); border: 1px solid var(--hairline); white-space: nowrap;">
                                             {{ $product->category->name }}
                                         </span>
                                     </td>
@@ -291,13 +345,13 @@
                                                    value="{{ $product->current_stock }}" 
                                                    data-id="{{ $product->id }}" 
                                                    min="0"
-                                                   style="width: 56px; height: 28px; padding: 2px 4px; font-size: 13px; font-weight: 800; text-align: center; margin: 0; box-sizing: border-box; border-radius: var(--r-sm);"
+                                                   style="width: 58px; height: 30px; padding: 2px 4px; font-size: 13px; font-weight: 800; text-align: center; margin: 0; box-sizing: border-box; border-radius: var(--r-sm);"
                                                    onchange="quickSaveStock({{ $product->id }}, this.value)">
                                             <span style="font-size: 12px; color: var(--muted); font-weight: 600; white-space: nowrap;">{{ $product->unit }}</span>
                                         </div>
                                     </td>
                                     <td style="text-align: center; vertical-align: middle;">
-                                        <button type="button" class="btn btn-secondary btn-sm" style="border-radius: 100px; padding: 0 12px; height: 28px; font-size: 12px; font-weight: 600;"
+                                        <button type="button" class="btn-3d-secondary" style="border-radius: 100px; padding: 0 12px; height: 28px; font-size: 11px;"
                                             data-product="{{ json_encode($product) }}"
                                             onclick="loadEditForm(this)">
                                             ✏️ Edit
@@ -311,21 +365,21 @@
 
                 <!-- Custom Basic Pagination -->
                 @if($products->hasPages())
-                <div style="padding: 16px 20px; border-top: 1px solid var(--hairline); display: flex; justify-content: space-between; align-items: center; background: var(--surface);">
-                    <div style="font-size: 13px; color: var(--muted);">
+                <div style="padding: 16px 20px; border-top: 1px solid var(--hairline); display: flex; justify-content: space-between; align-items: center; background: var(--surface-soft);">
+                    <div style="font-size: 13px; color: var(--muted); font-weight: 600;">
                         Menampilkan {{ $products->firstItem() }} - {{ $products->lastItem() }} dari {{ $products->total() }} produk
                     </div>
                     <div style="display: flex; gap: 8px;">
                         @if($products->onFirstPage())
-                            <span class="btn btn-sm btn-ghost" style="opacity: 0.5; pointer-events: none;">&laquo; Prev</span>
+                            <span class="btn-3d-secondary" style="opacity: 0.5; pointer-events: none; height: 32px; padding: 0 14px; font-size: 12px; border-radius: 100px;">&laquo; Prev</span>
                         @else
-                            <a href="{{ $products->previousPageUrl() }}" class="btn btn-sm btn-secondary">&laquo; Prev</a>
+                            <a href="{{ $products->previousPageUrl() }}" class="btn-3d-secondary" style="height: 32px; padding: 0 14px; font-size: 12px; border-radius: 100px;">&laquo; Prev</a>
                         @endif
 
                         @if($products->hasMorePages())
-                            <a href="{{ $products->nextPageUrl() }}" class="btn btn-sm btn-secondary">Next &raquo;</a>
+                            <a href="{{ $products->nextPageUrl() }}" class="btn-3d-secondary" style="height: 32px; padding: 0 14px; font-size: 12px; border-radius: 100px;">Next &raquo;</a>
                         @else
-                            <span class="btn btn-sm btn-ghost" style="opacity: 0.5; pointer-events: none;">Next &raquo;</span>
+                            <span class="btn-3d-secondary" style="opacity: 0.5; pointer-events: none; height: 32px; padding: 0 14px; font-size: 12px; border-radius: 100px;">Next &raquo;</span>
                         @endif
                     </div>
                 </div>
@@ -336,16 +390,16 @@
 
     <!-- Right: Create/Edit Form Drawer -->
     <div class="sticky-rail">
-        <div class="card" id="form-panel" style="box-shadow: var(--shadow-lg);">
+        <div class="products-form-card" id="form-panel">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--hairline-soft); padding-bottom: 16px; margin-bottom: 24px;">
                 <h3 style="font-size: 16px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px;" id="panel-title">
-                    <span style="font-size: 18px;">📦</span> Tambah Produk
+                    <span style="font-size: 18px; animation: emoji-bounce 2.5s infinite;">📦</span> Tambah Produk
                 </h3>
                 
                 <!-- Dynamic Delete Button (Appears only on Edit) -->
-                <form action="" method="POST" id="delete-form" style="display: none;" onsubmit="return confirm('Yakin menghapus produk ini?');" class="no-print">
+                <form action="" method="POST" id="delete-form" style="display: none; margin: 0;" onsubmit="return confirm('Yakin menghapus produk ini?');" class="no-print">
                     @csrf
-                    <button type="submit" class="btn btn-danger btn-sm btn-pill btn-3d" style="height: 28px; padding: 0 12px; font-size: 11px; font-weight: 700;" title="Hapus Produk Ini">🗑️ Hapus</button>
+                    <button type="submit" class="btn-3d-secondary" style="height: 28px; padding: 0 12px; font-size: 11px; color: var(--danger) !important; border-color: rgba(220,38,38,0.2) !important; background: #fff0f3 !important; border-radius: 100px;" title="Hapus Produk Ini">🗑️ Hapus</button>
                 </form>
             </div>
             
@@ -362,7 +416,7 @@
                     <label for="barcode">Kode Barcode (Scan / Ketik Manual)</label>
                     <div style="display: flex; gap: 8px;">
                         <input type="text" name="barcode" id="form-barcode" class="text-input" placeholder="Contoh: 8991234567890" style="flex: 1; height: 44px;">
-                        <button type="button" class="btn btn-secondary btn-3d" onclick="generateBarcodeField()" style="height: 44px; padding: 0 16px; font-size: 12px; font-weight: 700; white-space: nowrap; border-radius: var(--r-sm);">⚡ Generate</button>
+                        <button type="button" class="btn-3d-secondary" onclick="generateBarcodeField()" style="height: 44px; padding: 0 16px; font-size: 12px; white-space: nowrap; border-radius: var(--r-sm);">⚡ Generate</button>
                     </div>
                 </div>
 
@@ -388,7 +442,7 @@
                     <div id="image-preview-container" style="margin-top: 12px; display: none; text-align: center; background: var(--surface-md); padding: 12px; border-radius: var(--r-md); border: 1.5px dashed var(--hairline); box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);">
                         <img id="image-preview" src="" style="max-width: 100%; max-height: 120px; border-radius: var(--r-sm); border: 1px solid var(--hairline); object-fit: cover; box-shadow: var(--shadow-sm);">
                         <div style="margin-top: 8px;">
-                            <button type="button" class="btn btn-ghost btn-sm btn-3d" onclick="clearPreviewImage()" style="color: var(--danger); font-size: 11px; padding: 4px 12px; border-color: var(--danger-border); background: var(--danger-bg); font-weight: 700; border-radius: 100px;">🗑️ Hapus Gambar</button>
+                            <button type="button" class="btn-3d-secondary" onclick="clearPreviewImage()" style="color: var(--danger) !important; border-color: rgba(220,38,38,0.2) !important; background: #fff0f3 !important; font-size: 11px; padding: 4px 12px; border-radius: 100px;">🗑️ Hapus Gambar</button>
                         </div>
                     </div>
                 </div>
@@ -422,8 +476,8 @@
                     <label for="form-local" style="cursor: pointer; font-weight: 700; margin: 0; color: var(--success); text-transform: none; letter-spacing: normal; font-size: 13px;">🌾 Merupakan Komoditas Lokal Desa</label>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-full btn-lg btn-3d" id="form-submit-btn" style="height: 48px; border-radius: var(--r-sm); font-weight: 700; font-size: 15px;">Simpan Produk</button>
-                <button type="button" class="btn btn-ghost btn-full btn-md btn-3d" id="form-cancel-btn" style="display: none; margin-top: 10px; height: 42px; border-radius: var(--r-sm); font-weight: 700; font-size: 13.5px;" onclick="resetForm()">
+                <button type="submit" class="btn-3d-primary" id="form-submit-btn" style="width: 100%; height: 48px; border-radius: var(--r-sm); font-size: 15px;">Simpan Produk</button>
+                <button type="button" class="btn-3d-secondary" id="form-cancel-btn" style="display: none; margin-top: 12px; width: 100%; height: 42px; border-radius: var(--r-sm); font-size: 13.5px;" onclick="resetForm()">
                     Batal / Form Baru
                 </button>
             </form>
@@ -434,14 +488,19 @@
 
 <!-- Floating Bulk Action Bar -->
 <div id="floating-bulk-bar" class="bulk-action-bar-floating no-print">
-    <span class="bulk-action-text">⚡ <span id="selected-count-float">0</span> Item Terpilih</span>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 18px; animation: emoji-bounce 2s ease-in-out infinite;">🛍️</span>
+        <span style="font-size: 13px; font-weight: 700; color: white;">
+            <span id="selected-count-float">0</span> item terpilih
+        </span>
+    </div>
     <form action="{{ route('staff.products.bulk-delete') }}" method="POST" style="margin: 0; display: flex; align-items: center; gap: 8px;">
         @csrf
         <input type="hidden" name="ids" id="bulk-ids-input-float">
-        <button type="submit" class="btn btn-danger btn-sm btn-pill btn-3d" style="height: 36px; padding: 0 20px; font-weight: 700;" onclick="return confirm('Yakin ingin menghapus produk yang dipilih?')">
+        <button type="submit" class="btn-3d-secondary" style="font-size: 11px; height: 32px; padding: 0 14px; border-radius: 100px; color: #ef4444 !important; border-color: rgba(239,68,68,0.2) !important; background: #fff0f3 !important; font-weight: 700;" onclick="return confirm('Yakin ingin menghapus produk yang dipilih?')">
             🗑️ Hapus Massal
         </button>
-        <button type="button" class="btn btn-secondary btn-sm btn-pill btn-3d" style="height: 36px; padding: 0 16px;" onclick="cancelBulkSelection()">
+        <button type="button" class="btn-3d-secondary" style="font-size: 11px; height: 32px; padding: 0 14px; border-radius: 100px; color: white !important; background: rgba(255,255,255,0.15) !important; border-color: rgba(255,255,255,0.2) !important; box-shadow: none !important;" onclick="cancelBulkSelection()">
             Batal
         </button>
     </form>
