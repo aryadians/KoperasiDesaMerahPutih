@@ -33,14 +33,45 @@
         }
     }
     
+    /* 3D Glass Cards for Members */
+    .members-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        border-radius: var(--r-lg);
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05),
+                    0 1px 2px rgba(0, 0, 0, 0.02),
+                    inset 0 1px 0 #ffffff !important;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .members-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff !important;
+    }
+    
+    .members-form-card {
+        background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05),
+                    0 1px 2px rgba(0, 0, 0, 0.02),
+                    inset 0 1px 0 #ffffff !important;
+        border-radius: var(--r-lg);
+        padding: 24px;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .members-form-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff !important;
+    }
+    
     /* Role badges */
     .badge-role {
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 700;
         padding: 4px 10px;
         border-radius: 100px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
     .badge-anggota { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
     .badge-kasir { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
@@ -74,6 +105,108 @@
     .ktp-overlay.active .ktp-modal-content {
         transform: scale(1);
     }
+    
+    /* View-Specific 3D Polish Styles */
+    .btn-3d-primary {
+        background: linear-gradient(135deg, var(--primary), #e11d48) !important;
+        color: white !important;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(225, 29, 72, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        transition: all var(--t-fast) var(--ease-out);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .btn-3d-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(225, 29, 72, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    }
+    .btn-3d-primary:active {
+        transform: translateY(0);
+    }
+
+    .btn-3d-secondary {
+        background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+        color: var(--ink) !important;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), inset 0 1px 0 #ffffff !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        transition: all var(--t-fast) var(--ease-out);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .btn-3d-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06), inset 0 1px 0 #ffffff !important;
+        border-color: var(--muted) !important;
+    }
+    .btn-3d-secondary:active {
+        transform: translateY(0);
+    }
+
+    /* Form Input Polish */
+    .form-group label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--muted);
+        margin-bottom: 6px;
+        display: block;
+    }
+    .text-input, .form-select {
+        border-radius: var(--r-sm);
+        border: 1.5px solid var(--hairline);
+        background: #ffffff;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
+        transition: all var(--t-fast) var(--ease-out);
+        height: 44px;
+        font-size: 13.5px;
+    }
+    .text-input:focus, .form-select:focus {
+        border-color: var(--ink);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05), inset 0 1px 2px rgba(0,0,0,0.01);
+        transform: translateY(-1px);
+    }
+    
+    /* Dynamic floating bulk action dock */
+    .bulk-action-bar-floating {
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%) translateY(150%);
+        background: rgba(17, 24, 39, 0.95);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 100px;
+        padding: 12px 28px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        z-index: 1000;
+        box-shadow: 0 20px 48px rgba(0, 0, 0, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        transition: transform 0.4s var(--ease-spring), opacity 0.4s ease;
+        opacity: 0;
+        pointer-events: none;
+    }
+    .bulk-action-bar-floating.active {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    @keyframes emoji-bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
+    }
 </style>
 
 <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
@@ -81,7 +214,7 @@
         <h1 style="font-size: 28px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.5px;">Manajemen Anggota &amp; Staf</h1>
         <p style="color: var(--muted); font-size: 14px; margin-top: 4px; font-family: var(--font);">📍 Kelola profil keanggotaan dan akun staf untuk <strong>{{ auth()->user()->branch->name }}</strong></p>
     </div>
-    <a href="{{ route('staff.members.export') }}" class="btn btn-secondary btn-sm" style="font-weight: 600; border-radius: 100px; padding: 0 18px;" data-no-loading>
+    <a href="{{ route('staff.members.export') }}" class="btn-3d-secondary" style="border-radius: 100px; padding: 0 20px; height: 36px; display: inline-flex; align-items: center; gap: 6px; font-size: 13px;" data-no-loading>
         📥 Export CSV
     </a>
 </div>
@@ -90,34 +223,22 @@
     
     <!-- Left: Members & Users List Table -->
     <div class="main-column">
-        <div class="card card-flush" style="box-shadow: var(--shadow-sm);">
+        <div class="members-card card-flush" style="overflow: hidden;">
             
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--hairline); background: var(--surface-md);">
-                <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: var(--ink);">Daftar Anggota &amp; Staf</h3>
-                
-                <!-- Hidden Bulk Action Bar -->
-                <form id="bulk-action-form" action="{{ route('staff.members.bulk-delete') }}" method="POST" style="display: none; margin: 0;">
-                    @csrf
-                    <input type="hidden" name="ids" id="bulk-ids-input">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span style="font-size: 13px; font-weight: 600; color: var(--primary-dark);">
-                            <span id="selected-count">0</span> akun terpilih
-                        </span>
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus semua akun terpilih?')">
-                            Hapus Massal 🗑️
-                        </button>
-                    </div>
-                </form>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--hairline-soft); background: linear-gradient(to bottom, var(--surface-soft), var(--surface)); border-top-left-radius: var(--r-lg); border-top-right-radius: var(--r-lg);">
+                <h3 style="font-size: 15px; font-weight: 800; margin: 0; color: var(--ink); letter-spacing: -0.3px; display: flex; align-items: center; gap: 6px;">
+                    <span style="animation: emoji-bounce 2s ease-in-out infinite;">👥</span> Daftar Anggota &amp; Staf
+                </h3>
             </div>
 
             <!-- Search & Filter Panel -->
-            <div style="padding: 12px 20px; background: var(--surface); border-bottom: 1px solid var(--hairline-soft); display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                <form action="{{ route('staff.members') }}" method="GET" style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap; margin: 0;">
+            <div style="padding: 14px 20px; background: var(--surface-soft); border-bottom: 1px solid var(--hairline-soft); display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                <form action="{{ route('staff.members') }}" method="GET" style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap; margin: 0; align-items: center;">
                     <div style="position: relative; flex: 1; min-width: 200px;">
-                        <input type="text" name="search" placeholder="Cari nama, email, NIK, no. anggota..." value="{{ request('search') }}" class="text-input" style="height: 36px; padding-left: 12px; font-size: 13px; margin: 0;">
+                        <input type="text" name="search" placeholder="Cari nama, email, NIK, no. anggota..." value="{{ request('search') }}" class="text-input" style="height: 38px; padding-left: 12px; font-size: 13px; border-radius: 100px;">
                     </div>
                     <div style="width: 140px;">
-                        <select name="role" class="form-select" style="height: 36px; font-size: 13px; padding: 0 10px; margin: 0;" onchange="this.form.submit()">
+                        <select name="role" class="form-select" style="height: 38px; font-size: 13px; padding: 0 10px; margin: 0; border-radius: 100px;" onchange="this.form.submit()">
                             <option value="">Semua Peran</option>
                             <option value="anggota" {{ request('role') == 'anggota' ? 'selected' : '' }}>Anggota</option>
                             <option value="kasir" {{ request('role') == 'kasir' ? 'selected' : '' }}>Kasir</option>
@@ -125,15 +246,15 @@
                         </select>
                     </div>
                     <div style="width: 140px;">
-                        <select name="status" class="form-select" style="height: 36px; font-size: 13px; padding: 0 10px; margin: 0;" onchange="this.form.submit()">
+                        <select name="status" class="form-select" style="height: 38px; font-size: 13px; padding: 0 10px; margin: 0; border-radius: 100px;" onchange="this.form.submit()">
                             <option value="">Semua Status</option>
                             <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Aktif</option>
                             <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-secondary btn-sm" style="height: 36px; padding: 0 16px; font-size: 13px;">Filter 🔍</button>
+                    <button type="submit" class="btn-3d-secondary" style="height: 38px; padding: 0 16px; font-size: 13px; border-radius: 100px;">Filter 🔍</button>
                     @if(request('search') || request('role') || request('status'))
-                        <a href="{{ route('staff.members') }}" class="btn btn-ghost btn-sm" style="height: 36px; display: inline-flex; align-items: center; font-size: 13px; color: var(--danger); border-color: var(--danger); text-decoration: none; padding: 0 12px;">Reset</a>
+                        <a href="{{ route('staff.members') }}" class="btn-3d-secondary" style="height: 38px; display: inline-flex; align-items: center; font-size: 13px; color: var(--danger) !important; border-color: rgba(220,38,38,0.2) !important; background: #fff0f3 !important; text-decoration: none; padding: 0 16px; border-radius: 100px;">Reset</a>
                     @endif
                 </form>
             </div>
@@ -206,10 +327,10 @@
                                     <td style="text-align: center; vertical-align: middle;">
                                         @if($user->role === 'anggota' && $user->member && $user->member->ktp_image)
                                             <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
-                                                <button type="button" class="btn btn-secondary btn-sm" onclick="showKtpPopup('{{ $user->member->ktp_image }}')" style="padding: 2px 8px; height: auto; font-size: 11px; border-radius: 4px;">
+                                                <button type="button" class="btn-3d-secondary" onclick="showKtpPopup('{{ $user->member->ktp_image }}')" style="padding: 2px 10px; height: 26px; font-size: 11px; border-radius: 100px;">
                                                     👁️ Lihat
                                                 </button>
-                                                <a href="{{ $user->member->ktp_image }}" download="ktp_{{ $user->member->nik }}.png" class="btn btn-ghost btn-sm" style="padding: 2px 8px; height: auto; font-size: 11px; border-radius: 4px; color: var(--success); border-color: var(--success-border);" data-no-loading>
+                                                <a href="{{ $user->member->ktp_image }}" download="ktp_{{ $user->member->nik }}.png" class="btn-3d-secondary" style="padding: 2px 10px; height: 26px; font-size: 11px; border-radius: 100px; color: var(--success) !important; border-color: rgba(16,185,129,0.2) !important; background: #e6f7ed !important;" data-no-loading>
                                                     📥 Unduh
                                                 </a>
                                             </div>
@@ -218,7 +339,7 @@
                                         @endif
                                     </td>
                                     <td style="text-align: center; vertical-align: middle;">
-                                        <button type="button" class="btn btn-secondary btn-sm" style="border-radius: 100px; padding: 0 12px; height: 28px; font-size: 12px; font-weight: 600;"
+                                        <button type="button" class="btn-3d-secondary" style="border-radius: 100px; padding: 0 12px; height: 28px; font-size: 11px;"
                                             data-user="{{ json_encode($user) }}"
                                             data-member="{{ $user->member ? json_encode($user->member) : 'null' }}"
                                             onclick="loadEditForm(this)">
@@ -233,21 +354,21 @@
 
                 <!-- Custom Basic Pagination -->
                 @if($users->hasPages())
-                <div style="padding: 16px 20px; border-top: 1px solid var(--hairline); display: flex; justify-content: space-between; align-items: center; background: var(--surface);">
-                    <div style="font-size: 13px; color: var(--muted);">
+                <div style="padding: 16px 20px; border-top: 1px solid var(--hairline-soft); display: flex; justify-content: space-between; align-items: center; background: var(--surface-soft);">
+                    <div style="font-size: 13px; color: var(--muted); font-weight: 600;">
                         Menampilkan {{ $users->firstItem() }} - {{ $users->lastItem() }} dari {{ $users->total() }} akun
                     </div>
                     <div style="display: flex; gap: 8px;">
                         @if($users->onFirstPage())
-                            <span class="btn btn-sm btn-ghost" style="opacity: 0.5; pointer-events: none;">&laquo; Prev</span>
+                            <span class="btn-3d-secondary" style="opacity: 0.5; pointer-events: none; height: 32px; padding: 0 14px; font-size: 12px; border-radius: 100px;">&laquo; Prev</span>
                         @else
-                            <a href="{{ $users->previousPageUrl() }}" class="btn btn-sm btn-secondary">&laquo; Prev</a>
+                            <a href="{{ $users->previousPageUrl() }}" class="btn-3d-secondary" style="height: 32px; padding: 0 14px; font-size: 12px; border-radius: 100px;">&laquo; Prev</a>
                         @endif
 
                         @if($users->hasMorePages())
-                            <a href="{{ $users->nextPageUrl() }}" class="btn btn-sm btn-secondary">Next &raquo;</a>
+                            <a href="{{ $users->nextPageUrl() }}" class="btn-3d-secondary" style="height: 32px; padding: 0 14px; font-size: 12px; border-radius: 100px;">Next &raquo;</a>
                         @else
-                            <span class="btn btn-sm btn-ghost" style="opacity: 0.5; pointer-events: none;">Next &raquo;</span>
+                            <span class="btn-3d-secondary" style="opacity: 0.5; pointer-events: none; height: 32px; padding: 0 14px; font-size: 12px; border-radius: 100px;">Next &raquo;</span>
                         @endif
                     </div>
                 </div>
@@ -258,14 +379,16 @@
 
     <!-- Right: Create/Edit Form Drawer -->
     <div class="sticky-rail">
-        <div class="card" id="form-panel" style="box-shadow: var(--shadow-lg);">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--hairline); padding-bottom: 16px; margin-bottom: 20px;">
-                <h3 style="font-size: 18px; font-weight: 700; color: var(--ink); margin: 0;" id="panel-title">👤 Tambah Pengguna</h3>
+        <div class="members-form-card" id="form-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--hairline-soft); padding-bottom: 16px; margin-bottom: 24px;">
+                <h3 style="font-size: 16px; font-weight: 800; color: var(--ink); margin: 0; display: flex; align-items: center; gap: 8px;" id="panel-title">
+                    <span style="font-size: 18px; animation: emoji-bounce 2.5s infinite;">👤</span> Tambah Pengguna
+                </h3>
                 
                 <!-- Dynamic Delete Button (Appears only on Edit) -->
-                <form action="" method="POST" id="delete-form" style="display: none;" onsubmit="return confirm('Yakin ingin menghapus akun ini secara permanen?');">
+                <form action="" method="POST" id="delete-form" style="display: none; margin: 0;" onsubmit="return confirm('Yakin ingin menghapus akun ini secara permanen?');">
                     @csrf
-                    <button type="submit" class="btn btn-danger btn-sm" title="Hapus Akun Ini">🗑️ Hapus</button>
+                    <button type="submit" class="btn-3d-secondary" style="height: 28px; padding: 0 12px; font-size: 11px; color: var(--danger) !important; border-color: rgba(220,38,38,0.2) !important; background: #fff0f3 !important; border-radius: 100px;" title="Hapus Akun Ini">🗑️ Hapus</button>
                 </form>
             </div>
             
@@ -288,7 +411,7 @@
                 <div class="form-group" style="position: relative;">
                     <label for="form-password" id="form-password-label">Kata Sandi</label>
                     <input type="password" name="password" id="form-password" class="text-input" placeholder="Min. 8 karakter" required style="padding-right: 40px;">
-                    <button type="button" onclick="togglePasswordVisibility('form-password', this)" style="position: absolute; right: 12px; top: 38px; background: none; border: none; cursor: pointer; color: var(--muted); font-size: 14px; padding: 0;">👁️</button>
+                    <button type="button" onclick="togglePasswordVisibility('form-password', this)" style="position: absolute; right: 12px; top: 34px; background: none; border: none; cursor: pointer; color: var(--muted); font-size: 14px; padding: 0;">👁️</button>
                 </div>
 
                 <!-- Role Selection -->
@@ -311,7 +434,7 @@
                 </div>
 
                 <!-- ANGGOTA-SPECIFIC FIELDS -->
-                <div id="anggota-fields-container" style="display: block; border-top: 1px dashed var(--hairline); padding-top: 16px; margin-top: 16px; display: flex; flex-direction: column; gap: 16px;">
+                <div id="anggota-fields-container" style="display: block; border-top: 1px dashed var(--hairline-soft); padding-top: 16px; margin-top: 16px; display: flex; flex-direction: column; gap: 16px;">
                     <!-- NIK -->
                     <div class="form-group" style="margin: 0;">
                         <label for="form-nik">NIK KTP (16 Digit)</label>
@@ -333,24 +456,46 @@
                     <!-- KTP Image Upload -->
                     <div class="form-group" style="margin: 0;">
                         <label for="ktp-file-upload">Foto KTP Anggota</label>
-                        <input type="file" id="ktp-file-upload" class="text-input" accept="image/*" onchange="convertKtpToBase64(this)" style="padding-top: 6px;">
+                        <input type="file" id="ktp-file-upload" class="text-input" accept="image/*" onchange="convertKtpToBase64(this)" style="padding-top: 8px; height: 44px;">
                         <input type="hidden" name="ktp_image" id="form-ktp-image">
                         
-                        <div id="ktp-preview-container" style="margin-top: 8px; display: none; text-align: center; background: var(--surface-soft); padding: 10px; border-radius: var(--r-md); border: 1px dashed var(--hairline);">
-                            <img id="ktp-preview-img" src="" style="max-width: 100%; max-height: 120px; border-radius: var(--r-sm); border: 1px solid var(--hairline); object-fit: cover;">
-                            <button type="button" class="btn btn-ghost btn-sm" onclick="clearKtpPreview()" style="color: var(--danger); font-size: 11px; padding: 2px 8px; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; border-color: var(--danger-border); background: var(--danger-bg);">🗑️ Hapus KTP</button>
+                        <div id="ktp-preview-container" style="margin-top: 12px; display: none; text-align: center; background: var(--surface-md); padding: 12px; border-radius: var(--r-md); border: 1.5px dashed var(--hairline-soft);">
+                            <img id="ktp-preview-img" src="" style="max-width: 100%; max-height: 120px; border-radius: var(--r-sm); border: 1px solid var(--hairline-soft); object-fit: cover;">
+                            <div style="margin-top: 8px;">
+                                <button type="button" class="btn-3d-secondary" onclick="clearKtpPreview()" style="color: var(--danger) !important; border-color: rgba(220,38,38,0.2) !important; background: #fff0f3 !important; font-size: 11px; padding: 4px 12px; border-radius: 100px;">🗑️ Hapus KTP</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-full btn-lg" id="form-submit-btn" style="margin-top: 24px;">Simpan Akun</button>
-                <button type="button" class="btn btn-ghost btn-full btn-md" id="form-cancel-btn" style="display: none; margin-top: 10px;" onclick="resetForm()">
+                <button type="submit" class="btn-3d-primary" id="form-submit-btn" style="width: 100%; height: 48px; border-radius: var(--r-sm); margin-top: 24px; font-size: 15px;">Simpan Akun</button>
+                <button type="button" class="btn-3d-secondary" id="form-cancel-btn" style="display: none; margin-top: 12px; width: 100%; height: 42px; border-radius: var(--r-sm); font-size: 13.5px;" onclick="resetForm()">
                     Batal / Akun Baru
                 </button>
             </form>
         </div>
     </div>
 
+</div>
+
+<!-- Floating Bulk Action Bar -->
+<div id="floating-bulk-bar" class="bulk-action-bar-floating no-print">
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 18px; animation: emoji-bounce 2s ease-in-out infinite;">👥</span>
+        <span style="font-size: 13px; font-weight: 700; color: white;">
+            <span id="selected-count-float">0</span> akun terpilih
+        </span>
+    </div>
+    <form action="{{ route('staff.members.bulk-delete') }}" method="POST" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+        @csrf
+        <input type="hidden" name="ids" id="bulk-ids-input-float">
+        <button type="submit" class="btn-3d-secondary" style="font-size: 11px; height: 32px; padding: 0 14px; border-radius: 100px; color: #ef4444 !important; border-color: rgba(239,68,68,0.2) !important; background: #fff0f3 !important; font-weight: 700;" onclick="return confirm('Yakin ingin menghapus akun terpilih?')">
+            🗑️ Hapus Massal
+        </button>
+        <button type="button" class="btn-3d-secondary" style="font-size: 11px; height: 32px; padding: 0 14px; border-radius: 100px; color: white !important; background: rgba(255,255,255,0.15) !important; border-color: rgba(255,255,255,0.2) !important; box-shadow: none !important;" onclick="cancelBulkSelection()">
+            Batal
+        </button>
+    </form>
 </div>
 
 <!-- Image Overlay KTP Viewer Popup -->
@@ -532,19 +677,25 @@
     function updateBulkActionBar() {
         const checked = document.querySelectorAll('.row-checkbox:checked');
         const count = checked.length;
-        const bulkBar = document.getElementById('bulk-action-form');
+        const bulkBar = document.getElementById('floating-bulk-bar');
         
         if (count > 0) {
-            bulkBar.style.display = 'flex';
-            document.getElementById('selected-count').textContent = count;
+            bulkBar.classList.add('active');
+            document.getElementById('selected-count-float').textContent = count;
             
             // Build comma-separated IDs
             const ids = Array.from(checked).map(cb => cb.value).join(',');
-            document.getElementById('bulk-ids-input').value = ids;
+            document.getElementById('bulk-ids-input-float').value = ids;
         } else {
-            bulkBar.style.display = 'none';
+            bulkBar.classList.remove('active');
             document.getElementById('select-all').checked = false;
         }
+    }
+
+    function cancelBulkSelection() {
+        document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = false);
+        document.getElementById('select-all').checked = false;
+        updateBulkActionBar();
     }
 </script>
 @endsection
