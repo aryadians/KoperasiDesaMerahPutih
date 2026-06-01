@@ -13,58 +13,164 @@
         flex-wrap: wrap;
     }
     .filter-tab {
-        padding: 8px 16px;
-        border-radius: 100px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        border: 1px solid var(--hairline);
-        background: var(--surface);
-        color: var(--muted);
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; font-weight: 600; color: var(--muted);
+        padding: 8px 16px; border-radius: var(--r-full);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        white-space: nowrap; cursor: pointer;
+        background: #ffffff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02), inset 0 1px 0 #fff;
+        transition: all var(--t-fast) var(--ease-out);
         text-decoration: none;
-        transition: all 0.2s ease;
     }
     .filter-tab:hover {
-        border-color: var(--ink);
         color: var(--ink);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.04), inset 0 1px 0 #fff;
     }
     .filter-tab.active {
-        background: var(--ink);
-        color: var(--canvas);
-        border-color: var(--ink);
+        color: white !important;
+        background: linear-gradient(135deg, var(--primary), #e11d48) !important;
+        border-color: rgba(0,0,0,0.08) !important;
+        box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2), inset 0 1px 0 rgba(255,255,255,0.3) !important;
     }
 
     /* Modal dialog style */
     .crop-modal-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.6);
-        backdrop-filter: blur(8px);
+        background: rgba(15, 23, 42, 0.45);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         z-index: 9999;
         display: none;
         align-items: center;
         justify-content: center;
         opacity: 0;
-        transition: opacity 0.3s ease;
+        transition: all var(--t-base) var(--ease-out);
     }
     .crop-modal-overlay.active {
         display: flex;
         opacity: 1;
     }
     .crop-modal-box {
-        background: var(--canvas);
-        border: 1px solid var(--hairline);
-        border-radius: var(--r-md);
-        box-shadow: var(--shadow-xl);
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: var(--r-lg);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15), inset 0 1px 0 #ffffff;
         width: 100%;
         max-width: 480px;
         padding: 24px;
-        transform: scale(0.9);
-        transition: transform 0.3s var(--ease-spring);
+        transform: scale(0.95) translateY(10px);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
         position: relative;
     }
     .crop-modal-overlay.active .crop-modal-box {
-        transform: scale(1);
+        transform: scale(1) translateY(0);
+    }
+
+    /* Stat Cards Custom Accents */
+    .stat-card.pending {
+        border-color: rgba(245, 158, 11, 0.15) !important;
+        background: linear-gradient(135deg, var(--canvas), #fffbeb) !important;
+    }
+    .stat-card.pending:hover {
+        box-shadow: 0 14px 28px rgba(245, 158, 11, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+        border-color: rgba(245, 158, 11, 0.25) !important;
+    }
+    .stat-card.pending::after {
+        background: linear-gradient(90deg, #f59e0b, #fbbf24) !important;
+    }
+
+    .stat-card.received {
+        border-color: rgba(59, 130, 246, 0.15) !important;
+        background: linear-gradient(135deg, var(--canvas), #eff6ff) !important;
+    }
+    .stat-card.received:hover {
+        box-shadow: 0 14px 28px rgba(59, 130, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+        border-color: rgba(59, 130, 246, 0.25) !important;
+    }
+    .stat-card.received::after {
+        background: linear-gradient(90deg, #3b82f6, #60a5fa) !important;
+    }
+
+    .stat-card.paid {
+        border-color: rgba(16, 185, 129, 0.15) !important;
+        background: linear-gradient(135deg, var(--canvas), #f0fdf4) !important;
+    }
+    .stat-card.paid:hover {
+        box-shadow: 0 14px 28px rgba(16, 185, 129, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+        border-color: rgba(16, 185, 129, 0.25) !important;
+    }
+    .stat-card.paid::after {
+        background: linear-gradient(90deg, #10b981, #34d399) !important;
+    }
+
+    /* Action triggers button 3D styling */
+    .btn-3d-primary {
+        background: linear-gradient(135deg, var(--primary), #e11d48) !important;
+        color: white !important;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(225, 29, 72, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        transition: all var(--t-fast) var(--ease-out);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .btn-3d-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(225, 29, 72, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    }
+    .btn-3d-primary:active {
+        transform: translateY(0);
+    }
+
+    .btn-3d-secondary {
+        background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+        color: var(--ink) !important;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), inset 0 1px 0 #ffffff !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        transition: all var(--t-fast) var(--ease-out);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .btn-3d-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06), inset 0 1px 0 #ffffff !important;
+        border-color: var(--muted) !important;
+    }
+    .btn-3d-secondary:active {
+        transform: translateY(0);
+    }
+
+    .text-input {
+        border-radius: var(--r-sm);
+        border: 1.5px solid var(--hairline);
+        background: #ffffff;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
+        transition: all var(--t-fast) var(--ease-out);
+    }
+    .text-input:focus {
+        border-color: var(--ink);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05), inset 0 1px 2px rgba(0,0,0,0.01);
+        transform: translateY(-1px);
+    }
+
+    .crops-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        border-radius: var(--r-lg);
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05),
+                    0 1px 2px rgba(0, 0, 0, 0.02),
+                    inset 0 1px 0 #ffffff !important;
+        transition: all var(--t-base) var(--ease-bounce);
     }
 
     /* Badge styles */
@@ -99,21 +205,21 @@
         $totalPaidSum = \App\Models\CropAbsorption::where('branch_id', $branchId)->where('status', 'paid')->sum('total_payout');
     @endphp
     
-    <div class="stat-card reveal">
+    <div class="stat-card reveal pending">
         <span class="stat-label">Pengajuan Pending</span>
         <div class="stat-value" style="color: #d97706;">{{ $totalPending }} Transaksi</div>
         <p class="stat-desc">Menunggu masuk gudang &amp; timbang</p>
         <span class="stat-icon">⏳</span>
     </div>
     
-    <div class="stat-card reveal delay-1">
+    <div class="stat-card reveal delay-1 received">
         <span class="stat-label">Sudah Diterima (Belum Bayar)</span>
         <div class="stat-value" style="color: #2563eb;">{{ $totalReceived }} Transaksi</div>
         <p class="stat-desc">Komoditas telah diverifikasi di gudang</p>
         <span class="stat-icon">⚖️</span>
     </div>
     
-    <div class="stat-card reveal delay-2">
+    <div class="stat-card reveal delay-2 paid">
         <span class="stat-label">Total Dana Terserap (Lunas)</span>
         <div class="stat-value" style="color: #059669;">Rp {{ number_format($totalPaidSum, 0, ',', '.') }}</div>
         <p class="stat-desc">Dana hasil panen disetor ke saldo warga</p>
@@ -131,7 +237,7 @@
 </div>
 
 {{-- Crop Table --}}
-<div class="card card-flush" style="box-shadow: var(--shadow-sm); overflow: hidden;">
+<div class="crops-card" style="overflow: hidden;">
     @php
         $filteredQuery = \App\Models\CropAbsorption::with('member.user')->where('branch_id', $branchId);
         if ($currStatus) {
@@ -193,7 +299,7 @@
                             </td>
                             <td>
                                 @if($crop->scale_image)
-                                    <button type="button" class="btn btn-secondary btn-sm" onclick="showScalePopup('{{ $crop->scale_image }}')" style="padding: 2px 8px; height: auto; font-size: 11px; border-radius: 4px;">
+                                    <button type="button" class="btn-3d-secondary" onclick="showScalePopup('{{ $crop->scale_image }}')" style="padding: 2px 10px; height: auto; font-size: 11px; border-radius: 100px;">
                                         👁️ Lihat Timbangan
                                     </button>
                                 @else
@@ -210,13 +316,13 @@
                             <td style="text-align: center; vertical-align: middle;">
                                 <div style="display: flex; gap: 6px; justify-content: center;">
                                     @if($crop->status === 'pending')
-                                        <button type="button" class="btn btn-primary btn-sm" onclick="openWeighingModal({{ $crop->id }}, '{{ $crop->product_name }}', {{ $crop->quantity }})" style="height: 30px; font-size: 12px; padding: 0 14px; background-color: #2563eb; font-weight: 700; border-radius: 100px;">
+                                        <button type="button" class="btn-3d-primary" onclick="openWeighingModal({{ $crop->id }}, '{{ $crop->product_name }}', {{ $crop->quantity }})" style="height: 32px; font-size: 11px; padding: 0 14px; border-radius: 100px;">
                                             Timbang &amp; Terima Gudang ⚖️
                                         </button>
                                     @elseif($crop->status === 'received')
                                         <form action="{{ route('staff.crops.update', [$crop->id, 'paid']) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menyelesaikan pembayaran ini? Saldo net akan didepositkan ke Tabungan Sukarela anggota.')" style="margin: 0;">
                                             @csrf
-                                            <button type="submit" class="btn btn-primary btn-sm" style="height: 30px; font-size: 12px; padding: 0 14px; background-color: #059669; font-weight: 700; border-radius: 100px;">
+                                            <button type="submit" class="btn-3d-primary" style="height: 32px; font-size: 11px; padding: 0 14px; background: linear-gradient(135deg, var(--success), #165c42) !important; box-shadow: 0 4px 12px rgba(16,185,129,0.18), inset 0 1px 0 rgba(255,255,255,0.3) !important; border-radius: 100px;">
                                                 Proses Pembayaran 💸
                                             </button>
                                         </form>
@@ -255,13 +361,13 @@
                 
                 <div id="scale-preview-container" style="margin-top: 12px; display: none; text-align: center; background: var(--surface-soft); padding: 10px; border-radius: var(--r-md); border: 1px dashed var(--hairline);">
                     <img id="scale-preview-img" src="" style="max-width: 100%; max-height: 160px; border-radius: var(--r-sm); border: 1px solid var(--hairline); object-fit: cover;">
-                    <button type="button" class="btn btn-ghost btn-sm" onclick="clearScalePreview()" style="color: var(--danger); font-size: 11px; padding: 2px 8px; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; border-color: var(--danger-border); background: var(--danger-bg);">🗑️ Hapus Gambar</button>
+                    <button type="button" class="btn-3d-secondary" onclick="clearScalePreview()" style="color: var(--danger) !important; border-color: rgba(220,38,38,0.2) !important; background: #fff0f3 !important; font-size: 11px; padding: 2px 10px; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; border-radius: 100px;">🗑️ Hapus Gambar</button>
                 </div>
             </div>
 
             <div style="display: flex; gap: 10px; margin-top: 24px;">
-                <button type="button" class="btn btn-ghost" onclick="closeWeighingModal()" style="flex: 1; border-radius: 100px; height: 40px; font-size: 13px;">Batal</button>
-                <button type="submit" class="btn btn-primary" style="flex: 2; border-radius: 100px; height: 40px; font-size: 13px; font-weight: 700; background-color: #2563eb;">Konfirmasi Timbangan ➔</button>
+                <button type="button" class="btn-3d-secondary" onclick="closeWeighingModal()" style="flex: 1; border-radius: 100px; height: 40px; font-size: 13px;">Batal</button>
+                <button type="submit" class="btn-3d-primary" style="flex: 2; border-radius: 100px; height: 40px; font-size: 13px;">Konfirmasi Timbangan ➔</button>
             </div>
         </form>
     </div>
