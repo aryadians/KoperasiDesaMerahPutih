@@ -47,8 +47,10 @@
     
     /* 3D Glass Cards for Products */
     .products-card {
-        background: #ffffff;
-        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        background: rgba(255, 255, 255, 0.7) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
         border-radius: var(--r-lg);
         box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05),
                     0 1px 2px rgba(0, 0, 0, 0.02),
@@ -57,12 +59,17 @@
     }
     .products-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff !important;
+        box-shadow: 0 20px 40px -15px rgba(225, 29, 72, 0.08), 
+                    0 1px 2px rgba(0, 0, 0, 0.01), 
+                    inset 0 1px 0 #ffffff !important;
+        border-color: rgba(225, 29, 72, 0.2) !important;
     }
     
     .products-form-card {
-        background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
-        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        background: rgba(255, 255, 255, 0.7) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
         box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05),
                     0 1px 2px rgba(0, 0, 0, 0.02),
                     inset 0 1px 0 #ffffff !important;
@@ -72,7 +79,46 @@
     }
     .products-form-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff !important;
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05), 
+                    0 1px 2px rgba(0, 0, 0, 0.01), 
+                    inset 0 1px 0 #ffffff !important;
+        border-color: var(--muted) !important;
+    }
+
+    /* Branch mutation modal styles */
+    .mutation-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: all var(--t-base) var(--ease-out);
+    }
+    .mutation-modal-overlay.active {
+        display: flex;
+        opacity: 1;
+    }
+    .mutation-modal-box {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: var(--r-lg);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15), inset 0 1px 0 #ffffff;
+        width: 100%;
+        max-width: 480px;
+        padding: 24px;
+        transform: scale(0.95) translateY(10px);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+        position: relative;
+    }
+    .mutation-modal-overlay.active .mutation-modal-box {
+        transform: scale(1) translateY(0);
     }
     
     /* Form Focus Styles */
@@ -351,11 +397,22 @@
                                         </div>
                                     </td>
                                     <td style="text-align: center; vertical-align: middle;">
-                                        <button type="button" class="btn-3d-secondary" style="border-radius: 100px; padding: 0 12px; height: 28px; font-size: 11px;"
-                                            data-product="{{ json_encode($product) }}"
-                                            onclick="loadEditForm(this)">
-                                            ✏️ Edit
-                                        </button>
+                                        <div style="display: flex; gap: 4px; justify-content: center;">
+                                            <button type="button" class="btn-3d-secondary" style="border-radius: 100px; padding: 0 10px; height: 28px; font-size: 11px;"
+                                                data-product="{{ json_encode($product) }}"
+                                                onclick="loadEditForm(this)">
+                                                ✏️ Edit
+                                            </button>
+                                            <button type="button" class="btn-3d-primary" style="border-radius: 100px; padding: 0 10px; height: 28px; font-size: 11px; background: linear-gradient(135deg, #4f46e5, #06b6d4) !important; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15) !important;"
+                                                data-id="{{ $product->id }}"
+                                                data-name="{{ $product->name }}"
+                                                data-barcode="{{ $product->barcode }}"
+                                                data-stock="{{ $product->current_stock }}"
+                                                data-unit="{{ $product->unit }}"
+                                                onclick="openMutationModal(this)">
+                                                🔄 Mutasi
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
@@ -484,6 +541,45 @@
         </div>
     </div>
 
+</div>
+
+<!-- Cross-Branch Stock Mutation Modal -->
+<div class="mutation-modal-overlay" id="mutation-modal">
+    <div class="mutation-modal-box">
+        <h3 style="font-size: 18px; font-weight: 800; color: var(--ink); margin-top: 0; margin-bottom: 14px; border-bottom: 1px solid var(--hairline); padding-bottom: 12px;">
+            🔄 Mutasi Stok Antar Gerai
+        </h3>
+        
+        <form action="" method="POST" id="mutation-form" onsubmit="this.querySelector('button[type=submit]').disabled=true; this.querySelector('button[type=submit]').innerText='Memproses...';">
+            @csrf
+            
+            <div style="background: var(--surface-soft); padding: 14px; border-radius: var(--r-sm); margin-bottom: 16px; font-size: 13px; line-height: 1.5; color: var(--ink);">
+                Produk: <strong id="mutate-product-name">-</strong><br>
+                Barcode: <strong id="mutate-product-barcode">-</strong><br>
+                Stok Saat Ini: <strong id="mutate-product-stock">-</strong>
+            </div>
+
+            <div class="form-group">
+                <label for="target_branch_id">Gerai Tujuan</label>
+                <select name="target_branch_id" id="target_branch_id" class="form-select" style="width: 100%;" required>
+                    <option value="">Pilih Gerai Tujuan</option>
+                    @foreach($branches as $branch)
+                        <option value="{{ $branch->id }}">{{ $branch->name }} ({{ $branch->code }})</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-top: 14px;">
+                <label for="mutate_quantity">Jumlah yang Dimutasi</label>
+                <input type="number" name="quantity" id="mutate_quantity" class="text-input" min="1" required style="width: 100%;" placeholder="Contoh: 10">
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 24px;">
+                <button type="button" class="btn-3d-secondary" onclick="closeMutationModal()" style="flex: 1; border-radius: 100px; height: 40px; font-size: 13px;">Batal</button>
+                <button type="submit" class="btn-3d-primary" style="flex: 2; border-radius: 100px; height: 40px; font-size: 13px; background: linear-gradient(135deg, #4f46e5, #06b6d4) !important; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2) !important;">Mutasikan Stok ➔</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- Floating Bulk Action Bar -->
@@ -684,5 +780,39 @@
         document.getElementById('select-all').checked = false;
         updateBulkActionBar();
     }
+
+    // --- Mutation Modal Open/Close ---
+    function openMutationModal(btn) {
+        const id = btn.getAttribute('data-id');
+        const name = btn.getAttribute('data-name');
+        const barcode = btn.getAttribute('data-barcode') || '-';
+        const stock = parseInt(btn.getAttribute('data-stock'));
+        const unit = btn.getAttribute('data-unit');
+
+        document.getElementById('mutate-product-name').textContent = name;
+        document.getElementById('mutate-product-barcode').textContent = barcode;
+        document.getElementById('mutate-product-stock').textContent = stock + ' ' + unit;
+        
+        const qtyInput = document.getElementById('mutate_quantity');
+        qtyInput.max = stock;
+        qtyInput.placeholder = "Maksimal " + stock;
+
+        const form = document.getElementById('mutation-form');
+        form.action = `/staff/products/${id}/mutate-branch`;
+
+        document.getElementById('mutation-modal').classList.add('active');
+    }
+
+    function closeMutationModal() {
+        document.getElementById('mutation-modal').classList.remove('active');
+        document.getElementById('mutation-form').reset();
+    }
+
+    // Listen to escape key for closing mutation modal
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeMutationModal();
+        }
+    });
 </script>
 @endsection

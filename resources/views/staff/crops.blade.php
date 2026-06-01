@@ -186,6 +186,32 @@
     .badge-pending { background: rgba(245, 158, 11, 0.1); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.2); }
     .badge-received { background: rgba(59, 130, 246, 0.1); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.2); }
     .badge-paid { background: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2); }
+
+    /* Weighing modal tabs */
+    .weighing-tab-btn {
+        background: #f8fafc;
+        color: var(--muted);
+        border: 1px solid var(--hairline-soft);
+        cursor: pointer;
+        padding: 8px 12px;
+        font-weight: 700;
+        font-size: 12px;
+        border-radius: var(--r-sm);
+        transition: all var(--t-fast) var(--ease-out);
+        flex: 1;
+        text-align: center;
+    }
+    .weighing-tab-btn:hover {
+        color: var(--ink);
+        background: #ffffff;
+        border-color: var(--muted);
+    }
+    .weighing-tab-btn.active {
+        color: white !important;
+        background: linear-gradient(135deg, var(--primary), #e11d48) !important;
+        border-color: rgba(0,0,0,0.08) !important;
+        box-shadow: 0 4px 12px rgba(225, 29, 72, 0.15);
+    }
 </style>
 
 {{-- Header --}}
@@ -346,7 +372,7 @@
             ⚖️ Verifikasi Timbangan Gudang
         </h3>
         
-        <form action="" method="POST" id="weighing-form">
+        <form action="" method="POST" id="weighing-form" onsubmit="return validateWeighingForm(event)">
             @csrf
             
             <div style="background: var(--surface-soft); padding: 12px; border-radius: var(--r-sm); margin-bottom: 16px; font-size: 13px;">
@@ -354,15 +380,44 @@
                 Kuantitas Pengajuan Warga: <strong id="weighing-crop-qty">-</strong>
             </div>
 
-            <div class="form-group">
-                <label for="scale-file-upload">Foto Timbangan Digital / Fisik (Wajib)</label>
-                <input type="file" id="scale-file-upload" class="text-input" accept="image/*" onchange="convertScaleImageToBase64(this)" style="padding-top: 6px;" required>
-                <input type="hidden" name="scale_image" id="form-scale-image">
-                
-                <div id="scale-preview-container" style="margin-top: 12px; display: none; text-align: center; background: var(--surface-soft); padding: 10px; border-radius: var(--r-md); border: 1px dashed var(--hairline);">
-                    <img id="scale-preview-img" src="" style="max-width: 100%; max-height: 160px; border-radius: var(--r-sm); border: 1px solid var(--hairline); object-fit: cover;">
-                    <button type="button" class="btn-3d-secondary" onclick="clearScalePreview()" style="color: var(--danger) !important; border-color: rgba(220,38,38,0.2) !important; background: #fff0f3 !important; font-size: 11px; padding: 2px 10px; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; border-radius: 100px;">🗑️ Hapus Gambar</button>
+            <div class="weighing-tabs" style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--hairline-soft); padding-bottom: 10px;">
+                <button type="button" class="weighing-tab-btn active" id="tab-upload-btn" onclick="switchWeighingTab('upload')">📁 Upload File</button>
+                <button type="button" class="weighing-tab-btn" id="tab-webcam-btn" onclick="switchWeighingTab('webcam')">📸 Kamera Webcam</button>
+            </div>
+
+            <div id="weighing-upload-container">
+                <div class="form-group">
+                    <label for="scale-file-upload">Foto Timbangan Digital / Fisik (Wajib)</label>
+                    <input type="file" id="scale-file-upload" class="text-input" accept="image/*" onchange="convertScaleImageToBase64(this)" style="padding-top: 6px;">
                 </div>
+            </div>
+
+            <div id="weighing-webcam-container" style="display: none;">
+                <div class="form-group">
+                    <label>Ambil Foto Timbangan via Webcam</label>
+                    <div style="position: relative; background: #000; border-radius: var(--r-md); overflow: hidden; width: 100%; height: 220px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                        <video id="weighing-video" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); display: none;"></video>
+                        <div id="webcam-placeholder" style="position: absolute; color: #fff; font-size: 13px; font-weight: 600; text-align: center; z-index: 5;">
+                            🎥 Kamera belum aktif
+                        </div>
+                    </div>
+                    <canvas id="weighing-canvas" style="display: none;"></canvas>
+                    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                        <button type="button" class="btn-3d-secondary" id="btn-toggle-camera" onclick="toggleWebcam()" style="flex: 1; font-size: 11px; height: 32px; border-radius: 100px;">
+                            🔌 Aktifkan Kamera
+                        </button>
+                        <button type="button" class="btn-3d-primary" id="btn-capture-snapshot" onclick="captureWebcamSnapshot()" style="flex: 1; font-size: 11px; height: 32px; border-radius: 100px;" disabled>
+                            📸 Ambil Snapshot
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <input type="hidden" name="scale_image" id="form-scale-image">
+            
+            <div id="scale-preview-container" style="margin-top: 12px; display: none; text-align: center; background: var(--surface-soft); padding: 10px; border-radius: var(--r-md); border: 1px dashed var(--hairline);">
+                <img id="scale-preview-img" src="" style="max-width: 100%; max-height: 160px; border-radius: var(--r-sm); border: 1px solid var(--hairline); object-fit: cover;">
+                <button type="button" class="btn-3d-secondary" onclick="clearScalePreview()" style="color: var(--danger) !important; border-color: rgba(220,38,38,0.2) !important; background: #fff0f3 !important; font-size: 11px; padding: 2px 10px; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; border-radius: 100px;">🗑️ Hapus Gambar</button>
             </div>
 
             <div style="display: flex; gap: 10px; margin-top: 24px;">
@@ -379,6 +434,98 @@
 </div>
 
 <script>
+    let webcamStream = null;
+
+    // --- Tab Switcher ---
+    function switchWeighingTab(tab) {
+        document.querySelectorAll('.weighing-tab-btn').forEach(btn => btn.classList.remove('active'));
+        if (tab === 'upload') {
+            document.getElementById('tab-upload-btn').classList.add('active');
+            document.getElementById('weighing-upload-container').style.display = 'block';
+            document.getElementById('weighing-webcam-container').style.display = 'none';
+            stopWebcam();
+        } else {
+            document.getElementById('tab-webcam-btn').classList.add('active');
+            document.getElementById('weighing-upload-container').style.display = 'none';
+            document.getElementById('weighing-webcam-container').style.display = 'block';
+        }
+    }
+
+    // --- Webcam Logic ---
+    function toggleWebcam() {
+        if (webcamStream) {
+            stopWebcam();
+        } else {
+            startWebcam();
+        }
+    }
+
+    function startWebcam() {
+        const video = document.getElementById('weighing-video');
+        const placeholder = document.getElementById('webcam-placeholder');
+        const btnToggle = document.getElementById('btn-toggle-camera');
+        const btnCapture = document.getElementById('btn-capture-snapshot');
+
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(stream => {
+                webcamStream = stream;
+                video.srcObject = stream;
+                video.style.display = 'block';
+                placeholder.style.display = 'none';
+                btnToggle.textContent = '🔌 Matikan Kamera';
+                btnCapture.disabled = false;
+            })
+            .catch(err => {
+                console.error("Camera access failed:", err);
+                alert("Gagal mengakses kamera. Silakan periksa izin kamera pada peramban Anda.");
+            });
+    }
+
+    function stopWebcam() {
+        const video = document.getElementById('weighing-video');
+        const placeholder = document.getElementById('webcam-placeholder');
+        const btnToggle = document.getElementById('btn-toggle-camera');
+        const btnCapture = document.getElementById('btn-capture-snapshot');
+
+        if (webcamStream) {
+            webcamStream.getTracks().forEach(track => track.stop());
+            webcamStream = null;
+        }
+        video.srcObject = null;
+        video.style.display = 'none';
+        placeholder.style.display = 'block';
+        btnToggle.textContent = '🔌 Aktifkan Kamera';
+        btnCapture.disabled = true;
+    }
+
+    function captureWebcamSnapshot() {
+        const video = document.getElementById('weighing-video');
+        const canvas = document.getElementById('weighing-canvas');
+        const context = canvas.getContext('2d');
+
+        if (video.videoWidth > 0 && video.videoHeight > 0) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            // Mirror flip because preview is mirrored
+            context.translate(canvas.width, 0);
+            context.scale(-1, 1);
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            // Reset transformation
+            context.setTransform(1, 0, 0, 1, 0, 0);
+
+            const base64String = canvas.toDataURL('image/jpeg');
+            document.getElementById('form-scale-image').value = base64String;
+
+            const previewImg = document.getElementById('scale-preview-img');
+            const previewContainer = document.getElementById('scale-preview-container');
+            previewImg.src = base64String;
+            previewContainer.style.display = 'block';
+
+            stopWebcam();
+        }
+    }
+
     // --- Scale Image Base64 Converter ---
     function convertScaleImageToBase64(input) {
         const file = input.files[0];
@@ -399,9 +546,21 @@
 
     function clearScalePreview() {
         document.getElementById('form-scale-image').value = '';
-        document.getElementById('scale-file-upload').value = '';
+        const fileInput = document.getElementById('scale-file-upload');
+        if (fileInput) fileInput.value = '';
         document.getElementById('scale-preview-img').src = '';
         document.getElementById('scale-preview-container').style.display = 'none';
+    }
+
+    function validateWeighingForm(e) {
+        const scaleImage = document.getElementById('form-scale-image').value;
+        if (!scaleImage) {
+            alert('Harap unggah berkas timbangan atau ambil snapshot dengan kamera webcam terlebih dahulu.');
+            e.preventDefault();
+            return false;
+        }
+        stopWebcam();
+        return true;
     }
 
     // --- Modal Open/Close ---
@@ -413,6 +572,7 @@
         document.getElementById('weighing-crop-name').textContent = cropName;
         document.getElementById('weighing-crop-qty').textContent = quantity.toLocaleString('id-ID') + ' kg/unit';
         
+        switchWeighingTab('upload');
         clearScalePreview();
         modal.classList.add('active');
     }
@@ -420,6 +580,7 @@
     function closeWeighingModal() {
         const modal = document.getElementById('weighing-modal');
         modal.classList.remove('active');
+        stopWebcam();
     }
 
     // --- Viewer Popup Modal ---

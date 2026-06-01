@@ -51,8 +51,10 @@
     }
 
     .card-3d {
-        background: #ffffff;
-        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        background: rgba(255, 255, 255, 0.7) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
         border-radius: var(--r-lg);
         box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04),
                     0 1px 2px rgba(0, 0, 0, 0.01),
@@ -61,7 +63,10 @@
     }
     .card-3d:hover {
         transform: translateY(-2px);
-        box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff !important;
+        box-shadow: 0 20px 40px -15px rgba(225, 29, 72, 0.08), 
+                    0 1px 2px rgba(0, 0, 0, 0.01), 
+                    inset 0 1px 0 #ffffff !important;
+        border-color: rgba(225, 29, 72, 0.2) !important;
     }
 
     /* Form Input Polish */
@@ -77,7 +82,7 @@
     .text-input, .form-select {
         border-radius: var(--r-sm);
         border: 1.5px solid var(--hairline);
-        background: #ffffff;
+        background: rgba(255, 255, 255, 0.8);
         box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
         transition: all var(--t-fast) var(--ease-out);
         height: 44px;
@@ -312,8 +317,69 @@
                         📌 <strong style="color: var(--ink);">Info Bunga:</strong> Pengajuan pinjaman koperasi dikenakan bunga flat sebesar <strong style="color: var(--primary);">5.00%</strong> flat per tahun secara otomatis.
                     </div>
 
+                    <!-- Real-time Installment Simulation Card -->
+                    <div id="simulation-card" style="display: none; background: rgba(225, 29, 72, 0.03); border: 1px solid rgba(225, 29, 72, 0.15); border-radius: var(--r-sm); padding: 14px; margin-bottom: 20px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+                        <h4 style="font-size: 13px; font-weight: 800; color: var(--ink); margin: 0 0 10px 0; display: flex; align-items: center; gap: 4px;">🧮 Simulasi Angsuran Bulanan</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12.5px;">
+                            <div>
+                                <span style="color: var(--muted); font-size: 10.5px; font-weight: 600;">Pokok Pinjaman:</span>
+                                <div style="font-weight: 700; color: var(--ink);" id="sim-principal">Rp 0</div>
+                            </div>
+                            <div>
+                                <span style="color: var(--muted); font-size: 10.5px; font-weight: 600;">Bunga (5% Flat/Thn):</span>
+                                <div style="font-weight: 700; color: var(--primary);" id="sim-interest">Rp 0</div>
+                            </div>
+                            <div style="grid-column: span 2; height: 1px; background: var(--hairline-soft); margin: 4px 0;"></div>
+                            <div>
+                                <span style="color: var(--muted); font-size: 10.5px; font-weight: 600;">Total Bayar:</span>
+                                <div style="font-weight: 700; color: var(--ink);" id="sim-total">Rp 0</div>
+                            </div>
+                            <div>
+                                <span style="color: var(--muted); font-size: 10.5px; font-weight: 700; color: var(--success);">Angsuran / Bln:</span>
+                                <div style="font-weight: 800; color: var(--success); font-size: 14px;" id="sim-monthly">Rp 0</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn-3d-primary">Kirim Pengajuan Modal ➔</button>
                 </form>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const amountInput = document.getElementById('amount_requested');
+                        const tenorSelect = document.getElementById('tenor_months');
+                        const simCard = document.getElementById('simulation-card');
+
+                        if (amountInput && tenorSelect) {
+                            function updateSimulation() {
+                                const amount = parseFloat(amountInput.value);
+                                const tenor = parseInt(tenorSelect.value);
+
+                                if (!isNaN(amount) && amount >= 100000) {
+                                    // Bunga flat per tahun = 5%. 
+                                    // Total bunga = amount * 0.05 * (tenor / 12)
+                                    const interestRate = 0.05;
+                                    const interest = amount * interestRate * (tenor / 12);
+                                    const total = amount + interest;
+                                    const monthly = total / tenor;
+
+                                    document.getElementById('sim-principal').textContent = 'Rp ' + Math.round(amount).toLocaleString('id-ID');
+                                    document.getElementById('sim-interest').textContent = 'Rp ' + Math.round(interest).toLocaleString('id-ID');
+                                    document.getElementById('sim-total').textContent = 'Rp ' + Math.round(total).toLocaleString('id-ID');
+                                    document.getElementById('sim-monthly').textContent = 'Rp ' + Math.round(monthly).toLocaleString('id-ID');
+
+                                    simCard.style.display = 'block';
+                                } else {
+                                    simCard.style.display = 'none';
+                                }
+                            }
+
+                            amountInput.addEventListener('input', updateSimulation);
+                            amountInput.addEventListener('change', updateSimulation);
+                            tenorSelect.addEventListener('change', updateSimulation);
+                        }
+                    });
+                </script>
             @endif
         </div>
     </div>

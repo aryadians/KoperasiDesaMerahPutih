@@ -51,8 +51,10 @@
     }
 
     .card-3d {
-        background: #ffffff;
-        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        background: rgba(255, 255, 255, 0.7) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
         border-radius: var(--r-lg);
         box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04),
                     0 1px 2px rgba(0, 0, 0, 0.01),
@@ -61,7 +63,10 @@
     }
     .card-3d:hover {
         transform: translateY(-2px);
-        box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff !important;
+        box-shadow: 0 20px 40px -15px rgba(225, 29, 72, 0.08), 
+                    0 1px 2px rgba(0, 0, 0, 0.01), 
+                    inset 0 1px 0 #ffffff !important;
+        border-color: rgba(225, 29, 72, 0.2) !important;
     }
 
     .balance-card-grid {
@@ -74,13 +79,15 @@
     .balance-card {
         padding: 24px 20px;
         border-radius: var(--r-lg);
-        border: 1px solid rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.4) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         box-shadow: 0 6px 16px rgba(0,0,0,0.01), inset 0 1px 0 #ffffff !important;
         transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .balance-card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.04), inset 0 1px 0 #ffffff !important;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff !important;
     }
 
     /* Form Input Polish */

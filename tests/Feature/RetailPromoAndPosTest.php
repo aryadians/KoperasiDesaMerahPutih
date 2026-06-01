@@ -247,4 +247,100 @@ class RetailPromoAndPosTest extends TestCase
             ->sum('amount');
         $this->assertEquals(4000.00, $balance);
     }
+
+    /**
+     * Test staff can mutate stock to another branch successfully.
+     */
+    public function test_staff_can_mutate_stock_to_another_branch_updates_both_stocks()
+    {
+        $productSource = Product::create([
+            'branch_id' => 1,
+            'category_id' => $this->category->id,
+            'barcode' => '9999123',
+            'name' => 'Beras Organik',
+            'price_member' => 12000,
+            'price_non_member' => 14000,
+            'current_stock' => 100,
+            'unit' => 'kg',
+            'is_local_product' => true,
+        ]);
+
+        // POST to mutate-branch
+        $response = $this->actingAs($this->staffUser)->post(route('staff.products.mutate-branch', $productSource->id), [
+            'target_branch_id' => 2, // Gerai Desa Gotong Royong (seeded in migrations, code: DGR)
+            'quantity' => 30
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasNoErrors();
+        $response->assertSessionHas('success');
+
+        // Verify source stock is reduced to 70
+        $productSource->refresh();
+        $this->assertEquals(70, $productSource->current_stock);
+
+        // Verify target product is created/updated in target branch and has stock 30
+        // Suffix matches target branch's code: DGR
+        $productTarget = Product::where('branch_id', 2)->where('barcode', '9999123-DGR')->first();
+        $this->assertNotNull($productTarget);
+        $this->assertEquals(30, $productTarget->current_stock);
+        $this->assertEquals('Beras Organik', $productTarget->name);
+    }
+
+    /**
+     * Test staff cannot mutate stock exceeding available stock.
+     */
+    public function test_staff_cannot_mutate_more_than_current_stock_throws_validation_error()
+    {
+        $productSource = Product::create([
+            'branch_id' => 1,
+            'category_id' => $this->category->id,
+            'barcode' => '9999124',
+            'name' => 'Beras Organik Premium',
+            'price_member' => 12000,
+            'price_non_member' => 14000,
+            'current_stock' => 20,
+            'unit' => 'kg',
+            'is_local_product' => true,
+        ]);
+
+        // Mutate 50 (which exceeds stock 20)
+        $response = $this->actingAs($this->staffUser)->post(route('staff.products.mutate-branch', $productSource->id), [
+            'target_branch_id' => 2,
+            'quantity' => 50
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasErrors();
+        $this->assertEquals(20, $productSource->refresh()->current_stock);
+    }
+
+    /**
+     * Test stock mutation is blocked if staff is not from the source branch.
+     */
+    public function test_cross_branch_stock_mutation_is_forbidden_for_other_branches_staff()
+    {
+        // Create product belonging to branch 2
+        $productSource = Product::create([
+            'branch_id' => 2,
+            'category_id' => $this->category->id,
+            'barcode' => '9999125',
+            'name' => 'Susu Segar Lokal',
+            'price_member' => 10000,
+            'price_non_member' => 12000,
+            'current_stock' => 50,
+            'unit' => 'liter',
+            'is_local_product' => true,
+        ]);
+
+        // Current staffUser belongs to branch 1, so they shouldn't be allowed to mutate a product in branch 2.
+        // We set target_branch_id to 2 so it passes the 'asal dan tujuan tidak boleh sama' check but fails on product lookup.
+        $response = $this->actingAs($this->staffUser)->post(route('staff.products.mutate-branch', $productSource->id), [
+            'target_branch_id' => 2,
+            'quantity' => 10
+        ]);
+
+        $response->assertStatus(404); // fails at firstOrFail because branch is scoped in the query
+        $this->assertEquals(50, $productSource->refresh()->current_stock);
+    }
 }

@@ -138,6 +138,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/products', [StaffController::class, 'storeProduct'])->name('products.store');
         Route::post('/products/{id}/update', [StaffController::class, 'updateProduct'])->name('products.update');
         Route::post('/products/{id}/update-stock', [StaffController::class, 'updateProductStockInline'])->name('products.update-stock');
+        Route::post('/products/{id}/mutate-branch', [StaffController::class, 'mutateBranchStock'])->name('products.mutate-branch');
         Route::post('/products/{id}/delete', [StaffController::class, 'deleteProduct'])->name('products.delete');
 
         // Member management (Admin/Staff)

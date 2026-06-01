@@ -272,8 +272,9 @@ class StaffController extends Controller
         // Paginate products with query parameters appended
         $products = $query->paginate(10)->withQueryString();
         $categories = Category::all();
+        $branches = \App\Models\Branch::where('id', '!=', $branchId)->get();
         
-        return view('staff.products', compact('products', 'categories', 'search', 'categoryId'));
+        return view('staff.products', compact('products', 'categories', 'search', 'categoryId', 'branches'));
     }
 
     public function exportProducts()
@@ -427,6 +428,112 @@ class StaffController extends Controller
         }
         $product->delete();
         return back()->with('success', 'Produk berhasil dihapus (Soft Delete).');
+    }
+
+    /**
+     * Mutate product stock to another branch (cross-branch transfer).
+     */
+    public function mutateBranchStock(Request $request, $id)
+    {
+        $request->validate([
+            'target_branch_id' => 'required|exists:branches,id',
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        $branchId = auth()->user()->branch_id;
+        $targetBranchId = (int) $request->target_branch_id;
+        $quantity = (int) $request->quantity;
+
+        if ($branchId === $targetBranchId) {
+            return back()->withErrors(['error' => 'Cabang asal dan tujuan tidak boleh sama.']);
+        }
+
+        // BOLA Check: Verify the product exists in the staff's logged-in branch
+        $sourceProductCheck = Product::where('id', $id)->first();
+        if (!$sourceProductCheck || $sourceProductCheck->branch_id !== $branchId) {
+            abort(404);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Find source product with pessimistic locking
+            $sourceProduct = Product::where('id', $id)
+                ->where('branch_id', $branchId)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($sourceProduct->current_stock < $quantity) {
+                throw new Exception("Stok tidak mencukupi untuk melakukan transfer. Stok saat ini: {$sourceProduct->current_stock}");
+            }
+
+            // Deduct stock from source product
+            $sourceProduct->current_stock -= $quantity;
+            $sourceProduct->save();
+
+            // Find target branch to resolve suffix
+            $targetBranch = \App\Models\Branch::findOrFail($targetBranchId);
+            $targetBarcode = null;
+            if ($sourceProduct->barcode) {
+                // Strip existing branch suffixes (e.g., -DGR, -DMP)
+                $baseBarcode = preg_replace('/-(DMP|DGR|[A-Z]{3,})$/', '', $sourceProduct->barcode);
+                
+                if ($targetBranchId === 1) {
+                    $targetBarcode = $baseBarcode;
+                } else {
+                    $targetBarcode = $baseBarcode . '-' . $targetBranch->code;
+                }
+            }
+
+            // Find target product in target branch
+            // First try matching by target barcode, then fall back to name
+            $targetProduct = null;
+            if ($targetBarcode) {
+                $targetProduct = Product::where('branch_id', $targetBranchId)
+                    ->where('barcode', $targetBarcode)
+                    ->lockForUpdate()
+                    ->first();
+            }
+
+            if (!$targetProduct) {
+                $targetProduct = Product::where('branch_id', $targetBranchId)
+                    ->where('name', $sourceProduct->name)
+                    ->lockForUpdate()
+                    ->first();
+            }
+
+            // If not found, create new product in target branch with the source product's details
+            if (!$targetProduct) {
+                $targetProduct = Product::create([
+                    'branch_id' => $targetBranchId,
+                    'category_id' => $sourceProduct->category_id,
+                    'barcode' => $targetBarcode,
+                    'name' => $sourceProduct->name,
+                    'description' => $sourceProduct->description,
+                    'price_member' => $sourceProduct->price_member,
+                    'price_non_member' => $sourceProduct->price_non_member,
+                    'current_stock' => $quantity,
+                    'unit' => $sourceProduct->unit,
+                    'is_local_product' => $sourceProduct->is_local_product,
+                    'image_url' => $sourceProduct->image_url,
+                ]);
+            } else {
+                // If found, increment stock
+                $targetProduct->current_stock += $quantity;
+                $targetProduct->save();
+            }
+
+            DB::commit();
+
+            // Dispatch real-time events for both products
+            event(new \App\Events\ProductStockUpdated($sourceProduct));
+            event(new \App\Events\ProductStockUpdated($targetProduct));
+
+            return back()->with('success', "Berhasil memindahkan {$quantity} {$sourceProduct->unit} dari produk '{$sourceProduct->name}' ke gerai tujuan.");
+        } catch (Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Gagal memutasi stok: ' . $e->getMessage()]);
+        }
     }
 
     /**
