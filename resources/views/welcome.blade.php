@@ -59,6 +59,7 @@
     /* Interactive Calculator Styling */
     .range-slider {
         -webkit-appearance: none;
+        appearance: none;
         width: 100%;
         height: 8px;
         border-radius: var(--r-full);
@@ -84,29 +85,32 @@
     /* Map card active state */
     .map-branch-card {
         cursor: pointer;
-        background: #ffffff !important;
-        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        background: rgba(255, 255, 255, 0.7) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1.5px solid rgba(255, 255, 255, 0.5) !important;
         border-left: 5px solid transparent !important;
         border-radius: var(--r-md);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.02), inset 0 1px 0 #ffffff !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
         transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .map-branch-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 24px rgba(0,0,0,0.06), inset 0 1px 0 #ffffff !important;
-        border-color: rgba(0, 0, 0, 0.12) !important;
+        transform: translateY(-3px) scale(1.01);
+        background: rgba(255, 255, 255, 0.85) !important;
+        border-color: rgba(255, 255, 255, 0.7) !important;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
     }
     .map-branch-card.active {
         border-left: 5px solid var(--primary) !important;
-        background: linear-gradient(135deg, #ffffff, #fff1f2) !important;
-        box-shadow: 0 12px 28px rgba(228, 0, 43, 0.08), inset 0 1px 0 #ffffff !important;
-        transform: translateY(-2px) scale(1.02);
-        border-color: rgba(228, 0, 43, 0.15) !important;
+        background: rgba(255, 255, 255, 0.9) !important;
+        border-color: rgba(228, 0, 43, 0.25) !important;
+        box-shadow: 0 16px 40px rgba(228, 0, 43, 0.08);
+        transform: translateY(-3px) scale(1.02);
     }
 </style>
 
 {{-- ═══════════════════════ HERO SECTION ═══════════════════════ --}}
-<div class="reveal-scale" style="background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 50%, #450a0a 100%); color: white; border-radius: var(--r-xl); padding: 75px 40px 60px 40px; text-align: center; margin-bottom: 72px; position: relative; overflow: hidden; box-shadow: var(--shadow-xl);">
+<div class="reveal-scale" style="background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 50%, #450a0a 100%); color: white; border-radius: var(--r-xl); padding: 75px 40px 60px 40px; text-align: center; margin-bottom: 48px; position: relative; overflow: hidden; box-shadow: var(--shadow-xl);">
     <!-- Decorative background blobs -->
     <div style="position: absolute; top: -50px; right: -50px; width: 300px; height: 300px; border-radius: 50%; background: rgba(228, 0, 43, 0.25); filter: blur(50px); pointer-events: none;"></div>
     <div style="position: absolute; bottom: -80px; left: -80px; width: 320px; height: 320px; border-radius: 50%; background: rgba(0, 91, 170, 0.2); filter: blur(60px); pointer-events: none;"></div>
@@ -118,7 +122,7 @@
         
         <h1 style="font-size: 46px; font-weight: 800; line-height: 1.15; margin-bottom: 20px; letter-spacing: -1.5px; text-shadow: 0 4px 16px rgba(0,0,0,0.2);">
             Modernisasi Ritel Desa &amp;<br>
-            <span style="background: linear-gradient(90deg, #ffc4d0 0%, #ffffff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Kedaulatan Pangan Mandiri</span>
+            <span style="background: linear-gradient(90deg, #ffc4d0 0%, #ffffff 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Kedaulatan Pangan Mandiri</span>
         </h1>
         
         <p style="font-size: 17px; line-height: 1.6; opacity: 0.92; margin-bottom: 36px; max-width: 720px; font-weight: 400;">
@@ -159,7 +163,7 @@
 </div>
 
 {{-- ═══════════════════════ INTERACTIVE LOYALTY & SHU CALCULATOR ═══════════════════════ --}}
-<div class="reveal-up" style="background: linear-gradient(135deg, var(--surface) 0%, var(--surface-md) 100%); border: 1px solid var(--hairline); border-radius: var(--r-xl); padding: 48px 40px; margin-bottom: 80px;">
+<div class="reveal-up" style="background: linear-gradient(135deg, var(--surface) 0%, var(--surface-md) 100%); border: 1px solid var(--hairline); border-radius: var(--r-xl); padding: 48px 40px; margin-bottom: 48px;">
     <div class="grid-2" style="gap: 40px; align-items: center;">
         <div>
             <span class="animated-float-slow" style="font-size: 28px; display: inline-block; margin-bottom: 12px;">📊</span>
@@ -224,7 +228,7 @@
 </div>
 
 {{-- ═══════════════════════ PROGRAM DESCRIPTION ═══════════════════════ --}}
-<div class="reveal-up" style="margin-bottom: 80px; max-width: 900px; margin-left: auto; margin-right: auto;">
+<div class="reveal-up" style="margin-bottom: 48px; max-width: 900px; margin-left: auto; margin-right: auto;">
     <div style="display: flex; flex-direction: column; gap: 24px; text-align: center; align-items: center;">
         <span style="display: inline-flex; align-items: center; gap: 6px; background: var(--primary-light); color: var(--primary); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 5px 14px; border-radius: 100px; width: fit-content; box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);">
             📢 Mengenal Program
@@ -254,7 +258,7 @@
 </div>
 
 {{-- ═══════════════════════ VISI & MISI SECTION ═══════════════════════ --}}
-<div class="reveal-up" style="background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--r-xl); padding: 50px 40px; margin-bottom: 80px;">
+<div class="reveal-up" style="background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--r-xl); padding: 50px 40px; margin-bottom: 48px;">
     <div style="text-align: center; max-width: 600px; margin: 0 auto 40px auto;">
         <div style="font-weight: 800; font-size: 13px; text-transform: uppercase; color: var(--primary); letter-spacing: 1px; margin-bottom: 12px;">
             🎯 Landasan Nilai Kami
@@ -307,7 +311,7 @@
     </a>
 </div>
 
-<div class="grid-4" style="margin-bottom: 80px;">
+<div class="grid-4" style="margin-bottom: 48px;">
     @php
         $featuredProducts = \App\Models\Product::with('category')->where('branch_id', $currentBranchId)->latest()->take(4)->get();
     @endphp
@@ -362,7 +366,7 @@
 </div>
 
 {{-- ═══════════════════════ MAPS INTEGRATION ═══════════════════════ --}}
-<div class="reveal-up" style="margin-bottom: 80px;">
+<div class="reveal-up" style="margin-bottom: 48px;">
     <div style="text-align: center; max-width: 600px; margin: 0 auto 36px auto;">
         <div style="font-weight: 800; font-size: 13px; text-transform: uppercase; color: var(--primary); letter-spacing: 1px; margin-bottom: 12px;">
             🗺️ Jaringan Sebaran Desa
@@ -392,14 +396,14 @@
             </div>
         </div>
         
-        <div style="position: relative; height: 360px; border-radius: var(--r-lg); overflow: hidden; border: 1.5px solid rgba(0, 0, 0, 0.08); box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.08), 0 5px 15px -5px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.4); background: #ffffff;">
-            <div id="map" style="height: 100%; width: 100%; z-index: 1;"></div>
+        <div class="glass-panel" style="position: relative; height: 360px; border-radius: var(--r-lg); overflow: hidden; border: 1.5px solid rgba(255, 255, 255, 0.5); box-shadow: var(--shadow-lg); padding: 8px; background: rgba(255, 255, 255, 0.45);">
+            <div id="map" style="height: 100%; width: 100%; z-index: 1; border-radius: calc(var(--r-lg) - 8px); overflow: hidden; box-shadow: inset 0 2px 8px rgba(0,0,0,0.06);"></div>
         </div>
     </div>
 </div>
 
 {{-- ═══════════════════════ CTA SECTION ═══════════════════════ --}}
-<div class="reveal-scale" style="background: linear-gradient(135deg, var(--surface) 0%, var(--surface-md) 100%); border: 1.5px solid var(--hairline); border-radius: var(--r-xl); padding: 48px; text-align: center; margin-bottom: 48px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden;">
+<div class="reveal-scale" style="background: linear-gradient(135deg, var(--surface) 0%, var(--surface-md) 100%); border: 1.5px solid var(--hairline); border-radius: var(--r-xl); padding: 48px; text-align: center; margin-bottom: 32px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden;">
     <div style="position: absolute; top: -30%; left: -10%; width: 250px; height: 250px; border-radius: 50%; background: rgba(228, 0, 43, 0.03); filter: blur(40px); pointer-events: none;"></div>
     
     <h2 style="font-size: 28px; font-weight: 800; color: var(--ink); margin-bottom: 16px;">Jadilah Bagian dari Kemajuan Desa</h2>
