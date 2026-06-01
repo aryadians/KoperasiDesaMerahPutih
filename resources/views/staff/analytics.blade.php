@@ -4,6 +4,72 @@
 
 @section('content')
 
+<style>
+    /* View-Specific 3D Polish Styles */
+    .btn-3d-primary {
+        background: linear-gradient(135deg, var(--primary), #e11d48) !important;
+        color: white !important;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(225, 29, 72, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        transition: all var(--t-fast) var(--ease-out);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .btn-3d-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(225, 29, 72, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    }
+    .btn-3d-primary:active {
+        transform: translateY(0);
+    }
+
+    .btn-3d-secondary {
+        background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+        color: var(--ink) !important;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), inset 0 1px 0 #ffffff !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        transition: all var(--t-fast) var(--ease-out);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .btn-3d-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06), inset 0 1px 0 #ffffff !important;
+        border-color: var(--muted) !important;
+    }
+    .btn-3d-secondary:active {
+        transform: translateY(0);
+    }
+
+    .analytics-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        border-radius: var(--r-lg);
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05),
+                    0 1px 2px rgba(0, 0, 0, 0.02),
+                    inset 0 1px 0 #ffffff !important;
+        padding: 24px;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .analytics-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff !important;
+    }
+    
+    @keyframes emoji-bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
+    }
+</style>
+
 @php
 // Helper functions for dynamic SVG charts scaling
 if (!function_exists('getSvgPath')) {
@@ -54,11 +120,11 @@ if (!function_exists('getSvgPoints')) {
             Statistik real-time, volume perputaran kas, penyerapan pertanian desa, dan outstanding kredit mikro.
         </p>
     </div>
-    <div style="display: flex; gap: 10px; flex-wrap: wrap;" class="no-print">
-        <a href="{{ route('staff.analytics.rat-pdf') }}" class="btn btn-md btn-primary" style="border-radius: 100px; display: inline-flex; align-items: center; gap: 8px; width: auto; font-size: 14px; background-color: var(--primary);" data-no-loading>
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;" class="no-print">
+        <a href="{{ route('staff.analytics.rat-pdf') }}" class="btn-3d-primary" style="border-radius: 100px; display: inline-flex; align-items: center; gap: 8px; width: auto; font-size: 13.5px; height: 38px; padding: 0 20px;" data-no-loading>
             📄 Unduh Laporan RAT (PDF)
         </a>
-        <button onclick="window.print()" class="btn btn-md btn-secondary" style="border-radius: 100px; display: inline-flex; align-items: center; gap: 8px; width: auto; font-size: 14px;">
+        <button onclick="window.print()" class="btn-3d-secondary" style="border-radius: 100px; display: inline-flex; align-items: center; gap: 8px; width: auto; font-size: 13.5px; height: 38px; padding: 0 20px;">
             🖨️ Cetak Halaman
         </button>
     </div>
@@ -116,7 +182,7 @@ if (!function_exists('getSvgPoints')) {
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 36px;" class="split-layout">
     
     {{-- Chart 1: Ritel & Agro --}}
-    <div class="standard-card">
+    <div class="analytics-card">
         <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
             <span>Omset Ritel vs Penyerapan Tani (Rupiah)</span>
             <span style="font-size: 12px; font-weight: 500; color: var(--muted);">Tren 5 Bulan Terakhir</span>
@@ -128,7 +194,7 @@ if (!function_exists('getSvgPoints')) {
             $pointsSales = getSvgPoints($salesTrend, $minVal1, $maxVal1);
             $pointsCrops = getSvgPoints($cropTrend, $minVal1, $maxVal1);
         @endphp
-
+ 
         <div style="background: #fdfdfd; padding: 12px; border-radius: 8px; border: 1px solid var(--hairline-soft);">
             <svg viewBox="0 0 500 220" width="100%" height="auto" style="overflow: visible;">
                 <defs>
@@ -137,7 +203,7 @@ if (!function_exists('getSvgPoints')) {
                         <stop offset="100%" stop-color="var(--primary)" stop-opacity="0.0"/>
                     </linearGradient>
                 </defs>
-
+ 
                 <!-- Grid Lines -->
                 @for($j = 0; $j <= 4; $j++)
                     @php $yLine = 20 + $j * 42; @endphp
@@ -146,32 +212,32 @@ if (!function_exists('getSvgPoints')) {
                     @php $yVal = $maxVal1 - ($j * ($maxVal1 / 4)); @endphp
                     <text x="44" y="{{ $yLine + 4 }}" font-size="8" fill="#888" text-anchor="end">Rp {{ number_format($yVal/1000000, 1) }}M</text>
                 @endfor
-
+ 
                 <!-- X Axis Labels -->
                 @foreach($labels as $idx => $lbl)
                     @php $xLbl = 50 + ($idx / 4) * 400; @endphp
                     <text x="{{ $xLbl }}" y="210" font-size="9" fill="#555" font-weight="600" text-anchor="middle">{{ $lbl }}</text>
                     <line x1="{{ $xLbl }}" y1="20" x2="{{ $xLbl }}" y2="188" stroke="#f4f4f4" stroke-width="1" />
                 @endforeach
-
+ 
                 <!-- Sales Line (Red) -->
                 <path d="{{ getSvgPath($salesTrend, $minVal1, $maxVal1) }}" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
                 
                 <!-- Crops Line (Blue) -->
                 <path d="{{ getSvgPath($cropTrend, $minVal1, $maxVal1) }}" fill="none" stroke="var(--info)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-
+ 
                 <!-- Points Circle Sales -->
                 @foreach($pointsSales as $pt)
                     <circle cx="{{ $pt['x'] }}" cy="{{ $pt['y'] }}" r="5" fill="var(--primary)" stroke="white" stroke-width="2" style="cursor: pointer;" title="Sales: Rp {{ number_format($pt['val']) }}"/>
                 @endforeach
-
+ 
                 <!-- Points Circle Crops -->
                 @foreach($pointsCrops as $pt)
                     <circle cx="{{ $pt['x'] }}" cy="{{ $pt['y'] }}" r="5" fill="var(--info)" stroke="white" stroke-width="2" style="cursor: pointer;" title="Panen: Rp {{ number_format($pt['val']) }}"/>
                 @endforeach
             </svg>
         </div>
-
+ 
         <div style="display: flex; gap: 16px; margin-top: 12px; font-size: 12px; justify-content: center;">
             <div style="display: flex; align-items: center; gap: 6px;">
                 <span style="display: inline-block; width: 12px; height: 12px; background: var(--primary); border-radius: 2px;"></span>
@@ -183,9 +249,9 @@ if (!function_exists('getSvgPoints')) {
             </div>
         </div>
     </div>
-
+ 
     {{-- Chart 2: Kredit & Simpanan --}}
-    <div class="standard-card">
+    <div class="analytics-card">
         <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
             <span>Outstanding Kredit vs Akumulasi Simpanan (Rupiah)</span>
             <span style="font-size: 12px; font-weight: 500; color: var(--muted);">Tren 5 Bulan Terakhir</span>
@@ -197,7 +263,7 @@ if (!function_exists('getSvgPoints')) {
             $pointsLoans = getSvgPoints($loanTrend, $minVal2, $maxVal2);
             $pointsSavings = getSvgPoints($savingsTrend, $minVal2, $maxVal2);
         @endphp
-
+ 
         <div style="background: #fdfdfd; padding: 12px; border-radius: 8px; border: 1px solid var(--hairline-soft);">
             <svg viewBox="0 0 500 220" width="100%" height="auto" style="overflow: visible;">
                 <!-- Grid Lines -->
@@ -208,32 +274,32 @@ if (!function_exists('getSvgPoints')) {
                     @php $yVal = $maxVal2 - ($j * ($maxVal2 / 4)); @endphp
                     <text x="44" y="{{ $yLine + 4 }}" font-size="8" fill="#888" text-anchor="end">Rp {{ number_format($yVal/1000000, 1) }}M</text>
                 @endfor
-
+ 
                 <!-- X Axis Labels -->
                 @foreach($labels as $idx => $lbl)
                     @php $xLbl = 50 + ($idx / 4) * 400; @endphp
                     <text x="{{ $xLbl }}" y="210" font-size="9" fill="#555" font-weight="600" text-anchor="middle">{{ $lbl }}</text>
                     <line x1="{{ $xLbl }}" y1="20" x2="{{ $xLbl }}" y2="188" stroke="#f4f4f4" stroke-width="1" />
                 @endforeach
-
+ 
                 <!-- Loans Line (Purple) -->
                 <path d="{{ getSvgPath($loanTrend, $minVal2, $maxVal2) }}" fill="none" stroke="#6c3de0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
                 
                 <!-- Savings Line (Green) -->
                 <path d="{{ getSvgPath($savingsTrend, $minVal2, $maxVal2) }}" fill="none" stroke="var(--success)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-
+ 
                 <!-- Points Circle Loans -->
                 @foreach($pointsLoans as $pt)
                     <circle cx="{{ $pt['x'] }}" cy="{{ $pt['y'] }}" r="5" fill="#6c3de0" stroke="white" stroke-width="2" style="cursor: pointer;" title="Loans: Rp {{ number_format($pt['val']) }}"/>
                 @endforeach
-
+ 
                 <!-- Points Circle Savings -->
                 @foreach($pointsSavings as $pt)
                     <circle cx="{{ $pt['x'] }}" cy="{{ $pt['y'] }}" r="5" fill="var(--success)" stroke="white" stroke-width="2" style="cursor: pointer;" title="Savings: Rp {{ number_format($pt['val']) }}"/>
                 @endforeach
             </svg>
         </div>
-
+ 
         <div style="display: flex; gap: 16px; margin-top: 12px; font-size: 12px; justify-content: center;">
             <div style="display: flex; align-items: center; gap: 6px;">
                 <span style="display: inline-block; width: 12px; height: 12px; background: #6c3de0; border-radius: 2px;"></span>
@@ -245,11 +311,11 @@ if (!function_exists('getSvgPoints')) {
             </div>
         </div>
     </div>
-
+ 
 </div>
-
+ 
 {{-- ═══════════════════════ DETAILED REPORT TABLE ═══════════════════════ --}}
-<div class="standard-card">
+<div class="analytics-card">
     <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">Tabel Rincian Saldo Bulanan</h3>
     <table class="clean-table" style="margin-top: 0;">
         <thead>
