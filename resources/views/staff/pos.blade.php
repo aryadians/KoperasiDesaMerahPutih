@@ -35,21 +35,72 @@
     /* Search and Filter Panel */
     .pos-search-panel {
         background: #ffffff;
-        border-radius: var(--r-md);
-        border: 1px solid var(--hairline-soft);
-        box-shadow: var(--shadow-sm);
-        padding: 16px;
+        border-radius: var(--r-lg);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04), 
+                    0 1px 2px rgba(0, 0, 0, 0.01), 
+                    inset 0 1px 0 #ffffff;
+        padding: 18px 20px;
         display: flex;
         flex-direction: column;
         gap: 12px;
         flex-shrink: 0;
         min-width: 0;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .pos-search-panel .text-input {
+        border-radius: var(--r-sm);
+        border: 1.5px solid var(--hairline);
+        background: #ffffff;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
+        transition: all var(--t-fast) var(--ease-out);
+    }
+
+    .pos-search-panel .text-input:focus {
+        border-color: var(--ink);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.04), inset 0 1px 2px rgba(0,0,0,0.01);
+        transform: translateY(-1px);
     }
 
     .category-strip {
         width: 100%;
         min-width: 0;
         box-sizing: border-box;
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 4px 0 10px;
+        scrollbar-width: none;
+    }
+    .category-strip::-webkit-scrollbar { display: none; }
+
+    .category-strip .category-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+        padding: 8px 16px;
+        border-radius: var(--r-full);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        white-space: nowrap;
+        cursor: pointer;
+        background: #ffffff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02), inset 0 1px 0 #fff;
+        transition: all var(--t-fast) var(--ease-out);
+    }
+    .category-strip .category-tab:hover {
+        color: var(--ink);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.04), inset 0 1px 0 #fff;
+    }
+    .category-strip .category-tab.active {
+        color: white !important;
+        background: linear-gradient(135deg, var(--primary), #e11d48) !important;
+        border-color: rgba(0,0,0,0.08) !important;
+        box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2), inset 0 1px 0 rgba(255,255,255,0.3) !important;
     }
 
     /* Lock body scroll on POS page for clean app-like experience */
@@ -107,28 +158,28 @@
     /* Custom POS Product Card */
     .pos-prod-card {
         background: #ffffff;
-        border-radius: var(--r-sm);
-        border: 1px solid var(--hairline-soft);
+        border-radius: var(--r-md);
+        border: 1px solid rgba(0, 0, 0, 0.06);
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
         cursor: pointer;
         user-select: none;
         position: relative;
-        height: 180px;
-        box-shadow: var(--shadow-sm);
+        height: 190px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,0.8);
     }
 
     .pos-prod-card:hover {
-        transform: translateY(-2px);
-        border-color: var(--primary);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+        transform: translateY(-4px);
+        border-color: var(--primary-muted);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255,255,255,0.9);
     }
 
     .pos-prod-img-wrap {
         width: 100%;
-        height: 70px;
+        height: 75px;
         position: relative;
         overflow: hidden;
         background: var(--surface-strong);
@@ -138,44 +189,6 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-    }
-
-    .pos-prod-body {
-        padding: 8px;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
-    .pos-prod-title {
-        font-size: 11px;
-        font-weight: 700;
-        color: var(--ink);
-        line-height: 1.25;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .pos-prod-meta {
-        margin-top: 4px;
-    }
-
-    .pos-prod-price {
-        font-size: 13px;
-        font-weight: 800;
-        color: var(--primary);
-        line-height: 1;
-    }
-
-    .pos-prod-stock {
-        font-size: 9px;
-        color: var(--muted);
-        margin-top: 2px;
-    }
-        object-fit: cover;
         transition: transform 0.4s ease;
     }
 
@@ -184,7 +197,7 @@
     }
 
     .pos-prod-info {
-        padding: 12px;
+        padding: 10px 12px;
         flex: 1;
         display: flex;
         flex-direction: column;
@@ -207,27 +220,29 @@
     .pos-stock-badge {
         display: inline-block;
         font-size: 10px;
-        font-weight: 600;
-        padding: 2px 6px;
+        font-weight: 700;
+        padding: 3px 8px;
         border-radius: 100px;
         width: fit-content;
         margin-top: 4px;
     }
 
     .pos-stock-in {
-        background: #e6f7ed;
-        color: var(--success);
+        background: #e6f7ed !important;
+        color: var(--success) !important;
+        border: 1px solid rgba(16, 185, 129, 0.15) !important;
     }
 
     .pos-stock-low {
-        background: #fffbeb;
-        color: var(--warning);
-        font-weight: 700;
+        background: #fffbeb !important;
+        color: var(--warning) !important;
+        border: 1px solid rgba(245, 158, 11, 0.15) !important;
     }
 
     .pos-stock-out {
-        background: #fff0f3;
-        color: var(--danger);
+        background: #fff0f3 !important;
+        color: var(--danger) !important;
+        border: 1px solid rgba(239, 68, 68, 0.15) !important;
     }
 
     .pos-prod-price {
@@ -246,9 +261,10 @@
     /* Cart Panel Card */
     .pos-cart-panel {
         background: #ffffff;
-        border-radius: var(--r-md);
-        border: 1px solid var(--hairline-soft);
-        box-shadow: var(--shadow-md);
+        border-radius: var(--r-lg);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 12px 36px -12px rgba(0, 0, 0, 0.08), 
+                    inset 0 1px 0 #ffffff;
         height: 100%;
         display: flex;
         flex-direction: column;
@@ -301,24 +317,25 @@
         align-items: center;
         gap: 10px;
         background: #ffffff;
-        padding: 10px 12px;
-        border-radius: var(--r-sm);
-        border: 1px solid var(--hairline-soft);
-        transition: all 0.2s;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        padding: 12px;
+        border-radius: var(--r-md);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        transition: all var(--t-fast) var(--ease-out);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01), inset 0 1px 0 #ffffff;
     }
 
     .pos-cart-row:hover {
-        border-color: var(--hairline);
-        box-shadow: var(--shadow-sm);
+        border-color: rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.03), inset 0 1px 0 #ffffff;
     }
 
     /* Quantity controllers */
     .qty-btn {
-        width: 24px;
-        height: 24px;
+        width: 26px;
+        height: 26px;
         border-radius: 50%;
-        border: 1px solid var(--hairline);
+        border: 1px solid rgba(0, 0, 0, 0.08);
         background: #ffffff;
         color: var(--ink);
         font-weight: 700;
@@ -326,20 +343,23 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.15s;
+        transition: all var(--t-fast) var(--ease-out);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.03), inset 0 1px 0 #fff;
     }
 
     .qty-btn:hover {
         background: var(--ink);
         color: #ffffff;
         border-color: var(--ink);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05), inset 0 1px 0 #fff;
     }
 
     .qty-input {
         width: 44px;
         height: 24px;
         border-radius: var(--r-xs);
-        border: 1px solid var(--hairline);
+        border: 1.5px solid var(--hairline);
         text-align: center;
         font-weight: 700;
         font-size: 13px;
@@ -369,9 +389,9 @@
 
     /* Checkout & Payment Area */
     .pos-checkout-panel {
-        padding: 16px 20px;
-        border-top: 1px solid var(--hairline-soft);
-        background: #f8fafc;
+        padding: 18px 20px;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        background: linear-gradient(180deg, #f8fafc, #f1f5f9);
         flex-shrink: 0;
     }
 
@@ -405,21 +425,58 @@
 
     .denom-btn {
         background: #ffffff;
-        border: 1px solid var(--hairline);
-        border-radius: var(--r-xs);
-        padding: 6px 0;
-        font-size: 11px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 100px;
+        padding: 5px 0;
+        font-size: 10px;
         font-weight: 700;
         color: var(--body);
         cursor: pointer;
         text-align: center;
-        transition: all 0.15s;
+        transition: all var(--t-fast) var(--ease-out);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02), inset 0 1px 0 #fff;
     }
 
     .denom-btn:hover {
         background: var(--primary-light);
         border-color: var(--primary-muted);
         color: var(--primary);
+        transform: translateY(-1.5px);
+        box-shadow: 0 4px 8px rgba(225, 29, 72, 0.08), inset 0 1px 0 #fff;
+    }
+
+    /* 3D POS Checkout Button styling */
+    .btn-pos-checkout {
+        background: linear-gradient(135deg, var(--primary), #e11d48) !important;
+        color: white !important;
+        font-weight: 800;
+        font-size: 13px;
+        height: 42px;
+        border-radius: 100px;
+        width: 100%;
+        border: 1px solid rgba(0,0,0,0.1) !important;
+        box-shadow: 0 4px 12px rgba(225, 29, 72, 0.18), inset 0 1px 0 rgba(255,255,255,0.3) !important;
+        cursor: pointer;
+        transition: all var(--t-fast) var(--ease-out);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+    }
+    .btn-pos-checkout:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(225, 29, 72, 0.28), inset 0 1px 0 rgba(255,255,255,0.4) !important;
+    }
+    .btn-pos-checkout:active:not(:disabled) {
+        transform: translateY(0);
+    }
+    .btn-pos-checkout:disabled {
+        background: #cbd5e1 !important;
+        border-color: #cbd5e1 !important;
+        color: #94a3b8 !important;
+        cursor: not-allowed;
+        box-shadow: none !important;
+        transform: none !important;
     }
 
     /* Keyboard Shortcuts Guides */
@@ -433,6 +490,20 @@
         font-weight: 700;
         color: var(--muted);
         box-shadow: 0 1px 0 rgba(0,0,0,0.15);
+    }
+
+    /* SweetAlert Glass Overlays */
+    .swal-overlay {
+        background-color: rgba(15, 23, 42, 0.4) !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        transition: all var(--t-base) var(--ease-out) !important;
+        opacity: 0;
+        pointer-events: none;
+    }
+    .swal-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
     }
 
     @media (max-width: 768px) {
@@ -625,7 +696,7 @@
                     </div>
                 </div>
 
-                <button class="button-primary btn-full" id="btn-pos-checkout" onclick="submitPOSCheckout()" style="height: 38px; border-radius: 100px; font-weight: 800; font-size: 13px; width: 100%; border: none;" disabled>
+                <button class="btn-pos-checkout" id="btn-pos-checkout" onclick="submitPOSCheckout()" disabled>
                     Selesaikan Bayar <span class="kbd-badge" style="font-size: 8px; color: white; background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.25);">F2</span>
                 </button>
             </div>
@@ -637,7 +708,7 @@
      struk cetak receipt modal (Overlay)
      ============================================================ -->
 <div class="swal-overlay" id="pos-receipt-overlay">
-    <div class="swal-modal" style="max-width: 320px; text-align: left; padding: 20px; font-family: 'Courier New', Courier, monospace; color: #000; border-radius: 4px; background: white;" id="pos-receipt-box">
+    <div class="swal-modal" style="max-width: 320px; text-align: left; padding: 24px; font-family: 'Courier New', Courier, monospace; color: #000; border-radius: var(--r-lg); background: #ffffff; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15), inset 0 1px 0 #ffffff; border: 1px solid rgba(0,0,0,0.06);" id="pos-receipt-box">
         <div style="text-align: center; border-bottom: 1px dashed #000; padding-bottom: 12px; margin-bottom: 12px;">
             <h4 style="font-weight: 800; font-size: 15px; margin-bottom: 2px;">KDKMP {{ strtoupper(auth()->user()->branch->code) }}</h4>
             <p style="font-size: 11px; margin: 0;">Gerai Sembako Koperasi Desa</p>
@@ -708,7 +779,7 @@
      Kamera Webcam Barcode Scanner Modal (Overlay)
      ============================================================ -->
 <div class="swal-overlay" id="pos-camera-overlay">
-    <div class="swal-modal" style="max-width: 450px; text-align: center; padding: 20px; border-radius: var(--r-md); background: white;" id="pos-camera-box">
+    <div class="swal-modal" style="max-width: 450px; text-align: center; padding: 24px; border-radius: var(--r-lg); background: #ffffff; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15), inset 0 1px 0 #ffffff; border: 1px solid rgba(0,0,0,0.06);" id="pos-camera-box">
         <h3 style="font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
             <span>📷</span> Scan Barcode Kamera
         </h3>

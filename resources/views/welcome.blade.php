@@ -215,37 +215,41 @@
 {{-- ═══════════════════════ PROGRAM DESCRIPTION & PHOTO ═══════════════════════ --}}
 <div class="grid-2 reveal-up" style="gap: 40px; margin-bottom: 64px; align-items: center;">
     <div style="display: flex; flex-direction: column; gap: 20px;">
-        <div style="font-weight: 800; font-size: 13px; text-transform: uppercase; color: var(--primary); letter-spacing: 1px;">
-            📢 Mengenal Program KDKMP Digital
-        </div>
-        <h2 style="font-size: 28px; font-weight: 800; color: var(--ink); line-height: 1.3; letter-spacing: -0.5px; margin: 0;">
+        <span style="display: inline-flex; align-items: center; gap: 6px; background: var(--primary-light); color: var(--primary); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 5px 14px; border-radius: 100px; width: fit-content; box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);">
+            📢 Mengenal Program
+        </span>
+        <h2 style="font-size: 32px; font-weight: 800; color: var(--ink); line-height: 1.25; letter-spacing: -0.8px; margin: 0;">
             Pilar Ekonomi Desa Digital Merah Putih
         </h2>
-        <p style="font-size: 15px; color: var(--body); line-height: 1.7; margin: 0;">
+        <p style="font-size: 14.5px; color: var(--body); line-height: 1.65; margin: 0;">
             Program Koperasi Desa Merah Putih (KDKMP) Digital adalah inisiatif modernisasi ekonomi pedesaan dengan memadukan <strong>ekosistem ritel terpadu ala minimarket modern</strong> dengan layanan keuangan mikro warga.
         </p>
-        <p style="font-size: 15px; color: var(--body); line-height: 1.7; margin: 0;">
+        <p style="font-size: 14.5px; color: var(--body); line-height: 1.65; margin: 0;">
             Sistem kami memotong rantai distribusi pangan yang panjang dengan menyerap hasil tani lokal secara langsung, mendistribusikannya kembali sebagai sembako murah bagi warga, serta membagikan keuntungan bersih kembali kepada seluruh anggota dalam bentuk dividen <strong>Sisa Hasil Usaha (SHU)</strong> tahunan.
         </p>
-        <div style="display: flex; gap: 24px; margin-top: 8px;">
-            <div style="flex: 1; border-left: 3px solid var(--primary); padding-left: 16px;">
-                <h4 style="font-weight: 700; color: var(--ink); margin-bottom: 4px;">Ritel Modern</h4>
-                <p style="font-size: 13px; color: var(--muted); margin: 0;">Belanja sembako online dengan harga khusus anggota &amp; antar ke rumah.</p>
+        <div style="display: flex; gap: 20px; margin-top: 12px;">
+            <div style="flex: 1; background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 20px; box-shadow: var(--shadow-sm); border-left: 4px solid var(--primary); transition: all 0.3s var(--ease-bounce);" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';">
+                <div style="font-size: 24px; margin-bottom: 8px;">🛒</div>
+                <h4 style="font-weight: 700; color: var(--ink); margin-bottom: 6px; font-size: 14px;">Ritel Modern</h4>
+                <p style="font-size: 12px; color: var(--muted); margin: 0; line-height: 1.5;">Belanja sembako online dengan harga khusus anggota &amp; antar ke rumah.</p>
             </div>
-            <div style="flex: 1; border-left: 3px solid var(--success); padding-left: 16px;">
-                <h4 style="font-weight: 700; color: var(--success); margin-bottom: 4px;">Pemberdayaan Tani</h4>
-                <p style="font-size: 13px; color: var(--muted); margin: 0;">Jaminan penyerapan panen hortikultura dengan timbangan transparan.</p>
+            <div style="flex: 1; background: var(--canvas); border: 1px solid var(--hairline); border-radius: var(--r-md); padding: 20px; box-shadow: var(--shadow-sm); border-left: 4px solid var(--success); transition: all 0.3s var(--ease-bounce);" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)';">
+                <div style="font-size: 24px; margin-bottom: 8px;">🌾</div>
+                <h4 style="font-weight: 700; color: var(--success); margin-bottom: 6px; font-size: 14px;">Pemberdayaan Tani</h4>
+                <p style="font-size: 12px; color: var(--muted); margin: 0; line-height: 1.5;">Jaminan penyerapan panen hortikultura dengan timbangan transparan.</p>
             </div>
         </div>
     </div>
-    <div class="animated-float-slow" style="position: relative; border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-xl); border: 1px solid var(--hairline);">
-        <img src="{{ asset('images/koperasi_kdkmp.png') }}" alt="Gedung Koperasi KDKMP" style="width: 100%; object-fit: cover; aspect-ratio: 4/3; transition: transform 0.5s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); padding: 24px; color: white; display: flex; justify-content: space-between; align-items: flex-end;">
+    <div style="position: relative; border-radius: var(--r-xl); overflow: hidden; box-shadow: 0 30px 60px -15px rgba(0,0,0,0.12), 0 12px 24px -10px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.4); border: 1.5px solid white; transition: all 0.5s var(--ease-bounce);" onmouseover="this.style.transform='translateY(-6px) scale(1.01)'; this.style.boxShadow='0 40px 80px -20px rgba(0,0,0,0.18), 0 16px 32px -12px rgba(0,0,0,0.08)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 30px 60px -15px rgba(0,0,0,0.12), 0 12px 24px -10px rgba(0,0,0,0.06)';">
+        <img src="{{ asset('images/koperasi_kdkmp.png') }}" alt="Gedung Koperasi KDKMP" style="width: 100%; object-fit: cover; aspect-ratio: 4/3; transition: transform 0.8s ease;" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+        <div style="position: absolute; bottom: 16px; left: 16px; right: 16px; background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: var(--r-md); padding: 14px 20px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
             <div>
-                <h4 style="margin: 0; font-weight: 700; font-size: 16px;">Kantor Pusat KDKMP</h4>
-                <p style="margin: 4px 0 0 0; font-size: 12px; opacity: 0.85;">Pusat Ritel &amp; Simpan Pinjam Desa</p>
+                <h4 style="margin: 0; font-weight: 700; font-size: 14px; letter-spacing: -0.2px;">Kantor Pusat KDKMP</h4>
+                <p style="margin: 3px 0 0 0; font-size: 11px; color: rgba(255, 255, 255, 0.7); font-weight: 500;">Pusat Ritel &amp; Simpan Pinjam Desa</p>
             </div>
-            <span style="font-size: 12px; background: var(--primary); padding: 4px 12px; border-radius: 100px; font-weight: 700;">Aktif 📍</span>
+            <span style="font-size: 11px; background: linear-gradient(135deg, var(--success), #10b981); padding: 4px 12px; border-radius: 100px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);">
+                <span style="width: 6px; height: 6px; background: white; border-radius: 50%; display: inline-block;"></span> Aktif 📍
+            </span>
         </div>
     </div>
 </div>

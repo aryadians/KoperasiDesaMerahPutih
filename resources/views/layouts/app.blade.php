@@ -42,25 +42,25 @@
                 $activeBranch = $globalBranches->where('id', $activeBranchId)->first() ?? $globalBranches->first();
             @endphp
             @if($globalBranches->count() > 0)
-                <div class="village-switcher no-print" style="position: relative; margin-left: 12px; font-family: var(--font);">
+                <div class="village-switcher no-print">
                     @auth
                         <!-- If logged in, show static badge of user's branch (cannot switch since bound to account) -->
-                        <div style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--hairline-soft); border-radius: 100px; background: var(--surface); font-size: 13px; font-weight: 600; color: var(--ink); white-space: nowrap;">
+                        <div class="active-branch-badge">
                             <span style="color: var(--primary);">📍</span> {{ $activeBranch->name }}
                         </div>
                     @else
                         <!-- If guest, show interactive dropdown selector -->
-                        <form action="" id="branch-switch-form" method="POST" style="margin: 0; display: inline-flex; align-items: center;">
+                        <form action="" id="branch-switch-form" method="POST" class="branch-switch-form">
                             @csrf
-                            <div style="position: relative; display: flex; align-items: center;">
-                                <select onchange="this.form.action='{{ url('/catalog/set-branch') }}/' + this.value; this.form.submit();" style="appearance: none; -webkit-appearance: none; background: var(--surface); border: 1px solid var(--hairline); border-radius: 100px; padding: 6px 32px 6px 12px; font-size: 13px; font-weight: 600; color: var(--ink); cursor: pointer; outline: none; transition: all var(--t-fast); line-height: 1.5; font-family: var(--font); width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">
+                            <div class="branch-select-wrapper">
+                                <select onchange="this.form.action='{{ url('/catalog/set-branch') }}/' + this.value; this.form.submit();" class="branch-select">
                                     @foreach($globalBranches as $branch)
                                         <option value="{{ $branch->id }}" {{ $branch->id == $activeBranchId ? 'selected' : '' }}>
                                             📍 {{ $branch->name }}
                                         </option>
                                     @endforeach
                                 </select>
-                                <span style="position: absolute; right: 12px; pointer-events: none; font-size: 10px; color: var(--muted);">▼</span>
+                                <span class="select-arrow">▼</span>
                             </div>
                         </form>
                     @endauth
@@ -97,9 +97,9 @@
             </nav>
 
             <!-- Search Bar in Navbar (Hidden on mobile) -->
-            <form action="{{ route('catalog.index') }}" method="GET" class="navbar-search no-print" style="display: flex; align-items: center; border: 1px solid var(--hairline); border-radius: var(--r-full); height: 38px; padding: 0 4px 0 12px; background: var(--surface); max-width: 240px; width: 100%; transition: border-color var(--t-fast); margin: 0 16px;">
-                <input type="text" name="search" placeholder="Cari produk..." value="{{ request('search') }}" style="border: none; outline: none; background: transparent; font-size: 13px; color: var(--ink); width: 100%; font-family: var(--font);">
-                <button type="submit" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; color: var(--muted); transition: color var(--t-fast);">
+            <form action="{{ route('catalog.index') }}" method="GET" class="navbar-search no-print">
+                <input type="text" name="search" placeholder="Cari produk..." value="{{ request('search') }}">
+                <button type="submit">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display: block;">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -154,10 +154,10 @@
                     @endif
                 @else
                     {{-- GUEST: Daftar Anggota (utama) + link kecil ke Admin Panel --}}
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <a href="{{ route('login') }}" class="product-tab" style="font-weight: 600;">Masuk</a>
-                        <a href="{{ route('register') }}" class="product-tab" style="color: var(--primary); font-weight: 600;">Daftar Anggota</a>
-                        <a href="{{ route('admin.login') }}" style="font-size: 12px; color: var(--muted); padding: 6px 12px; border: 1px solid var(--hairline-soft); border-radius: 100px; transition: all 0.2s; white-space: nowrap;" onmouseover="this.style.borderColor='var(--hairline)';this.style.color='var(--ink)'" onmouseout="this.style.borderColor='var(--hairline-soft)';this.style.color='var(--muted)'">⚙ Admin</a>
+                    <div class="guest-nav-actions">
+                        <a href="{{ route('login') }}" class="product-tab guest-login-btn">Masuk</a>
+                        <a href="{{ route('register') }}" class="product-tab guest-register-btn">Daftar Anggota</a>
+                        <a href="{{ route('admin.login') }}" class="admin-link-btn">⚙ Admin</a>
                     </div>
                 @endauth
             </div>
@@ -300,7 +300,7 @@
         });
     }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
 
-    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-rotate').forEach(el => {
+    document.querySelectorAll('.reveal, .reveal-up, .reveal-left, .reveal-right, .reveal-scale, .reveal-rotate').forEach(el => {
         revealObserver.observe(el);
     });
 

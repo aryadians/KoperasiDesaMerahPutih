@@ -12,7 +12,7 @@
         align-items: flex-start;
     }
     .sticky-rail {
-        flex: 0 0 340px !important; /* Reduced from 380px to give table more breathing room */
+        flex: 0 0 360px !important;
         position: sticky;
         top: 96px;
         height: fit-content;
@@ -36,10 +36,157 @@
     table.clean-table th {
         font-size: 11px;
         letter-spacing: 0.5px;
-        padding: 10px 12px !important;
+        padding: 12px 14px !important;
+        background: var(--surface-md);
+        border-bottom: 1.5px solid var(--hairline);
     }
     table.clean-table td {
-        padding: 10px 12px !important;
+        padding: 12px 14px !important;
+        vertical-align: middle;
+    }
+    
+    /* 3D Glass Card for Form & Lists */
+    .card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        border-radius: var(--r-lg);
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05),
+                    0 1px 2px rgba(0, 0, 0, 0.02),
+                    inset 0 1px 0 #ffffff !important;
+        transition: all var(--t-base) var(--ease-bounce);
+    }
+    
+    /* Form Focus Styles */
+    .form-group label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--muted);
+        margin-bottom: 6px;
+        display: block;
+    }
+    .text-input, .form-select {
+        border-radius: var(--r-sm);
+        border: 1.5px solid var(--hairline);
+        background: #ffffff;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
+        transition: all var(--t-fast) var(--ease-out);
+        height: 44px;
+        font-size: 13.5px;
+    }
+    .text-input:focus, .form-select:focus {
+        border-color: var(--ink);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05), inset 0 1px 2px rgba(0,0,0,0.01);
+        transform: translateY(-1px);
+    }
+    
+    /* Dynamic floating bulk action dock */
+    .bulk-action-bar-floating {
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%) translateY(150%);
+        background: rgba(17, 24, 39, 0.95);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: var(--r-full);
+        padding: 12px 28px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        z-index: 1000;
+        box-shadow: 0 20px 48px rgba(0, 0, 0, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        transition: transform 0.4s var(--ease-spring), opacity 0.4s ease;
+        opacity: 0;
+        pointer-events: none;
+    }
+    .bulk-action-bar-floating.active {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .bulk-action-text {
+        font-size: 13px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    /* 3D Checkbox Toggle */
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background-color: var(--hairline-soft);
+        border: 1.5px solid var(--hairline);
+        border-radius: 24px;
+        transition: 0.3s var(--ease-out);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 3px;
+        bottom: 2.5px;
+        background-color: white;
+        border-radius: 50%;
+        transition: 0.3s var(--ease-bounce);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 white;
+    }
+    input:checked + .toggle-slider {
+        background-color: var(--success-bg);
+        border-color: var(--success-border);
+    }
+    input:checked + .toggle-slider:before {
+        transform: translateX(20px);
+        background-color: var(--success);
+    }
+    
+    /* Inline Stock Opname Input */
+    .inline-stock-input {
+        border: 1.5px solid var(--hairline) !important;
+        background: var(--surface) !important;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.04) !important;
+        font-family: monospace;
+        transition: all var(--t-fast) !important;
+    }
+    .inline-stock-input:focus {
+        background: #ffffff !important;
+        border-color: var(--primary) !important;
+        box-shadow: 0 4px 10px var(--primary-glow), inset 0 1px 2px rgba(0,0,0,0.01) !important;
+        transform: scale(1.08);
+    }
+    
+    /* 3D button upgrades */
+    .btn-3d {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05),
+                    inset 0 1px 0 rgba(255,255,255,0.25);
+        transition: all var(--t-fast) var(--ease-out);
+    }
+    .btn-3d:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08),
+                    inset 0 1px 0 rgba(255,255,255,0.25);
+    }
+    .btn-3d:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 </style>
 
@@ -48,7 +195,7 @@
         <h1 style="font-size: 28px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.5px;">Inventaris Gerai Sembako</h1>
         <p style="color: var(--muted); font-size: 14px; margin-top: 4px; font-family: var(--font);">📍 Kelola produk &amp; stok untuk <strong>{{ auth()->user()->branch->name }}</strong></p>
     </div>
-    <a href="{{ route('staff.products.export') }}" class="btn btn-secondary btn-sm" style="font-weight: 600; border-radius: 100px; padding: 0 18px;" data-no-loading>
+    <a href="{{ route('staff.products.export') }}" class="btn btn-secondary btn-sm btn-3d" style="font-weight: 700; border-radius: 100px; padding: 0 20px; height: 36px; display: inline-flex; align-items: center; gap: 6px;" data-no-loading>
         📥 Export CSV
     </a>
 </div>
@@ -59,22 +206,8 @@
     <div class="main-column">
         <div class="card card-flush" style="box-shadow: var(--shadow-sm);">
             
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--hairline); background: var(--surface-md);">
-                <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: var(--ink);">Daftar Semua Barang</h3>
-                
-                <!-- Hidden Bulk Action Bar -->
-                <form id="bulk-action-form" action="{{ route('staff.products.bulk-delete') }}" method="POST" style="display: none;">
-                    @csrf
-                    <input type="hidden" name="ids" id="bulk-ids-input">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span style="font-size: 13px; font-weight: 600; color: var(--primary-dark);">
-                            <span id="selected-count">0</span> item terpilih
-                        </span>
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus produk yang dipilih?')">
-                            Hapus Massal
-                        </button>
-                    </div>
-                </form>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--hairline-soft); background: var(--surface);">
+                <h3 style="font-size: 15px; font-weight: 800; margin: 0; color: var(--ink); letter-spacing: -0.3px;">Daftar Semua Barang</h3>
             </div>
 
             <!-- Search & Filter Panel (Stock Opname optimization) -->
@@ -204,13 +337,15 @@
     <!-- Right: Create/Edit Form Drawer -->
     <div class="sticky-rail">
         <div class="card" id="form-panel" style="box-shadow: var(--shadow-lg);">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--hairline); padding-bottom: 16px; margin-bottom: 20px;">
-                <h3 style="font-size: 18px; font-weight: 700; color: var(--ink); margin: 0;" id="panel-title">📦 Tambah Produk</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--hairline-soft); padding-bottom: 16px; margin-bottom: 24px;">
+                <h3 style="font-size: 16px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px;" id="panel-title">
+                    <span style="font-size: 18px;">📦</span> Tambah Produk
+                </h3>
                 
                 <!-- Dynamic Delete Button (Appears only on Edit) -->
-                <form action="" method="POST" id="delete-form" style="display: none;" onsubmit="return confirm('Yakin menghapus produk ini?');">
+                <form action="" method="POST" id="delete-form" style="display: none;" onsubmit="return confirm('Yakin menghapus produk ini?');" class="no-print">
                     @csrf
-                    <button type="submit" class="btn btn-danger btn-sm" title="Hapus Produk Ini">🗑️ Hapus</button>
+                    <button type="submit" class="btn btn-danger btn-sm btn-pill btn-3d" style="height: 28px; padding: 0 12px; font-size: 11px; font-weight: 700;" title="Hapus Produk Ini">🗑️ Hapus</button>
                 </form>
             </div>
             
@@ -226,8 +361,8 @@
                 <div class="form-group">
                     <label for="barcode">Kode Barcode (Scan / Ketik Manual)</label>
                     <div style="display: flex; gap: 8px;">
-                        <input type="text" name="barcode" id="form-barcode" class="text-input" placeholder="Contoh: 8991234567890" style="flex: 1;">
-                        <button type="button" class="btn btn-secondary" onclick="generateBarcodeField()" style="height: 38px; padding: 0 12px; font-size: 12px; white-space: nowrap; border-radius: var(--r-sm);">⚡ Generate</button>
+                        <input type="text" name="barcode" id="form-barcode" class="text-input" placeholder="Contoh: 8991234567890" style="flex: 1; height: 44px;">
+                        <button type="button" class="btn btn-secondary btn-3d" onclick="generateBarcodeField()" style="height: 44px; padding: 0 16px; font-size: 12px; font-weight: 700; white-space: nowrap; border-radius: var(--r-sm);">⚡ Generate</button>
                     </div>
                 </div>
 
@@ -247,14 +382,16 @@
                 </div>
 
                 <div class="form-group">
-                                    <label for="form-image-file">Gambar Produk (File Upload / Base64)</label>
-                                    <input type="file" id="form-image-file" class="text-input" accept="image/*" onchange="convertImageToBase64(this)" style="padding-top: 6px;">
-                                    <input type="hidden" name="image_url" id="form-image-url">
-                                    <div id="image-preview-container" style="margin-top: 8px; display: none; text-align: center; background: var(--surface-soft); padding: 10px; border-radius: var(--r-md); border: 1px dashed var(--hairline);">
-                                        <img id="image-preview" src="" style="max-width: 100%; max-height: 120px; border-radius: var(--r-sm); border: 1px solid var(--hairline); object-fit: cover;">
-                                        <button type="button" class="btn btn-ghost btn-sm" onclick="clearPreviewImage()" style="color: var(--danger); font-size: 11px; padding: 2px 8px; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; border-color: var(--danger-border); background: var(--danger-bg);">🗑️ Hapus Gambar</button>
-                                    </div>
-                                </div>
+                    <label for="form-image-file">Gambar Produk (File Upload / Base64)</label>
+                    <input type="file" id="form-image-file" class="text-input" accept="image/*" onchange="convertImageToBase64(this)" style="padding-top: 8px; height: 44px;">
+                    <input type="hidden" name="image_url" id="form-image-url">
+                    <div id="image-preview-container" style="margin-top: 12px; display: none; text-align: center; background: var(--surface-md); padding: 12px; border-radius: var(--r-md); border: 1.5px dashed var(--hairline); box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);">
+                        <img id="image-preview" src="" style="max-width: 100%; max-height: 120px; border-radius: var(--r-sm); border: 1px solid var(--hairline); object-fit: cover; box-shadow: var(--shadow-sm);">
+                        <div style="margin-top: 8px;">
+                            <button type="button" class="btn btn-ghost btn-sm btn-3d" onclick="clearPreviewImage()" style="color: var(--danger); font-size: 11px; padding: 4px 12px; border-color: var(--danger-border); background: var(--danger-bg); font-weight: 700; border-radius: 100px;">🗑️ Hapus Gambar</button>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="form-group">
                     <label for="unit">Satuan Jual (UOM)</label>
@@ -277,19 +414,37 @@
                     <input type="number" name="current_stock" id="form-current-stock" class="text-input" placeholder="Contoh: 100" min="0" required>
                 </div>
 
-                <div class="form-group" style="flex-direction: row; gap: 12px; align-items: center; margin: 24px 0; background: var(--surface); padding: 12px 16px; border-radius: var(--r-md); border: 1px solid var(--hairline);">
-                    <input type="checkbox" name="is_local_product" id="form-local" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--success);">
-                    <label for="form-local" style="cursor: pointer; font-weight: 600; margin: 0; color: var(--success);">Merupakan Komoditas Lokal Desa</label>
+                <div class="form-group" style="flex-direction: row; gap: 16px; align-items: center; margin: 20px 0; background: rgba(16, 185, 129, 0.03); padding: 14px 16px; border-radius: var(--r-md); border: 1.5px solid rgba(16, 185, 129, 0.15);">
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="is_local_product" id="form-local">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="form-local" style="cursor: pointer; font-weight: 700; margin: 0; color: var(--success); text-transform: none; letter-spacing: normal; font-size: 13px;">🌾 Merupakan Komoditas Lokal Desa</label>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-full btn-lg" id="form-submit-btn">Simpan Produk</button>
-                <button type="button" class="btn btn-ghost btn-full btn-md" id="form-cancel-btn" style="display: none; margin-top: 10px;" onclick="resetForm()">
+                <button type="submit" class="btn btn-primary btn-full btn-lg btn-3d" id="form-submit-btn" style="height: 48px; border-radius: var(--r-sm); font-weight: 700; font-size: 15px;">Simpan Produk</button>
+                <button type="button" class="btn btn-ghost btn-full btn-md btn-3d" id="form-cancel-btn" style="display: none; margin-top: 10px; height: 42px; border-radius: var(--r-sm); font-weight: 700; font-size: 13.5px;" onclick="resetForm()">
                     Batal / Form Baru
                 </button>
             </form>
         </div>
     </div>
 
+</div>
+
+<!-- Floating Bulk Action Bar -->
+<div id="floating-bulk-bar" class="bulk-action-bar-floating no-print">
+    <span class="bulk-action-text">⚡ <span id="selected-count-float">0</span> Item Terpilih</span>
+    <form action="{{ route('staff.products.bulk-delete') }}" method="POST" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+        @csrf
+        <input type="hidden" name="ids" id="bulk-ids-input-float">
+        <button type="submit" class="btn btn-danger btn-sm btn-pill btn-3d" style="height: 36px; padding: 0 20px; font-weight: 700;" onclick="return confirm('Yakin ingin menghapus produk yang dipilih?')">
+            🗑️ Hapus Massal
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm btn-pill btn-3d" style="height: 36px; padding: 0 16px;" onclick="cancelBulkSelection()">
+            Batal
+        </button>
+    </form>
 </div>
 
 <script>
@@ -450,19 +605,25 @@
     function updateBulkActionBar() {
         const checked = document.querySelectorAll('.row-checkbox:checked');
         const count = checked.length;
-        const bulkBar = document.getElementById('bulk-action-form');
+        const bulkBar = document.getElementById('floating-bulk-bar');
         
         if (count > 0) {
-            bulkBar.style.display = 'flex';
-            document.getElementById('selected-count').textContent = count;
+            bulkBar.classList.add('active');
+            document.getElementById('selected-count-float').textContent = count;
             
             // Build comma-separated IDs
             const ids = Array.from(checked).map(cb => cb.value).join(',');
-            document.getElementById('bulk-ids-input').value = ids;
+            document.getElementById('bulk-ids-input-float').value = ids;
         } else {
-            bulkBar.style.display = 'none';
+            bulkBar.classList.remove('active');
             document.getElementById('select-all').checked = false;
         }
+    }
+
+    function cancelBulkSelection() {
+        document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = false);
+        document.getElementById('select-all').checked = false;
+        updateBulkActionBar();
     }
 </script>
 @endsection
