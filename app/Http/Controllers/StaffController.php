@@ -11,11 +11,21 @@ use App\Models\Member;
 use App\Models\User;
 use App\Models\MemberSaving;
 use App\Models\SystemConfig;
+use App\Models\PurchaseOrder;
+use App\Models\LoanPayment;
+use App\Models\OrderItem;
+use App\Models\Branch;
 use App\Services\TransactionService;
 use App\Services\CropAbsorptionService;
 use App\Services\LoanService;
 use App\Services\SHUService;
 use App\Services\SavingsService;
+use App\Services\NotificationService;
+use App\Events\ProductStockUpdated;
+use App\Exports\FinancialSummaryExport;
+use App\Exports\LoansExport;
+use App\Exports\CropsExport;
+use App\Exports\SavingsExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -272,7 +282,7 @@ class StaffController extends Controller
         // Paginate products with query parameters appended
         $products = $query->paginate(10)->withQueryString();
         $categories = Category::all();
-        $branches = \App\Models\Branch::where('id', '!=', $branchId)->get();
+        $branches = Branch::where('id', '!=', $branchId)->get();
         
         return view('staff.products', compact('products', 'categories', 'search', 'categoryId', 'branches'));
     }
@@ -341,7 +351,7 @@ class StaffController extends Controller
         ]);
 
         // Dispatch real-time event
-        event(new \App\Events\ProductStockUpdated($product));
+        event(new ProductStockUpdated($product));
 
         return back()->with('success', 'Produk berhasil ditambahkan ke inventaris.');
     }
@@ -379,7 +389,7 @@ class StaffController extends Controller
         ]);
 
         // Dispatch real-time event
-        event(new \App\Events\ProductStockUpdated($product));
+        event(new ProductStockUpdated($product));
 
         return back()->with('success', 'Produk berhasil diperbarui.');
     }
@@ -405,7 +415,7 @@ class StaffController extends Controller
             $product->save();
 
             // Dispatch real-time event
-            event(new \App\Events\ProductStockUpdated($product));
+            event(new ProductStockUpdated($product));
 
             return response()->json([
                 'success' => true,
@@ -472,7 +482,7 @@ class StaffController extends Controller
             $sourceProduct->save();
 
             // Find target branch to resolve suffix
-            $targetBranch = \App\Models\Branch::findOrFail($targetBranchId);
+            $targetBranch = Branch::findOrFail($targetBranchId);
             $targetBarcode = null;
             if ($sourceProduct->barcode) {
                 // Strip existing branch suffixes (e.g., -DGR, -DMP)
@@ -526,8 +536,8 @@ class StaffController extends Controller
             DB::commit();
 
             // Dispatch real-time events for both products
-            event(new \App\Events\ProductStockUpdated($sourceProduct));
-            event(new \App\Events\ProductStockUpdated($targetProduct));
+            event(new ProductStockUpdated($sourceProduct));
+            event(new ProductStockUpdated($targetProduct));
 
             return back()->with('success', "Berhasil memindahkan {$quantity} {$sourceProduct->unit} dari produk '{$sourceProduct->name}' ke gerai tujuan.");
         } catch (Exception $e) {
@@ -745,9 +755,9 @@ class StaffController extends Controller
             DB::commit();
 
             // Dispatch WhatsApp notifications
-            $notificationService = resolve(\App\Services\NotificationService::class);
+            $notificationService = resolve(NotificationService::class);
             foreach ($successMembers as $sMember) {
-                /** @var \App\Models\Member $sMember */
+                /** @var Member $sMember */
                 $sMember->load('user');
                 $title = '💸 Autodebet Iuran Bulanan';
                 $message = "Autodebet iuran wajib bulanan sebesar Rp " . number_format($amount, 0, ',', '.') . " dari saldo Simpanan Sukarela Anda telah berhasil diproses. Terima kasih.";
@@ -761,44 +771,7 @@ class StaffController extends Controller
         }
     }
 
-    /**
-     * Show interactive SVG analytics page.
-     */
-    public function analytics()
-    {
-        $branchId = auth()->user()->branch_id;
 
-        $salesToday = Order::where('branch_id', $branchId)
-            ->where('payment_status', 'paid')
-            ->whereDate('created_at', \Carbon\Carbon::today())
-            ->sum('total_amount');
-        
-        $totalSales = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->sum('total_amount');
-        $totalCrops = CropAbsorption::where('branch_id', $branchId)->where('status', 'paid')->sum('total_payout');
-        $totalLoans = Loan::where('branch_id', $branchId)->whereIn('status', ['active', 'paid_off'])->sum('amount_approved');
-        $totalSavings = MemberSaving::whereHas('member.user', function($q) use ($branchId) {
-            $q->where('branch_id', $branchId);
-        })->sum('amount');
-
-        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei'];
-        $salesTrend = [1200000, 2500000, 4100000, 5800000, max(6800000, $totalSales)];
-        $cropTrend = [800000, 1500000, 2300000, 3200000, max(3900000, $totalCrops)];
-        $loanTrend = [3000000, 7000000, 12000000, 15000000, max(18000000, $totalLoans)];
-        $savingsTrend = [1500000, 3200000, 5000000, 6800000, max(8500000, $totalSavings)];
-
-        return view('staff.analytics', compact(
-            'salesToday',
-            'totalSales',
-            'totalCrops',
-            'totalLoans',
-            'totalSavings',
-            'labels',
-            'salesTrend',
-            'cropTrend',
-            'loanTrend',
-            'savingsTrend'
-        ));
-    }
 
     /**
      * Show system configurations panel.
@@ -1140,7 +1113,7 @@ class StaffController extends Controller
     public function exportRATReportPdf()
     {
         $branchId = auth()->user()->branch_id;
-        $branch = \App\Models\Branch::findOrFail($branchId);
+        $branch = Branch::findOrFail($branchId);
         $staffName = auth()->user()->name;
 
         // Financial volumes
@@ -1176,4 +1149,428 @@ class StaffController extends Controller
 
         return $pdf->download('laporan_rat_' . strtolower(str_replace(' ', '_', $branch->name)) . '.pdf');
     }
+
+    // =========================================================================
+    // PHASE 8A: Enhanced Analytics with real 12-month time-series data
+    // =========================================================================
+
+    /**
+     * Show interactive analytics page with real monthly trend data.
+     */
+    public function analytics()
+    {
+        $branchId = auth()->user()->branch_id;
+        $year     = date('Y');
+
+        // KPI totals
+        $salesToday    = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->whereDate('created_at', \Carbon\Carbon::today())->sum('total_amount');
+        $totalSales    = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->sum('total_amount');
+        $totalCrops    = CropAbsorption::where('branch_id', $branchId)->where('status', 'paid')->sum('total_payout');
+        $totalLoans    = Loan::where('branch_id', $branchId)->whereIn('status', ['active', 'paid_off'])->sum('amount_approved');
+        $totalSavings  = MemberSaving::whereHas('member.user', fn($q) => $q->where('branch_id', $branchId))->where('amount', '>', 0)->sum('amount');
+        $activeMembers = Member::where('status_aktif', true)->whereHas('user', fn($q) => $q->where('branch_id', $branchId))->count();
+        $totalProducts = Product::where('branch_id', $branchId)->count();
+        $avgOrderValue = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->avg('total_amount') ?? 0;
+
+        // 12-month time-series (real data from DB)
+        $labels         = [];
+        $salesTrend     = [];
+        $cropTrend      = [];
+        $loanTrend      = [];
+        $savingsTrend   = [];
+        $cashflowInflow  = [];
+        $cashflowOutflow = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $labels[]       = \Carbon\Carbon::createFromDate($year, $m, 1)->format('M');
+            $sales = (float) Order::where('branch_id', $branchId)->where('payment_status', 'paid')->whereYear('created_at', $year)->whereMonth('created_at', $m)->sum('total_amount');
+            $savings = (float) MemberSaving::whereHas('member.user', fn($q) => $q->where('branch_id', $branchId))->where('amount', '>', 0)->whereYear('transaction_date', $year)->whereMonth('transaction_date', $m)->sum('amount');
+            $loanPayments = (float) LoanPayment::whereHas('loan', fn($q) => $q->where('branch_id', $branchId))->whereYear('payment_date', $year)->whereMonth('payment_date', $m)->sum('amount_paid');
+
+            $crops = (float) CropAbsorption::where('branch_id', $branchId)->where('status', 'paid')->whereYear('created_at', $year)->whereMonth('created_at', $m)->sum('total_payout');
+            $loans = (float) Loan::where('branch_id', $branchId)->whereIn('status', ['active', 'paid_off'])->whereYear('created_at', $year)->whereMonth('created_at', $m)->sum('amount_approved');
+            $po = (float) PurchaseOrder::whereHas('product', fn($q) => $q->where('branch_id', $branchId))->where('status', 'received')->whereYear('created_at', $year)->whereMonth('created_at', $m)->sum('total_cost');
+
+            $salesTrend[]     = $sales;
+            $cropTrend[]      = $crops;
+            $loanTrend[]      = $loans;
+            $savingsTrend[]   = $savings;
+            $cashflowInflow[]  = $sales + $savings + $loanPayments;
+            $cashflowOutflow[] = $crops + $loans + $po;
+        }
+
+        // SHU Forecast: total active member points * 5,000 IDR (multiplier example)
+        $totalPoints = Member::where('status_aktif', true)->whereHas('user', fn($q) => $q->where('branch_id', $branchId))->sum('total_poin');
+        $shuForecast = $totalPoints * 5000;
+
+        // Top 5 best-selling products
+        $topProducts = OrderItem::with('product')
+            ->whereHas('order', fn($q) => $q->where('branch_id', $branchId)->where('payment_status', 'paid'))
+            ->selectRaw('product_id, SUM(quantity) as total_qty, SUM(subtotal) as total_revenue')
+            ->groupBy('product_id')
+            ->orderByDesc('total_qty')
+            ->take(5)
+            ->get();
+
+        // Top 5 members by loan volume
+        $topLoanMembers = Loan::with('member.user')
+            ->where('branch_id', $branchId)
+            ->whereIn('status', ['active', 'paid_off'])
+            ->selectRaw('member_id, SUM(amount_approved) as total_loans, COUNT(*) as loan_count')
+            ->groupBy('member_id')
+            ->orderByDesc('total_loans')
+            ->take(5)
+            ->get();
+
+        return view('staff.analytics', compact(
+            'salesToday', 'totalSales', 'totalCrops', 'totalLoans', 'totalSavings',
+            'activeMembers', 'totalProducts', 'avgOrderValue',
+            'labels', 'salesTrend', 'cropTrend', 'loanTrend', 'savingsTrend',
+            'cashflowInflow', 'cashflowOutflow', 'shuForecast',
+            'topProducts', 'topLoanMembers', 'year'
+        ));
+    }
+
+    // =========================================================================
+    // PHASE 8B: Export Laporan PDF & Excel
+    // =========================================================================
+
+    /** Export laporan keuangan (neraca ringkas) — PDF */
+    public function exportFinancialPdf(Request $request)
+    {
+        $branchId   = auth()->user()->branch_id;
+        $branch     = Branch::findOrFail($branchId);
+        $year       = $request->input('year', date('Y'));
+
+        $totalSales   = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->whereYear('created_at', $year)->sum('total_amount');
+        $totalCrops   = CropAbsorption::where('branch_id', $branchId)->where('status', 'paid')->whereYear('created_at', $year)->sum('total_payout');
+        $totalLoansOut= Loan::where('branch_id', $branchId)->whereYear('created_at', $year)->sum('amount_approved');
+        $totalSavIn   = MemberSaving::whereHas('member.user', fn($q) => $q->where('branch_id', $branchId))->where('amount', '>', 0)->whereYear('transaction_date', $year)->sum('amount');
+        $activeMembers= Member::where('status_aktif', true)->whereHas('user', fn($q) => $q->where('branch_id', $branchId))->count();
+
+        $summaryItems = [
+            ['label' => 'Total Penjualan Gerai',        'value' => 'Rp ' . number_format($totalSales, 0, ',', '.')],
+            ['label' => 'Total Penyerapan Hasil Tani',  'value' => 'Rp ' . number_format($totalCrops, 0, ',', '.')],
+            ['label' => 'Total Pinjaman Disalurkan',    'value' => 'Rp ' . number_format($totalLoansOut, 0, ',', '.')],
+            ['label' => 'Total Simpanan Masuk',         'value' => 'Rp ' . number_format($totalSavIn, 0, ',', '.')],
+            ['label' => 'Jumlah Anggota Aktif',         'value' => $activeMembers . ' orang'],
+        ];
+
+        // Monthly breakdown table
+        $headers = ['Bulan', 'Penjualan (Rp)', 'Hasil Tani (Rp)', 'Pinjaman (Rp)', 'Simpanan (Rp)'];
+        $rows = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $monthLabel = \Carbon\Carbon::createFromDate($year, $m, 1)->translatedFormat('F');
+            $s  = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->whereYear('created_at', $year)->whereMonth('created_at', $m)->sum('total_amount');
+            $c  = CropAbsorption::where('branch_id', $branchId)->where('status', 'paid')->whereYear('created_at', $year)->whereMonth('created_at', $m)->sum('total_payout');
+            $l  = Loan::where('branch_id', $branchId)->whereYear('created_at', $year)->whereMonth('created_at', $m)->sum('amount_approved');
+            $sv = MemberSaving::whereHas('member.user', fn($q) => $q->where('branch_id', $branchId))->where('amount', '>', 0)->whereYear('transaction_date', $year)->whereMonth('transaction_date', $m)->sum('amount');
+            $rows[] = [$monthLabel, number_format($s, 0, ',', '.'), number_format($c, 0, ',', '.'), number_format($l, 0, ',', '.'), number_format($sv, 0, ',', '.')];
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.laporan_keuangan', [
+            'reportTitle'  => 'Laporan Keuangan Tahunan',
+            'period'       => $year,
+            'branchName'   => $branch->name,
+            'summaryItems' => $summaryItems,
+            'tableTitle'   => '📅 REKAP BULANAN TAHUN ' . $year,
+            'headers'      => $headers,
+            'rows'         => $rows,
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download("laporan_keuangan_{$year}.pdf");
+    }
+
+    /** Export laporan keuangan — Excel (multi-sheet) */
+    public function exportFinancialExcel(Request $request)
+    {
+        $branchId = auth()->user()->branch_id;
+        $year     = $request->input('year', date('Y'));
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new FinancialSummaryExport($branchId, $year),
+            "laporan_keuangan_{$year}.xlsx"
+        );
+    }
+
+    /** Export laporan pinjaman — PDF */
+    public function exportLoansPdf()
+    {
+        $branchId = auth()->user()->branch_id;
+        $branch   = Branch::findOrFail($branchId);
+        $loans    = Loan::with(['member.user', 'payments'])->where('branch_id', $branchId)->latest()->get();
+
+        $headers = ['No. Pinjaman', 'Anggota', 'Nilai (Rp)', 'Tenor', 'Status', 'Tgl Pengajuan', 'Sisa (Rp)'];
+        $rows = $loans->map(function($l) {
+            $paid      = $l->payments->where('status', 'paid')->sum('amount_paid');
+            $remaining = max(0, ($l->amount_approved ?? 0) - $paid);
+            return [
+                $l->loan_number ?? 'LOAN-' . $l->id,
+                $l->member->user->name ?? '-',
+                number_format($l->amount_approved ?? 0, 0, ',', '.'),
+                ($l->tenor_months ?? '-') . ' bln',
+                ucfirst($l->status),
+                $l->created_at?->format('d/m/Y') ?? '-',
+                number_format($remaining, 0, ',', '.'),
+            ];
+        })->toArray();
+
+        $summaryItems = [
+            ['label' => 'Total Pinjaman',   'value' => $loans->count() . ' pinjaman'],
+            ['label' => 'Total Nilai',       'value' => 'Rp ' . number_format($loans->sum('amount_approved'), 0, ',', '.')],
+            ['label' => 'Status Aktif',      'value' => $loans->where('status', 'active')->count() . ' pinjaman'],
+            ['label' => 'Status Lunas',      'value' => $loans->where('status', 'paid_off')->count() . ' pinjaman'],
+        ];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.laporan_keuangan', [
+            'reportTitle'  => 'Laporan Pinjaman Anggota',
+            'period'       => date('Y'),
+            'branchName'   => $branch->name,
+            'summaryItems' => $summaryItems,
+            'tableTitle'   => '💰 DAFTAR PINJAMAN',
+            'headers'      => $headers,
+            'rows'         => $rows,
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download('laporan_pinjaman_' . date('Ymd') . '.pdf');
+    }
+
+    /** Export laporan pinjaman — Excel */
+    public function exportLoansExcel()
+    {
+        $branchId = auth()->user()->branch_id;
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new LoansExport($branchId),
+            'laporan_pinjaman_' . date('Ymd') . '.xlsx'
+        );
+    }
+
+    /** Export laporan penyerapan hasil tani — PDF */
+    public function exportCropsPdf()
+    {
+        $branchId = auth()->user()->branch_id;
+        $branch   = Branch::findOrFail($branchId);
+        $crops    = CropAbsorption::with('member.user')->where('branch_id', $branchId)->latest()->get();
+
+        $headers = ['No. Ref', 'Petani', 'Komoditas', 'Berat (Kg)', 'Harga/Kg', 'Total (Rp)', 'Status', 'Tanggal'];
+        $rows = $crops->map(fn($c) => [
+            $c->reference_number ?? 'CROP-' . $c->id,
+            $c->member->user->name ?? '-',
+            $c->commodity_name ?? '-',
+            number_format($c->weight_kg ?? 0, 2, ',', '.'),
+            'Rp ' . number_format($c->price_per_kg ?? 0, 0, ',', '.'),
+            'Rp ' . number_format($c->total_payout ?? 0, 0, ',', '.'),
+            ucfirst($c->status),
+            $c->created_at?->format('d/m/Y') ?? '-',
+        ])->toArray();
+
+        $summaryItems = [
+            ['label' => 'Total Transaksi', 'value' => $crops->count() . ' transaksi'],
+            ['label' => 'Total Payout',    'value' => 'Rp ' . number_format($crops->sum('total_payout'), 0, ',', '.')],
+            ['label' => 'Status Lunas',    'value' => $crops->where('status', 'paid')->count() . ' transaksi'],
+        ];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.laporan_keuangan', [
+            'reportTitle'  => 'Laporan Penyerapan Hasil Tani',
+            'period'       => date('Y'),
+            'branchName'   => $branch->name,
+            'summaryItems' => $summaryItems,
+            'tableTitle'   => '🌾 DAFTAR PENYERAPAN HASIL TANI',
+            'headers'      => $headers,
+            'rows'         => $rows,
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download('laporan_hasil_tani_' . date('Ymd') . '.pdf');
+    }
+
+    /** Export penyerapan hasil tani — Excel */
+    public function exportCropsExcel()
+    {
+        $branchId = auth()->user()->branch_id;
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new CropsExport($branchId),
+            'laporan_hasil_tani_' . date('Ymd') . '.xlsx'
+        );
+    }
+
+    /** Export laporan simpanan anggota — PDF */
+    public function exportSavingsPdf()
+    {
+        $branchId = auth()->user()->branch_id;
+        $branch   = Branch::findOrFail($branchId);
+        $savings  = MemberSaving::with('member.user')
+            ->whereHas('member.user', fn($q) => $q->where('branch_id', $branchId))
+            ->latest('transaction_date')
+            ->take(200) // Limit for PDF readability
+            ->get();
+
+        $headers = ['Tanggal', 'Anggota', 'NIK', 'Jenis', 'Jumlah (Rp)', 'Keterangan'];
+        $rows = $savings->map(fn($s) => [
+            \Carbon\Carbon::parse($s->transaction_date)->format('d/m/Y'),
+            $s->member->user->name ?? '-',
+            $s->member->nik ?? '-',
+            ucfirst($s->type),
+            number_format($s->amount, 0, ',', '.'),
+            $s->notes ?? '-',
+        ])->toArray();
+
+        $totalIn  = $savings->where('amount', '>', 0)->sum('amount');
+        $totalOut = abs($savings->where('amount', '<', 0)->sum('amount'));
+
+        $summaryItems = [
+            ['label' => 'Total Setoran Masuk',   'value' => 'Rp ' . number_format($totalIn, 0, ',', '.')],
+            ['label' => 'Total Penarikan/Debit',  'value' => 'Rp ' . number_format($totalOut, 0, ',', '.')],
+            ['label' => 'Saldo Bersih',            'value' => 'Rp ' . number_format($totalIn - $totalOut, 0, ',', '.')],
+        ];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.laporan_keuangan', [
+            'reportTitle'  => 'Buku Simpanan Anggota',
+            'period'       => date('Y'),
+            'branchName'   => $branch->name,
+            'summaryItems' => $summaryItems,
+            'tableTitle'   => '💼 RIWAYAT SIMPANAN (200 Transaksi Terbaru)',
+            'headers'      => $headers,
+            'rows'         => $rows,
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download('buku_simpanan_' . date('Ymd') . '.pdf');
+    }
+
+    /** Export simpanan anggota — Excel */
+    public function exportSavingsExcel()
+    {
+        $branchId = auth()->user()->branch_id;
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new SavingsExport($branchId),
+            'buku_simpanan_' . date('Ymd') . '.xlsx'
+        );
+    }
+
+    // =========================================================================
+    // PHASE 8C: Kwitansi / Nota Cetak PDF
+    // =========================================================================
+
+    /**
+     * Download loan payment receipt as PDF.
+     * Route: GET /staff/loans/payment/{id}/receipt/pdf
+     */
+    public function downloadLoanReceiptPdf($id)
+    {
+        $payment = LoanPayment::with(['loan.member.user', 'loan.branch'])->findOrFail($id);
+        $loan    = $payment->loan;
+
+        // Authorization: only staff of the same branch
+        if ($loan->branch_id !== auth()->user()->branch_id) {
+            abort(403, 'Unauthorized branch action');
+        }
+
+        // Calculate remaining balance
+        $totalPaid = LoanPayment::where('loan_id', $loan->id)->where('status', 'paid')->sum('amount_paid');
+        $remaining = max(0, ($loan->amount_approved ?? 0) - $totalPaid);
+
+        // Installment sequence number
+        $installmentNo = LoanPayment::where('loan_id', $loan->id)
+            ->where('status', 'paid')
+            ->where('id', '<=', $payment->id)
+            ->count();
+        $totalInstallments = $loan->tenor_months ?? '?';
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('staff.loan_receipt_pdf', [
+            'receiptNumber'     => 'KWT-LN-' . str_pad($payment->id, 6, '0', STR_PAD_LEFT),
+            'paymentDate'       => \Carbon\Carbon::parse($payment->paid_at ?? $payment->created_at)->format('d F Y'),
+            'memberName'        => $loan->member->user->name ?? '-',
+            'memberNik'         => $loan->member->nik ?? '-',
+            'loanNumber'        => $loan->loan_number ?? 'LOAN-' . $loan->id,
+            'installmentNo'     => $installmentNo,
+            'totalInstallments' => $totalInstallments,
+            'amountPaid'        => number_format($payment->amount_paid, 0, ',', '.'),
+            'remainingBalance'  => number_format($remaining, 0, ',', '.'),
+            'notes'             => $payment->notes ?? null,
+            'branchName'        => $loan->branch->name ?? 'Koperasi Desa Merah Putih',
+        ]);
+
+        $pdf->setPaper([0, 0, 400, 600], 'portrait');
+        return $pdf->download("kwitansi_cicilan_{$loan->loan_number}_{$payment->id}.pdf");
+    }
+
+    /**
+     * Download savings transaction receipt as PDF.
+     * Route: GET /staff/savings/{id}/receipt/pdf
+     */
+    public function downloadSavingReceiptPdf($id)
+    {
+        $saving = MemberSaving::with(['member.user'])->findOrFail($id);
+
+        // Verify the member belongs to the same branch
+        if (($saving->member->user->branch_id ?? null) !== auth()->user()->branch_id) {
+            abort(403, 'Unauthorized branch action');
+        }
+
+        // Calculate balance after this transaction (sum up to and including this saving)
+        $balanceAfter = MemberSaving::where('member_id', $saving->member_id)
+            ->where('type', $saving->type)
+            ->where(function($q) use ($saving) {
+                $q->where('transaction_date', '<', $saving->transaction_date)
+                  ->orWhere(function($q2) use ($saving) {
+                      $q2->where('transaction_date', $saving->transaction_date)->where('id', '<=', $saving->id);
+                  });
+            })
+            ->sum('amount');
+
+        $branch = Branch::find(auth()->user()->branch_id);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('staff.saving_receipt_pdf', [
+            'receiptNumber'   => 'KWT-SV-' . str_pad($saving->id, 6, '0', STR_PAD_LEFT),
+            'transactionDate' => \Carbon\Carbon::parse($saving->transaction_date)->format('d F Y'),
+            'memberName'      => $saving->member->user->name ?? '-',
+            'memberNik'       => $saving->member->nik ?? '-',
+            'memberNumber'    => $saving->member->nomor_anggota ?? '-',
+            'savingType'      => $saving->type,
+            'amount'          => number_format(abs($saving->amount), 0, ',', '.'),
+            'balanceAfter'    => number_format($balanceAfter, 0, ',', '.'),
+            'notes'           => $saving->notes ?? null,
+            'branchName'      => $branch->name ?? 'Koperasi Desa Merah Putih',
+        ]);
+
+        $pdf->setPaper([0, 0, 400, 600], 'portrait');
+        return $pdf->download("tanda_terima_simpanan_{$saving->id}.pdf");
+    }
+
+    /**
+     * Download crop absorption receipt (nota penerimaan hasil tani) as PDF.
+     * Route: GET /staff/crops/{id}/receipt/pdf
+     */
+    public function downloadCropReceiptPdf($id)
+    {
+        $crop = CropAbsorption::with(['member.user', 'branch'])->findOrFail($id);
+
+        if ($crop->branch_id !== auth()->user()->branch_id) {
+            abort(403, 'Unauthorized branch action');
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('staff.crop_receipt_pdf', [
+            'referenceNumber' => $crop->reference_number ?? ('CROP-' . str_pad($crop->id, 6, '0', STR_PAD_LEFT)),
+            'date'            => $crop->created_at?->format('d F Y') ?? date('d F Y'),
+            'memberName'      => $crop->member->user->name ?? '-',
+            'memberNik'       => $crop->member->nik ?? '-',
+            'commodityName'   => $crop->commodity_name ?? '-',
+            'weightKg'        => number_format($crop->weight_kg ?? 0, 2, ',', '.'),
+            'pricePerKg'      => number_format($crop->price_per_kg ?? 0, 0, ',', '.'),
+            'totalPayout'     => number_format($crop->total_payout ?? 0, 0, ',', '.'),
+            'quality'         => $crop->quality ?? 'Standar',
+            'status'          => $crop->status ?? 'pending',
+            'notes'           => $crop->notes ?? null,
+            'branchName'      => $crop->branch->name ?? 'Koperasi Desa Merah Putih',
+        ]);
+
+        $pdf->setPaper([0, 0, 400, 650], 'portrait');
+        return $pdf->download("nota_hasil_tani_{$id}.pdf");
+    }
+
+    /** Bulk import products via Excel (placeholder for future CSV import) */
+    public function bulkImportProducts(Request $request)
+    {
+        // TODO: Implement Excel import with validation
+        return back()->with('info', 'Fitur impor massal sedang dalam pengembangan.');
+    }
 }
+

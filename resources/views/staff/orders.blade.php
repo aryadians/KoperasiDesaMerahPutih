@@ -201,7 +201,7 @@
     function exportOrders(type) {
         const checked = document.querySelectorAll('.row-checkbox:checked');
         const ids = Array.from(checked).map(cb => cb.value).join(',');
-        let url = `{{ route('orders.export') }}?type=${type}`;
+        let url = `{{ route('staff.orders.export') }}?type=${type}`;
         if (ids) url += `&ids=${ids}`;
         window.location.href = url;
     }
