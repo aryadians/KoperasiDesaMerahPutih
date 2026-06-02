@@ -2,63 +2,48 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Member extends Model
 {
-    use HasFactory, SoftDeletes;
-
     protected $fillable = [
-        'user_id',
-        'nik',
-        'nomor_anggota',
-        'alamat_desa',
-        'tanggal_bergabung',
-        'total_poin',
-        'status_aktif',
-        'ktp_image',
-        'no_hp',
+        'user_id', 'nik', 'nomor_anggota', 'alamat_desa', 'tanggal_bergabung', 'total_poin', 'status_aktif', 'tier'
     ];
 
-    protected $casts = [
-        'tanggal_bergabung' => 'date',
-        'status_aktif' => 'boolean',
-        'total_poin' => 'integer',
-    ];
-
-    /**
-     * Get the user that owns the member profile.
-     */
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Get the savings recorded for this member.
-     */
-    public function savings(): HasMany
+    public function savings()
     {
         return $this->hasMany(MemberSaving::class);
     }
 
-    /**
-     * Get the loans associated with this member.
-     */
-    public function loans(): HasMany
+    public function loans()
     {
         return $this->hasMany(Loan::class);
     }
 
     /**
-     * Get the crop absorption transactions for this member.
+     * Get the dynamic tier based on points.
      */
-    public function cropAbsorptions(): HasMany
+    public function getCalculatedTierAttribute()
     {
-        return $this->hasMany(CropAbsorption::class);
+        if ($this->total_poin > 5000) return 'platinum';
+        if ($this->total_poin > 1000) return 'gold';
+        return 'silver';
+    }
+
+    /**
+     * Get discount multiplier for retail purchases.
+     */
+    public function getTierDiscountMultiplierAttribute()
+    {
+        switch ($this->calculated_tier) {
+            case 'platinum': return 0.10; // 10% discount
+            case 'gold': return 0.05;     // 5% discount
+            default: return 0.00;
+        }
     }
 }

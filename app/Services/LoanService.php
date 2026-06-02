@@ -181,6 +181,14 @@ class LoanService
                 'payment_date' => Carbon::now(),
             ]);
 
+            // Phase 10: Generate simulated gateway link for tracking/online verification
+            $paymentService = resolve(\App\Services\PaymentService::class);
+            $session = $paymentService->createPaymentSession('va', (float) ($amountPaid + $penalty), "PAY-{$loan->loan_code}-{$installmentNumber}");
+            
+            $payment->payment_gateway_ref = $session['gateway_ref'];
+            $payment->payment_url = $session['payment_url'];
+            $payment->save();
+
             // Check if loan is paid off
             $totalPaid = $totalPaidSoFar + $amountPaid;
 

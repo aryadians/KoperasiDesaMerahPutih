@@ -64,17 +64,29 @@ class CartController extends Controller
 
         $totalAfterPromo = $totalGross - $totalBundleDiscount - $totalTebusDiscount;
 
-        // 3. Voucher/Coupon Promo
+        // 3. Loyalty Tier Discount (Platinum 10%, Gold 5%)
+        $tierDiscount = 0;
+        if (Auth::check() && Auth::user()->role === 'anggota') {
+            $member = Auth::user()->member;
+            if ($member) {
+                $multiplier = $member->tier_discount_multiplier;
+                $tierDiscount = $totalAfterPromo * $multiplier;
+            }
+        }
+
+        $totalAfterTier = $totalAfterPromo - $tierDiscount;
+
+        // 4. Voucher/Coupon Promo
         $voucherDiscount = 0;
         $activeVoucher = session()->get('active_voucher');
         if ($activeVoucher) {
-            if ($totalAfterPromo >= $activeVoucher['min_amount']) {
+            if ($totalAfterTier >= $activeVoucher['min_amount']) {
                 if ($activeVoucher['type'] === 'percentage') {
-                    $voucherDiscount = $totalAfterPromo * ($activeVoucher['value'] / 100);
+                    $voucherDiscount = $totalAfterTier * ($activeVoucher['value'] / 100);
                 } else {
                     $voucherDiscount = $activeVoucher['value'];
                 }
-                $voucherDiscount = min($totalAfterPromo, $voucherDiscount);
+                $voucherDiscount = min($totalAfterTier, $voucherDiscount);
             } else {
                 // Remove voucher if minimum amount is no longer met
                 session()->forget('active_voucher');
@@ -82,7 +94,7 @@ class CartController extends Controller
             }
         }
 
-        $finalTotal = max(0, $totalAfterPromo - $voucherDiscount);
+        $finalTotal = max(0, $totalAfterTier - $voucherDiscount);
 
         return view('cart.index', compact(
             'cart', 
@@ -90,6 +102,7 @@ class CartController extends Controller
             'totalGross',
             'totalBundleDiscount',
             'totalTebusDiscount',
+            'tierDiscount',
             'activeVoucher',
             'voucherDiscount',
             'finalTotal'

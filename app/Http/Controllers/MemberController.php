@@ -15,23 +15,31 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Exception;
 
+use App\Models\Announcement;
+use App\Models\P2PProduct;
+use App\Models\MemberLand;
+use App\Services\AgroService;
+
 class MemberController extends Controller
 {
     protected $savingsService;
     protected $loanService;
     protected $cropService;
     protected $transactionService;
+    protected $agroService;
 
     public function __construct(
         SavingsService $savingsService,
         LoanService $loanService,
         CropAbsorptionService $cropService,
-        TransactionService $transactionService
+        TransactionService $transactionService,
+        AgroService $agroService
     ) {
         $this->savingsService = $savingsService;
         $this->loanService = $loanService;
         $this->cropService = $cropService;
         $this->transactionService = $transactionService;
+        $this->agroService = $agroService;
     }
 
     /**
@@ -59,7 +67,23 @@ class MemberController extends Controller
             ->exists();
         $iuranWajibNominal = (float) (\App\Models\SystemConfig::where('key', 'IURAN_WAJIB_NOMINAL')->first()->value ?? 50000.00);
 
-        return view('member.dashboard', compact('member', 'savingsBalances', 'recentOrders', 'activeLoan', 'iuranWajibPaidThisMonth', 'iuranWajibNominal'));
+        // Phase 10: New ecosystem data
+        $announcements = Announcement::with('author')->latest()->take(3)->get();
+        $p2pProducts = P2PProduct::with('member.user')->where('status', 'available')->latest()->take(6)->get();
+        $memberLands = MemberLand::where('member_id', $member->id)->get();
+        
+        $landForecasts = $memberLands->map(function($land) {
+            return [
+                'land' => $land,
+                'forecast' => $this->agroService->getHarvestForecast($land)
+            ];
+        });
+
+        return view('member.dashboard', compact(
+            'member', 'savingsBalances', 'recentOrders', 'activeLoan', 
+            'iuranWajibPaidThisMonth', 'iuranWajibNominal',
+            'announcements', 'p2pProducts', 'landForecasts'
+        ));
     }
 
     /**

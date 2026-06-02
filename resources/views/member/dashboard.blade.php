@@ -110,8 +110,13 @@
 
     <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:20px;position:relative;z-index:1;">
         <div>
-            <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.12); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 12px; border-radius: 100px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.15);">
-                💚 Anggota Aktif
+            @php
+                $tierColors = ['silver' => '#cbd5e1', 'gold' => '#fbbf24', 'platinum' => '#94a3b8'];
+                $tierIcon = ['silver' => '🥈', 'gold' => '🥇', 'platinum' => '💎'];
+                $currentTier = $member->calculated_tier;
+            @endphp
+            <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.12); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 12px; border-radius: 100px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.15); color: {{ $tierColors[$currentTier] }};">
+                {{ $tierIcon[$currentTier] }} Member {{ ucfirst($currentTier) }}
             </div>
             <h1 style="font-size:32px;font-weight:800;letter-spacing:-0.8px;margin-bottom:6px; text-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                 Halo, {{ $member->user->name }}! 👋
@@ -124,7 +129,7 @@
         <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.15);border-radius:18px;padding:18px 28px;text-align:center;min-width:160px;box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);">
             <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;opacity:0.75;margin-bottom:6px;color:#cbd5e1;">Poin Loyalitas</div>
             <div style="font-size:28px;font-weight:800;letter-spacing:-0.5px; color: #fbbf24;">⭐ {{ number_format($member->total_poin) }}</div>
-            <div style="font-size:11px;opacity:0.6;margin-top:4px;">Dividen SHU Tahunan</div>
+            <div style="font-size:11px;opacity:0.6;margin-top:4px;">Diskon Tier: {{ $member->tier_discount_multiplier * 100 }}%</div>
         </div>
     </div>
 
@@ -139,6 +144,98 @@
         <a href="{{ route('member.loans') }}" class="btn-member-secondary">
             🏦 Pinjaman Mikro
         </a>
+    </div>
+</div>
+
+{{-- Phase 10: Community & Warta Desa Feed --}}
+<div class="reveal" style="margin-bottom: 32px;">
+    <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <span>📢 Warta Desa Merah Putih</span>
+        <span style="font-size: 12px; font-weight: 500; color: var(--muted); background: var(--surface-soft); padding: 2px 8px; border-radius: 100px;">Terbaru</span>
+    </h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        @forelse($announcements as $news)
+            <div class="card-3d" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+                @if($news->image_url)
+                    <img src="{{ $news->image_url }}" style="width: 100%; height: 160px; object-fit: cover;">
+                @else
+                    <div style="width: 100%; height: 120px; background: linear-gradient(135deg, var(--primary-light), #fee2e2); display: flex; align-items: center; justify-content: center; font-size: 40px;">🗞️</div>
+                @endif
+                <div style="padding: 20px;">
+                    <h4 style="font-size: 15px; font-weight: 800; margin-bottom: 8px; color: var(--ink);">{{ $news->title }}</h4>
+                    <p style="font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 12px;">{{ Str::limit($news->content, 100) }}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--hairline-soft); padding-top: 12px; font-size: 11px; color: var(--muted);">
+                        <span>By: {{ $news->author->name }}</span>
+                        <span>{{ $news->created_at->diffForHumans() }}</span>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="card-3d" style="text-align: center; color: var(--muted); padding: 30px;">
+                Belum ada pengumuman desa saat ini.
+            </div>
+        @endforelse
+    </div>
+</div>
+
+{{-- Phase 10: Agro Land Monitoring --}}
+@if($landForecasts->isNotEmpty())
+    <div class="reveal" style="margin-bottom: 32px;">
+        <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            <span>🚜 Monitoring Lahan Tani Anda</span>
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+            @foreach($landForecasts as $item)
+                <div class="card-3d" style="border-top: 4px solid var(--success) !important;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <div>
+                            <h4 style="font-size: 15px; font-weight: 800; margin: 0;">{{ $item['land']->location_name }}</h4>
+                            <span style="font-size: 11px; color: var(--muted); font-weight: 700;">KOMODITAS: {{ strtoupper($item['land']->commodity_type) }}</span>
+                        </div>
+                        <span style="font-size: 20px;">🚜</span>
+                    </div>
+                    <div style="background: var(--surface-soft); padding: 12px; border-radius: 8px; font-size: 13px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                            <span style="color: var(--muted);">Prediksi Panen:</span>
+                            <strong style="color: var(--success);">{{ number_format($item['forecast']['estimated_yield_kg'], 1) }} Kg</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--muted);">Estimasi Tgl:</span>
+                            <strong>{{ $item['forecast']['harvest_date_forecast'] }}</strong>
+                        </div>
+                    </div>
+                    <div style="margin-top: 12px; text-align: center;">
+                        <span class="badge badge-info" style="font-size: 10px;">{{ $item['forecast']['days_until_harvest'] }} Hari Menuju Panen</span>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+@endif
+
+{{-- Phase 10: P2P Marketplace --}}
+<div class="reveal" style="margin-bottom: 32px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 18px; font-weight: 800; margin: 0;">🤝 Warung Antar Warga (P2P)</h3>
+        <button class="btn-3d-primary" style="height: 32px; font-size: 12px; border-radius: 100px; padding: 0 16px;">+ Jual Barang</button>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+        @foreach($p2pProducts as $p2p)
+            <div class="card-3d" style="padding: 0; overflow: hidden; border: 1px solid var(--hairline-soft) !important;">
+                @if($p2p->image_url)
+                    <img src="{{ $p2p->image_url }}" style="width: 100%; height: 120px; object-fit: cover;">
+                @else
+                    <div style="width: 100%; height: 100px; background: #f8fafc; display: flex; align-items: center; justify-content: center; font-size: 30px;">🍞</div>
+                @endif
+                <div style="padding: 12px;">
+                    <h5 style="font-size: 13px; font-weight: 800; margin-bottom: 4px; color: var(--ink);">{{ $p2p->name }}</h5>
+                    <div style="font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 8px;">Rp {{ number_format($p2p->price, 0, ',', '.') }}</div>
+                    <div style="font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 4px; border-top: 1px solid var(--hairline-soft); padding-top: 8px;">
+                        <span>👤 {{ $p2p->member->user->name }}</span>
+                    </div>
+                </div>
+            </div>
+        @endforeach
     </div>
 </div>
 

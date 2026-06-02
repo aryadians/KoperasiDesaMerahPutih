@@ -161,6 +161,16 @@ class TransactionService
                 'payment_method' => $paymentMethod,
             ]);
 
+            // Phase 10: Integrate Payment Gateway for non-cash/non-wallet methods
+            if ($paymentMethod === 'qris_desa') {
+                $paymentService = resolve(\App\Services\PaymentService::class);
+                $session = $paymentService->createPaymentSession('qris', (float) $totalAmount, $orderNumber);
+                
+                $order->payment_gateway_ref = $session['gateway_ref'];
+                $order->payment_url = $session['payment_url'];
+                $order->save();
+            }
+
             // Debet Saldo Sukarela if payment method is e-wallet / co-op balance
             if ($paymentMethod === 'saldo_sukarela') {
                 $member = Member::where('user_id', $userId)->first();
