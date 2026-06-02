@@ -233,21 +233,30 @@ class CartController extends Controller
 
         $code = strtoupper($request->code);
         
-        $validVouchers = [
-            'HEMATTANI' => ['type' => 'percentage', 'value' => 10, 'min_amount' => 0],
-            'KDKMPMERDEKA' => ['type' => 'flat', 'value' => 15000, 'min_amount' => 50000],
-            'ALFAGIFT3D' => ['type' => 'percentage', 'value' => 20, 'min_amount' => 0],
-        ];
+        $voucher = \App\Models\Voucher::where('code', $code)
+            ->where('is_active', true)
+            ->where('expires_at', '>=', now())
+            ->first();
 
-        if (!isset($validVouchers[$code])) {
-            return back()->with('error', 'Kode voucher tidak valid.');
+        if (!$voucher) {
+            return back()->with('error', 'Kode voucher tidak valid atau sudah kadaluarsa.');
+        }
+
+        // Enforce single-use per member
+        $hasUsed = \App\Models\Order::where('user_id', Auth::id())
+            ->where('voucher_id', $voucher->id)
+            ->exists();
+
+        if ($hasUsed) {
+            return back()->with('error', 'Anda sudah pernah menggunakan voucher ini.');
         }
 
         session()->put('active_voucher', [
-            'code' => $code,
-            'type' => $validVouchers[$code]['type'],
-            'value' => $validVouchers[$code]['value'],
-            'min_amount' => $validVouchers[$code]['min_amount'],
+            'id' => $voucher->id,
+            'code' => $voucher->code,
+            'type' => $voucher->discount_type,
+            'value' => (float) $voucher->discount_value,
+            'min_amount' => (float) $voucher->min_purchase,
         ]);
 
         return back()->with('success', "Voucher '{$code}' berhasil diterapkan!");

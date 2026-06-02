@@ -126,21 +126,22 @@ class TransactionService
 
             // 3. Apply Voucher Coupon
             $voucherDiscount = 0.00;
+            $voucherId = null;
             if ($voucherCode) {
-                $validVouchers = [
-                    'HEMATTANI' => ['type' => 'percentage', 'value' => 10, 'min_amount' => 0],
-                    'KDKMPMERDEKA' => ['type' => 'flat', 'value' => 15000, 'min_amount' => 50000],
-                    'ALFAGIFT3D' => ['type' => 'percentage', 'value' => 20, 'min_amount' => 0],
-                ];
+                $voucher = \App\Models\Voucher::where('code', $voucherCode)
+                    ->where('is_active', true)
+                    ->where('expires_at', '>=', now())
+                    ->first();
 
-                $code = strtoupper($voucherCode);
-                if (isset($validVouchers[$code])) {
-                    $v = $validVouchers[$code];
-                    if ($totalAmount >= $v['min_amount']) {
-                        if ($v['type'] === 'percentage') {
-                            $voucherDiscount = $totalAmount * ($v['value'] / 100);
+                if ($voucher) {
+                    // Check if already used
+                    $hasUsed = Order::where('user_id', $userId)->where('voucher_id', $voucher->id)->exists();
+                    if (!$hasUsed && $totalAmount >= $voucher->min_purchase) {
+                        $voucherId = $voucher->id;
+                        if ($voucher->discount_type === 'percentage') {
+                            $voucherDiscount = $totalAmount * ($voucher->discount_value / 100);
                         } else {
-                            $voucherDiscount = $v['value'];
+                            $voucherDiscount = $voucher->discount_value;
                         }
                         $voucherDiscount = min($totalAmount, $voucherDiscount);
                     }
@@ -170,6 +171,7 @@ class TransactionService
                 'payment_status' => 'pending',
                 'delivery_type' => $deliveryType,
                 'payment_method' => $paymentMethod,
+                'voucher_id' => $voucherId,
             ]);
 
             // Phase 10: Integrate Payment Gateway for non-cash/non-wallet methods

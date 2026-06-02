@@ -11,9 +11,14 @@ use App\Http\Controllers\StaffController;
 // =====================================================================
 // ROOT: Render welcome landing page (guest storefront link inside welcome)
 // =====================================================================
+use App\Http\Controllers\Api\PaymentWebhookController;
+
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+
+// Webhook endpoint (excluded from CSRF in bootstrap/app.php)
+Route::post('/webhooks/payment', [PaymentWebhookController::class, 'handle'])->name('webhooks.payment');
 
 // PWA Offline fallback
 Route::get('/offline', function () {

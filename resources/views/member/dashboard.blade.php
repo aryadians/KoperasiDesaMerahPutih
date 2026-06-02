@@ -204,8 +204,11 @@
                             <strong>{{ $item['forecast']['harvest_date_forecast'] }}</strong>
                         </div>
                     </div>
-                    <div style="margin-top: 12px; text-align: center;">
-                        <span class="badge badge-info" style="font-size: 10px;">{{ $item['forecast']['days_until_harvest'] }} Hari Menuju Panen</span>
+                    <div style="margin-top: 12px; text-align: center; display: flex; flex-direction: column; gap: 4px;">
+                        <span class="badge {{ $item['forecast']['days_until_harvest'] === 0 || $item['forecast']['days_until_harvest'] === '-' ? 'badge-warning' : 'badge-info' }}" style="font-size: 10px;">{{ $item['forecast']['status_message'] }}</span>
+                        @if($item['forecast']['days_until_harvest'] !== '-' && $item['forecast']['days_until_harvest'] > 0)
+                            <span style="font-size: 10px; color: var(--muted); font-weight: 700;">Sisa: {{ $item['forecast']['days_until_harvest'] }} Hari</span>
+                        @endif
                     </div>
                 </div>
             @endforeach
