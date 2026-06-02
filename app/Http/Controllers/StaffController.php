@@ -724,15 +724,18 @@ class StaffController extends Controller
 
             DB::beginTransaction();
             foreach ($members as $member) {
-                // Check current sukarela balance
-                $sukarelaBalance = MemberSaving::where('member_id', $member->id)
+                // Pessimistic Locking: Lock the member row to prevent concurrent balance changes
+                $lockedMember = Member::where('id', $member->id)->lockForUpdate()->first();
+                
+                // Check current sukarela balance (now safe under lock)
+                $sukarelaBalance = MemberSaving::where('member_id', $lockedMember->id)
                     ->where('type', 'sukarela')
                     ->sum('amount');
 
                 if ($sukarelaBalance >= $amount) {
                     // 1. Debit from Simpanan Sukarela
                     $this->savingsService->recordDebit(
-                        $member->id,
+                        $lockedMember->id,
                         'sukarela',
                         $amount,
                         'Autodebet bulanan untuk Simpanan Wajib'
@@ -740,14 +743,14 @@ class StaffController extends Controller
 
                     // 2. Deposit to Simpanan Wajib
                     $this->savingsService->recordSaving(
-                        $member->id,
+                        $lockedMember->id,
                         'wajib',
                         $amount,
                         'Setoran Simpanan Wajib via Autodebet Sukarela'
                     );
 
                     $successCount++;
-                    $successMembers[] = $member;
+                    $successMembers[] = $lockedMember;
                 } else {
                     $failCount++;
                 }
@@ -1172,7 +1175,49 @@ class StaffController extends Controller
         $totalProducts = Product::where('branch_id', $branchId)->count();
         $avgOrderValue = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->avg('total_amount') ?? 0;
 
-        // 12-month time-series (real data from DB)
+        // Optimized Trend Data Gathering (Replacing 12 separate queries with grouped aggregates)
+        $salesRaw = Order::where('branch_id', $branchId)
+            ->where('payment_status', 'paid')
+            ->whereYear('created_at', $year)
+            ->selectRaw('MONTH(created_at) as month, SUM(total_amount) as total')
+            ->groupBy('month')
+            ->pluck('total', 'month');
+
+        $savingsRaw = MemberSaving::whereHas('member.user', fn($q) => $q->where('branch_id', $branchId))
+            ->where('amount', '>', 0)
+            ->whereYear('transaction_date', $year)
+            ->selectRaw('MONTH(transaction_date) as month, SUM(amount) as total')
+            ->groupBy('month')
+            ->pluck('total', 'month');
+
+        $loanPaymentsRaw = LoanPayment::whereHas('loan', fn($q) => $q->where('branch_id', $branchId))
+            ->whereYear('payment_date', $year)
+            ->selectRaw('MONTH(payment_date) as month, SUM(amount_paid) as total')
+            ->groupBy('month')
+            ->pluck('total', 'month');
+
+        $cropsRaw = CropAbsorption::where('branch_id', $branchId)
+            ->where('status', 'paid')
+            ->whereYear('created_at', $year)
+            ->selectRaw('MONTH(created_at) as month, SUM(total_payout) as total')
+            ->groupBy('month')
+            ->pluck('total', 'month');
+
+        $loansRaw = Loan::where('branch_id', $branchId)
+            ->whereIn('status', ['active', 'paid_off'])
+            ->whereYear('created_at', $year)
+            ->selectRaw('MONTH(created_at) as month, SUM(amount_approved) as total')
+            ->groupBy('month')
+            ->pluck('total', 'month');
+
+        $poRaw = PurchaseOrder::whereHas('product', fn($q) => $q->where('branch_id', $branchId))
+            ->where('status', 'received')
+            ->whereYear('created_at', $year)
+            ->selectRaw('MONTH(created_at) as month, SUM(total_cost) as total')
+            ->groupBy('month')
+            ->pluck('total', 'month');
+
+        // 12-month time-series formatting
         $labels         = [];
         $salesTrend     = [];
         $cropTrend      = [];
@@ -1180,22 +1225,23 @@ class StaffController extends Controller
         $savingsTrend   = [];
         $cashflowInflow  = [];
         $cashflowOutflow = [];
+        
         for ($m = 1; $m <= 12; $m++) {
-            $labels[]       = \Carbon\Carbon::createFromDate($year, $m, 1)->format('M');
-            $sales = (float) Order::where('branch_id', $branchId)->where('payment_status', 'paid')->whereYear('created_at', $year)->whereMonth('created_at', $m)->sum('total_amount');
-            $savings = (float) MemberSaving::whereHas('member.user', fn($q) => $q->where('branch_id', $branchId))->where('amount', '>', 0)->whereYear('transaction_date', $year)->whereMonth('transaction_date', $m)->sum('amount');
-            $loanPayments = (float) LoanPayment::whereHas('loan', fn($q) => $q->where('branch_id', $branchId))->whereYear('payment_date', $year)->whereMonth('payment_date', $m)->sum('amount_paid');
+            $labels[] = \Carbon\Carbon::createFromDate($year, $m, 1)->format('M');
+            
+            $salesVal   = (float) ($salesRaw[$m] ?? 0);
+            $savingsVal = (float) ($savingsRaw[$m] ?? 0);
+            $lpVal      = (float) ($loanPaymentsRaw[$m] ?? 0);
+            $cropsVal   = (float) ($cropsRaw[$m] ?? 0);
+            $loansVal   = (float) ($loansRaw[$m] ?? 0);
+            $poVal      = (float) ($poRaw[$m] ?? 0);
 
-            $crops = (float) CropAbsorption::where('branch_id', $branchId)->where('status', 'paid')->whereYear('created_at', $year)->whereMonth('created_at', $m)->sum('total_payout');
-            $loans = (float) Loan::where('branch_id', $branchId)->whereIn('status', ['active', 'paid_off'])->whereYear('created_at', $year)->whereMonth('created_at', $m)->sum('amount_approved');
-            $po = (float) PurchaseOrder::whereHas('product', fn($q) => $q->where('branch_id', $branchId))->where('status', 'received')->whereYear('created_at', $year)->whereMonth('created_at', $m)->sum('total_cost');
-
-            $salesTrend[]     = $sales;
-            $cropTrend[]      = $crops;
-            $loanTrend[]      = $loans;
-            $savingsTrend[]   = $savings;
-            $cashflowInflow[]  = $sales + $savings + $loanPayments;
-            $cashflowOutflow[] = $crops + $loans + $po;
+            $salesTrend[]     = $salesVal;
+            $cropTrend[]      = $cropsVal;
+            $loanTrend[]      = $loansVal;
+            $savingsTrend[]   = $savingsVal;
+            $cashflowInflow[]  = $salesVal + $savingsVal + $lpVal;
+            $cashflowOutflow[] = $cropsVal + $loansVal + $poVal;
         }
 
         // SHU Forecast: total active member points * 5,000 IDR (multiplier example)

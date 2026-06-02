@@ -35,9 +35,12 @@ class SavingsExport implements
 
     public function collection()
     {
+        // Strict branch isolation: Always use session branch_id to prevent IDOR
+        $authorizedBranchId = auth()->user()->branch_id;
+
         return MemberSaving::with('member.user')
-            ->whereHas('member.user', function ($q) {
-                $q->where('branch_id', $this->branchId);
+            ->whereHas('member.user', function ($q) use ($authorizedBranchId) {
+                $q->where('branch_id', $authorizedBranchId);
             })
             ->latest('transaction_date')
             ->get();

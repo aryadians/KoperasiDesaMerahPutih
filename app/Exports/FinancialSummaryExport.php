@@ -61,11 +61,12 @@ class FinancialSummarySheet implements FromArray, WithTitle, WithStyles, ShouldA
 
     public function array(): array
     {
-        $totalSales    = Order::where('branch_id', $this->branchId)->where('payment_status', 'paid')->whereYear('created_at', $this->year)->sum('total_amount');
-        $totalCrop     = CropAbsorption::where('branch_id', $this->branchId)->where('status', 'paid')->whereYear('created_at', $this->year)->sum('total_payout');
-        $totalLoansOut = Loan::where('branch_id', $this->branchId)->where('status', 'active')->whereYear('created_at', $this->year)->sum('amount_approved');
-        $totalSavingsIn= MemberSaving::whereHas('member.user', fn($q) => $q->where('branch_id', $this->branchId))->where('amount', '>', 0)->whereYear('transaction_date', $this->year)->sum('amount');
-        $activeMembers = Member::whereHas('user', fn($q) => $q->where('branch_id', $this->branchId))->where('status_aktif', true)->count();
+        $authorizedBranchId = auth()->user()->branch_id;
+        $totalSales    = Order::where('branch_id', $authorizedBranchId)->where('payment_status', 'paid')->whereYear('created_at', $this->year)->sum('total_amount');
+        $totalCrop     = CropAbsorption::where('branch_id', $authorizedBranchId)->where('status', 'paid')->whereYear('created_at', $this->year)->sum('total_payout');
+        $totalLoansOut = Loan::where('branch_id', $authorizedBranchId)->where('status', 'active')->whereYear('created_at', $this->year)->sum('amount_approved');
+        $totalSavingsIn= MemberSaving::whereHas('member.user', fn($q) => $q->where('branch_id', $authorizedBranchId))->where('amount', '>', 0)->whereYear('transaction_date', $this->year)->sum('amount');
+        $activeMembers = Member::whereHas('user', fn($q) => $q->where('branch_id', $authorizedBranchId))->where('status_aktif', true)->count();
 
         return [
             ['LAPORAN KEUANGAN KOPERASI DESA MERAH PUTIH', '', ''],
@@ -106,10 +107,11 @@ class SalesSummarySheet implements FromArray, WithTitle, ShouldAutoSize
 
     public function array(): array
     {
+        $authorizedBranchId = auth()->user()->branch_id;
         $rows = [['Bulan', 'Jumlah Transaksi', 'Total Penjualan (Rp)']];
         for ($m = 1; $m <= 12; $m++) {
-            $count = Order::where('branch_id', $this->branchId)->where('payment_status', 'paid')->whereYear('created_at', $this->year)->whereMonth('created_at', $m)->count();
-            $total = Order::where('branch_id', $this->branchId)->where('payment_status', 'paid')->whereYear('created_at', $this->year)->whereMonth('created_at', $m)->sum('total_amount');
+            $count = Order::where('branch_id', $authorizedBranchId)->where('payment_status', 'paid')->whereYear('created_at', $this->year)->whereMonth('created_at', $m)->count();
+            $total = Order::where('branch_id', $authorizedBranchId)->where('payment_status', 'paid')->whereYear('created_at', $this->year)->whereMonth('created_at', $m)->sum('total_amount');
             $rows[] = [\Carbon\Carbon::createFromDate($this->year, $m, 1)->translatedFormat('F Y'), $count, number_format($total, 2, ',', '.')];
         }
         return $rows;
@@ -132,10 +134,11 @@ class LoansSummarySheet implements FromArray, WithTitle, ShouldAutoSize
 
     public function array(): array
     {
+        $authorizedBranchId = auth()->user()->branch_id;
         $rows = [['Status', 'Jumlah', 'Total Nilai (Rp)']];
         foreach (['draft', 'approved', 'active', 'paid_off', 'rejected'] as $s) {
-            $count = Loan::where('branch_id', $this->branchId)->where('status', $s)->whereYear('created_at', $this->year)->count();
-            $total = Loan::where('branch_id', $this->branchId)->where('status', $s)->whereYear('created_at', $this->year)->sum('amount_approved');
+            $count = Loan::where('branch_id', $authorizedBranchId)->where('status', $s)->whereYear('created_at', $this->year)->count();
+            $total = Loan::where('branch_id', $authorizedBranchId)->where('status', $s)->whereYear('created_at', $this->year)->sum('amount_approved');
             $rows[] = [ucfirst($s), $count, number_format($total, 2, ',', '.')];
         }
         return $rows;
@@ -158,8 +161,9 @@ class CropsSummarySheet implements FromArray, WithTitle, ShouldAutoSize
 
     public function array(): array
     {
+        $authorizedBranchId = auth()->user()->branch_id;
         $rows = [['Komoditas', 'Total Berat (Kg)', 'Total Bayar (Rp)', 'Jumlah Transaksi']];
-        $groups = CropAbsorption::where('branch_id', $this->branchId)
+        $groups = CropAbsorption::where('branch_id', $authorizedBranchId)
             ->where('status', 'paid')
             ->whereYear('created_at', $this->year)
             ->selectRaw('commodity_name, SUM(weight_kg) as total_kg, SUM(total_payout) as total_pay, COUNT(*) as total_count')

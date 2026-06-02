@@ -35,8 +35,11 @@ class CropsExport implements
 
     public function collection()
     {
+        // Strict branch isolation: Always use session branch_id to prevent IDOR
+        $authorizedBranchId = auth()->user()->branch_id;
+
         return CropAbsorption::with('member.user')
-            ->where('branch_id', $this->branchId)
+            ->where('branch_id', $authorizedBranchId)
             ->latest()
             ->get();
     }
