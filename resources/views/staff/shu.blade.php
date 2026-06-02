@@ -1,6 +1,9 @@
 @extends('layouts.admin')
 
 @section('title', 'Kalkulator SHU Anggota - KDKMP')
+@section('page-title', 'Laporan SHU')
+
+@section('content')
 
 <style>
     /* View-Specific 3D Polish Styles */
@@ -128,10 +131,13 @@
     <p>Laporan Estimasi Pembagian Sisa Hasil Usaha (SHU) Anggota Aktif</p>
     <p style="font-size: 11px; color: #555;">Tanggal Cetak: {{ \Carbon\Carbon::now()->translatedFormat('d F Y H:i') }}</p>
 </div>
-
-<div style="margin-bottom: 32px;" class="no-print">
-    <h1 style="font-size: 28px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.5px;">Kalkulator Pembagian SHU</h1>
-    <p style="color: var(--muted); font-size: 14px; margin-top: 4px;">📊 Hitung dan bagikan dividen Sisa Hasil Usaha (SHU) tahunan secara otomatis bagi anggota koperasi</p>
+<div class="reveal" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;" class="no-print">
+    <div>
+        <h1 style="font-size: 26px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.5px;">Pembagian <span style="color: var(--primary);">SHU Anggota</span></h1>
+        <p style="color: var(--muted); font-size: 13.5px; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+            📊 Hitung &amp; bagikan dividen Sisa Hasil Usaha secara otomatis.
+        </p>
+    </div>
 </div>
 
 <div class="split-layout">

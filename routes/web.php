@@ -63,6 +63,7 @@ Route::post('/cart/remove-voucher', [CartController::class, 'removeVoucher'])->n
 // =====================================================================
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('/notifications/mark-all-read', [AuthController::class, 'markAllNotificationsRead'])->name('notifications.mark-all-read');
 
     // Central dashboard routing by role
     Route::get('/dashboard', function () {

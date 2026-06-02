@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Kelola Penyerapan Panen - KDKMP')
+@section('page-title', 'Hasil Bumi')
 
 @section('content')
 
@@ -213,12 +214,13 @@
         box-shadow: 0 4px 12px rgba(225, 29, 72, 0.15);
     }
 </style>
-
 {{-- Header --}}
-<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
+<div class="reveal" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
     <div>
-        <h1 style="font-size: 28px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.5px;">Penyerapan Hasil Bumi</h1>
-        <p style="color: var(--muted); font-size: 14px; margin-top: 4px; font-family: var(--font);">📍 Kelola hasil panen lokal yang diserap koperasi di gerai <strong>{{ auth()->user()->branch->name }}</strong></p>
+        <h1 style="font-size: 26px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.5px;">Penyerapan <span style="color: var(--primary);">Hasil Bumi</span></h1>
+        <p style="color: var(--muted); font-size: 13.5px; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+            <span style="color: var(--primary);">📍</span> {{ auth()->user()->branch->name }}
+        </p>
     </div>
 </div>
 

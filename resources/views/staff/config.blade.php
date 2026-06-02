@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Konfigurasi Sistem — KDKMP Digital')
+@section('page-title', 'Konfigurasi')
 
 @section('content')
 
@@ -89,13 +90,13 @@
 </style>
 
 {{-- ═══════════════════════ HEADER ═══════════════════════ --}}
-<div style="margin-bottom: 32px;">
-    <h1 style="font-size: 32px; font-weight: 800; letter-spacing: -0.5px; color: var(--ink); margin-bottom: 6px;">
-        ⚙️ Konfigurasi Sistem (.env)
-    </h1>
-    <p style="color: var(--muted); font-size: 15px;">
-        Kelola dan ubah parameter environment aplikasi langsung dari dashboard pengurus koperasi.
-    </p>
+<div class="reveal" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+    <div>
+        <h1 style="font-size: 26px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.5px;">Konfigurasi <span style="color: var(--primary);">Sistem (.env)</span></h1>
+        <p style="color: var(--muted); font-size: 13.5px; margin-top: 4px;">
+            ⚙️ Kelola dan ubah parameter environment aplikasi langsung dari dashboard pengurus koperasi.
+        </p>
+    </div>
 </div>
 
 <div class="split-layout">

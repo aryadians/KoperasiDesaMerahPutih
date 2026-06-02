@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Analitik Finansial & Ritel — KDKMP Digital')
+@section('page-title', 'Analitik')
 
 @section('content')
 
@@ -278,12 +279,12 @@ if (!function_exists('getSvgSmoothPath')) {
 @endphp
 
 {{-- ═══════════════════════ HEADER ═══════════════════════ --}}
-<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+<div class="reveal" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
     <div>
-        <h1 style="font-size: 32px; font-weight: 800; letter-spacing: -0.5px; color: var(--ink); margin-bottom: 6px;">
-            📊 Analitik Finansial &amp; Ritel
+        <h1 style="font-size: 26px; font-weight: 800; letter-spacing: -0.5px; color: var(--ink); margin-bottom: 6px;">
+            📊 Analitik <span style="color: var(--primary);">Finansial &amp; Ritel</span>
         </h1>
-        <p style="color: var(--muted); font-size: 15px;">
+        <p style="color: var(--muted); font-size: 13.5px; margin-top: 4px;">
             Statistik real-time, volume perputaran kas, penyerapan pertanian desa, dan outstanding kredit mikro.
         </p>
     </div>

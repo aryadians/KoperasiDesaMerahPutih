@@ -6,6 +6,7 @@
 @endphp
 
 @section('title', 'KDKMP Digital — Koperasi ' . $currentBranch->name)
+@section('description', 'Platform digital Koperasi Desa Merah Putih — Belanja sembako, simpan pinjam, dan agro tani di ' . $currentBranch->name)
 
 @section('content')
 
@@ -110,7 +111,7 @@
 </style>
 
 {{-- ═══════════════════════ HERO SECTION ═══════════════════════ --}}
-<div class="reveal-scale" style="background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 50%, #450a0a 100%); color: white; border-radius: var(--r-xl); padding: 75px 40px 60px 40px; text-align: center; margin-bottom: 48px; position: relative; overflow: hidden; box-shadow: var(--shadow-xl);">
+<div class="reveal-scale" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 45%, #3D0000 100%); color: white; border-radius: var(--r-xl); padding: 75px 40px 60px; text-align: center; margin-bottom: 48px; position: relative; overflow: hidden; box-shadow: var(--shadow-primary), var(--shadow-xl);">
     <!-- Decorative background blobs -->
     <div style="position: absolute; top: -50px; right: -50px; width: 300px; height: 300px; border-radius: 50%; background: rgba(228, 0, 43, 0.25); filter: blur(50px); pointer-events: none;"></div>
     <div style="position: absolute; bottom: -80px; left: -80px; width: 320px; height: 320px; border-radius: 50%; background: rgba(0, 91, 170, 0.2); filter: blur(60px); pointer-events: none;"></div>
@@ -130,34 +131,33 @@
         </p>
         
         <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px;">
-            <a href="{{ route('catalog.index') }}" class="btn btn-xl" style="background: white; color: var(--primary); font-weight: 800; border-radius: 100px; padding: 0 36px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); transition: transform 0.2s var(--ease-bounce); display: inline-flex; align-items: center; gap: 8px;" onmouseover="this.style.transform='scale(1.05) translateY(-2px)'" onmouseout="this.style.transform='scale(1) translateY(0)'">
+            <a href="{{ route('catalog.index') }}" class="btn btn-xl btn-pill" style="background: white; color: var(--primary); font-weight: 800; box-shadow: 0 10px 28px rgba(0,0,0,0.18); gap: 8px;">
                 🛒 Mulai Belanja Sembako
             </a>
             @guest
-                <a href="{{ route('register') }}" class="btn btn-xl" style="background: rgba(255,255,255,0.08); color: white; border: 1.5px solid rgba(255,255,255,0.3); font-weight: 600; border-radius: 100px; padding: 0 36px; backdrop-filter: blur(8px); transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.18)'; this.style.transform='scale(1.05) translateY(-2px)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'; this.style.transform='scale(1) translateY(0)'">
+                <a href="{{ route('register') }}" class="btn btn-xl btn-pill" style="background: rgba(255,255,255,0.1); color: white; border: 1.5px solid rgba(255,255,255,0.28); backdrop-filter: blur(8px); gap: 8px;">
                     ✨ Gabung Anggota
                 </a>
             @endguest
         </div>
     </div>
 
-    {{-- HERO STATISTICS PANEL --}}
     <div class="glass-panel" style="border-radius: var(--r-lg); padding: 24px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 20px; text-align: center; color: var(--ink); margin-top: 10px; max-width: 900px; margin-left: auto; margin-right: auto; box-shadow: var(--shadow-lg);">
         <div>
             <div style="font-size: 26px; font-weight: 800; color: var(--primary); margin-bottom: 2px;" data-counter data-target="1420" data-suffix="+">0</div>
-            <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--muted); letter-spacing: 0.5px;">Anggota Aktif</div>
+            <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--muted); letter-spacing: 0.6px;">Anggota Aktif</div>
         </div>
         <div style="border-left: 1px solid var(--hairline);">
-            <div style="font-size: 26px; font-weight: 800; color: var(--secondary); margin-bottom: 2px;" data-counter data-target="45" data-suffix=" Ton">0</div>
-            <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--muted); letter-spacing: 0.5px;">Komoditas Terserap</div>
+            <div style="font-size: 26px; font-weight: 800; color: var(--gold); margin-bottom: 2px;" data-counter data-target="45" data-suffix=" Ton">0</div>
+            <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--muted); letter-spacing: 0.6px;">Komoditas Terserap</div>
         </div>
         <div style="border-left: 1px solid var(--hairline);">
             <div style="font-size: 26px; font-weight: 800; color: var(--success); margin-bottom: 2px;" data-counter data-target="152000000" data-prefix="Rp ">Rp 0</div>
-            <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--muted); letter-spacing: 0.5px;">Dana SHU Dibagikan</div>
+            <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--muted); letter-spacing: 0.6px;">Dana SHU Dibagikan</div>
         </div>
         <div style="border-left: 1px solid var(--hairline);">
             <div style="font-size: 26px; font-weight: 800; color: var(--ink); margin-bottom: 2px;" data-counter data-target="2" data-suffix=" Desa">0</div>
-            <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--muted); letter-spacing: 0.5px;">Gerai Cabang</div>
+            <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--muted); letter-spacing: 0.6px;">Gerai Cabang</div>
         </div>
     </div>
 </div>

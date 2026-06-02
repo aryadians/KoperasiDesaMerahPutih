@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Manajemen Anggota & Staf - KDKMP')
+@section('title', 'Manajemen Anggota & Staf — KDKMP')
+@section('page-title', 'Anggota & Staf')
 
 @section('content')
 
@@ -209,12 +210,15 @@
     }
 </style>
 
-<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+<div class="reveal" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
     <div>
-        <h1 style="font-size: 28px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.5px;">Manajemen Anggota &amp; Staf</h1>
-        <p style="color: var(--muted); font-size: 14px; margin-top: 4px; font-family: var(--font);">📍 Kelola profil keanggotaan dan akun staf untuk <strong>{{ auth()->user()->branch->name }}</strong></p>
+        <h1 style="font-size: 26px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.5px;">Anggota <span style="color: var(--primary);">&amp; Staf</span></h1>
+        <p style="color: var(--muted); font-size: 13.5px; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+            <span style="color: var(--primary);">📍</span> {{ auth()->user()->branch->name }}
+            <span class="badge badge-neutral">{{ $users->total() ?? 0 }} Akun</span>
+        </p>
     </div>
-    <a href="{{ route('staff.members.export') }}" class="btn-3d-secondary" style="border-radius: 100px; padding: 0 20px; height: 36px; display: inline-flex; align-items: center; gap: 6px; font-size: 13px;" data-no-loading>
+    <a href="{{ route('staff.members.export') }}" class="btn btn-md btn-secondary btn-pill" data-no-loading>
         📥 Export CSV
     </a>
 </div>

@@ -197,6 +197,16 @@ class TransactionService
                 }
             }
 
+            // 8. Dispatch Notification
+            $notificationService = resolve(\App\Services\NotificationService::class);
+            $msg = "Pesanan Anda ({$order->order_number}) senilai Rp " . number_format($totalAmount, 0, ',', '.') . " berhasil dibuat.";
+            if ($paymentMethod === 'saldo_sukarela') {
+                $msg .= " Pembayaran lunas via Saldo Sukarela.";
+            } else {
+                $msg .= " Silakan selesaikan pembayaran Anda.";
+            }
+            $notificationService->createNotification($userId, '🛍️ Pesanan Dibuat', $msg, 'order', $order->id);
+
             return $order;
         });
     }
@@ -214,6 +224,16 @@ class TransactionService
             if ($order->payment_status !== 'paid') {
                 $order->payment_status = 'paid';
                 $order->save();
+
+                // Dispatch Notification
+                $notificationService = resolve(\App\Services\NotificationService::class);
+                $notificationService->createNotification(
+                    $order->user_id,
+                    '✅ Pesanan Lunas',
+                    "Pembayaran pesanan Anda ({$order->order_number}) sebesar Rp " . number_format((float) $order->total_amount, 0, ',', '.') . " berhasil dikonfirmasi.",
+                    'order',
+                    $order->id
+                );
             }
             return $order;
         });
@@ -255,6 +275,16 @@ class TransactionService
 
             $order->payment_status = 'cancelled';
             $order->save();
+
+            // Dispatch Notification
+            $notificationService = resolve(\App\Services\NotificationService::class);
+            $notificationService->createNotification(
+                $order->user_id,
+                '❌ Pesanan Dibatalkan',
+                "Pesanan Anda ({$order->order_number}) telah dibatalkan.",
+                'order',
+                $order->id
+            );
 
             return $order;
         });

@@ -4,451 +4,375 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Admin Panel — KDKMP')</title>
-    
+    <title>@yield('title', 'Panel Admin — KDKMP Digital')</title>
+    <meta name="description" content="Panel manajemen Koperasi Desa Merah Putih — KDKMP Digital System">
+    <!-- TODO(security): Add X-Frame-Options and CSP headers via Laravel middleware -->
+
     <!-- Design & Styling -->
     <link rel="stylesheet" href="{{ asset('css/airbnb.css') }}">
     <link rel="stylesheet" href="{{ asset('css/print.css') }}" media="print">
-    
+
     <style>
-        /* Admin Sidebar Premium Styles - Bright SaaS Theme */
+        /* ── Admin Layout Variables ── */
         :root {
-            --sidebar-width: 280px;
-            --sidebar-bg: #ffffff;
-            --sidebar-border: var(--hairline);
-            --sidebar-text: var(--muted);
-            --sidebar-text-active: var(--primary);
-            --sidebar-hover-bg: var(--surface);
-            --admin-bg: #f8fafc;
+            --sidebar-w: 272px;
+            --header-h:  66px;
+            --admin-bg:  #F7F5F5;
         }
 
+        /* ── Body Layout ── */
         body {
-            background-color: var(--admin-bg) !important;
+            background: var(--admin-bg) !important;
             display: flex;
             min-height: 100vh;
             flex-direction: row;
             overflow-x: hidden;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
         }
 
-        /* Ambient Glow Blobs in Background - Removed for clean look */
-        .ambient-glow {
-            display: none;
+        /* ================================================================
+           SIDEBAR — Merah Putih Premium
+           ================================================================ */
+        .admin-sidebar {
+            width: var(--sidebar-w);
+            height: 100vh;
+            background: #fff;
+            border-right: 1px solid rgba(204,0,0,0.08);
+            position: sticky;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            flex: 0 0 var(--sidebar-w);
+            overflow: hidden;
+            box-shadow: 4px 0 32px rgba(0,0,0,0.03);
         }
-/* Sidebar Container */
-.admin-sidebar {
-    width: var(--sidebar-width);
-    height: 100vh;
-    background: var(--sidebar-bg);
-    border-right: 1px solid var(--sidebar-border);
-    position: sticky;
-    top: 0;
-    display: flex;
-    flex-direction: column;
-    z-index: 1000;
-    transition: transform var(--t-base) var(--ease-out);
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
-    overflow: hidden;
-    flex: 0 0 var(--sidebar-width);
-}
 
-        /* Sidebar Brand & Logo */
+        /* Red accent line at top of sidebar */
+        .admin-sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--gold), var(--primary));
+            z-index: 1;
+        }
+
+        /* ── Sidebar Brand ── */
         .sidebar-brand {
-            padding: 24px;
-            border-bottom: 1px solid var(--sidebar-border);
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid rgba(204,0,0,0.07);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            margin-top: 3px;
         }
-        
         .sidebar-brand-link {
             display: flex;
             align-items: center;
             gap: 10px;
             font-weight: 800;
-            font-size: 18px;
+            font-size: 17px;
+            letter-spacing: -0.3px;
             color: var(--ink);
             font-family: var(--font);
+            text-decoration: none;
         }
+        .sidebar-brand-link svg { fill: var(--primary); transition: transform 0.4s var(--ease-bounce); }
+        .sidebar-brand-link:hover svg { transform: rotate(-12deg) scale(1.1); }
+        .sidebar-brand-name { color: var(--primary); }
+        .sidebar-brand-sub { color: var(--gold); font-size: 13px; font-weight: 700; }
 
-        .sidebar-brand-link svg {
-            fill: var(--primary);
-            transition: transform 0.4s var(--ease-bounce);
-        }
-        .sidebar-brand-link:hover svg {
-            transform: rotate(-12deg) scale(1.1);
-        }
-
+        /* Status pill */
         .status-pill {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            font-weight: 600;
-            color: #10b981;
-            background: var(--success-bg);
-            padding: 4px 10px;
-            border-radius: 100px;
-            border: 1px solid var(--success-border);
+            display: flex; align-items: center; gap: 5px;
+            font-size: 10.5px; font-weight: 700;
+            color: var(--success); background: var(--success-bg);
+            padding: 4px 10px; border-radius: var(--r-full);
+            border: 1.5px solid var(--success-border);
         }
-        
         .pulse-dot {
-            width: 6px;
-            height: 6px;
-            background-color: #10b981;
-            border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+            width: 6px; height: 6px;
+            background: var(--success); border-radius: 50%;
             animation: pulse-green 2s infinite;
         }
-        
         @keyframes pulse-green {
-            0% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-            }
-            70% {
-                transform: scale(1);
-                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
-            }
-            100% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-            }
+            0%   { box-shadow: 0 0 0 0 rgba(5,150,105,0.5); }
+            70%  { box-shadow: 0 0 0 6px rgba(5,150,105,0); }
+            100% { box-shadow: 0 0 0 0 rgba(5,150,105,0); }
         }
 
-        /* User Profile in Sidebar */
+        /* ── Sidebar User Profile ── */
         .sidebar-user {
-            padding: 20px 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid var(--sidebar-border);
-            background: var(--surface);
+            padding: 16px 20px;
+            display: flex; align-items: center; gap: 12px;
+            border-bottom: 1px solid rgba(204,0,0,0.06);
+            background: linear-gradient(135deg, #FFF8F8, #ffffff);
         }
-        
         .sidebar-avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), #e8305a);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 16px;
-            box-shadow: var(--shadow-sm);
+            width: 44px; height: 44px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, #FF4444 100%);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 800; font-size: 17px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(204,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
         }
-        
-        .sidebar-user-info {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        
+        .sidebar-user-info { display: flex; flex-direction: column; overflow: hidden; }
         .sidebar-user-name {
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--ink);
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            font-family: var(--font);
+            font-weight: 700; font-size: 14px; color: var(--ink);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        
         .sidebar-user-role {
-            font-size: 10px;
-            color: var(--primary);
-            font-weight: 700;
-            display: inline-block;
+            font-size: 10px; color: var(--primary); font-weight: 700;
             background: var(--primary-light);
-            padding: 2px 8px;
-            border-radius: 100px;
-            width: fit-content;
-            margin-top: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-family: var(--font);
+            padding: 2px 8px; border-radius: var(--r-full);
+            width: fit-content; margin-top: 3px;
+            text-transform: uppercase; letter-spacing: 0.6px;
+            border: 1px solid var(--primary-muted);
+        }
+        .sidebar-user-branch {
+            font-size: 10.5px; color: var(--muted); margin-top: 2px;
+            font-weight: 600; display: flex; align-items: center; gap: 3px;
         }
 
-        /* Sidebar Navigation Menu */
+        /* ── Sidebar Navigation ── */
         .sidebar-menu {
             flex: 1;
-            padding: 24px 16px;
+            padding: 16px 12px;
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+            display: flex; flex-direction: column; gap: 2px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(204,0,0,0.15) transparent;
         }
-        
+        .sidebar-menu::-webkit-scrollbar { width: 4px; }
+        .sidebar-menu::-webkit-scrollbar-thumb {
+            background: rgba(204,0,0,0.15); border-radius: 4px;
+        }
+
         .sidebar-menu-title {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--muted);
-            letter-spacing: 0.5px;
-            padding: 8px 12px 6px;
-            font-family: var(--font);
+            font-size: 10.5px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            color: var(--muted-light);
+            padding: 10px 10px 5px;
         }
 
         .sidebar-link {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 14px;
-            border-radius: var(--r-md);
-            color: var(--sidebar-text);
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            font-family: var(--font);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 12px; border-radius: var(--r-md);
+            color: var(--muted); font-weight: 600; font-size: 13.5px;
+            transition: all 0.18s ease;
+            cursor: pointer; text-decoration: none;
+            position: relative; overflow: hidden;
         }
-        
-        .sidebar-link-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .sidebar-link::before {
+            content: '';
+            position: absolute; left: 0; top: 20%; bottom: 20%;
+            width: 3px; border-radius: 0 3px 3px 0;
+            background: var(--primary);
+            transform: scaleY(0);
+            transition: transform 0.2s var(--ease-bounce);
         }
-        
+        .sidebar-link-left { display: flex; align-items: center; gap: 10px; }
         .sidebar-link svg {
-            width: 18px;
-            height: 18px;
-            stroke: currentColor;
-            stroke-width: 2.5;
-            fill: none;
-            transition: stroke 0.2s ease, transform 0.3s var(--ease-bounce);
+            width: 17px; height: 17px;
+            stroke: currentColor; stroke-width: 2.2; fill: none;
+            flex-shrink: 0;
+            transition: stroke 0.18s, transform 0.3s var(--ease-bounce);
         }
-        
         .sidebar-link:hover {
             color: var(--ink);
-            background: var(--sidebar-hover-bg);
+            background: var(--surface-warm);
         }
-        .sidebar-link:hover svg {
-            transform: scale(1.1);
-        }
-        
+        .sidebar-link:hover svg { transform: scale(1.12); }
         .sidebar-link.active {
             color: var(--primary);
-            background: var(--primary-light);
+            background: linear-gradient(135deg, var(--primary-light), rgba(255,245,245,0.5));
             font-weight: 700;
         }
+        .sidebar-link.active::before { transform: scaleY(1); }
+        .sidebar-link.active svg { stroke: var(--primary); }
 
-        .sidebar-link.active svg {
-            stroke: var(--primary);
-        }
-
-        .sidebar-badge {
-            background: var(--primary);
-            color: white;
-            font-size: 11px;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 100px;
-            box-shadow: 0 2px 8px var(--primary-glow);
-        }
-
-        /* POS Kasir Special Button Link */
+        /* POS Special Button */
         .sidebar-link.pos-special {
-            background: var(--success-bg);
-            color: var(--success);
-            border: 1px solid var(--success-border);
-            margin-top: 8px;
+            background: linear-gradient(135deg, var(--success-bg), #E0FAF1);
+            color: var(--success-dark);
+            border: 1.5px solid var(--success-border);
+            margin: 6px 0;
         }
+        .sidebar-link.pos-special::before { background: var(--success); }
         .sidebar-link.pos-special:hover {
             background: var(--success);
             color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+            border-color: var(--success);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(5,150,105,0.25);
         }
-        .sidebar-link.pos-special:hover svg {
-            stroke: white;
+        .sidebar-link.pos-special:hover svg { stroke: white; }
+
+        .sidebar-badge {
+            background: var(--primary);
+            color: white; font-size: 10px; font-weight: 800;
+            padding: 2px 7px; border-radius: var(--r-full);
+            min-width: 20px; text-align: center;
+            box-shadow: 0 2px 6px rgba(204,0,0,0.25);
+        }
+        .sidebar-badge-gold {
+            background: var(--gold);
+            color: white; font-size: 10px; font-weight: 800;
+            padding: 2px 7px; border-radius: var(--r-full);
         }
 
-        /* Sidebar Footer Section */
+        /* ── Sidebar Footer ── */
         .sidebar-footer {
-            padding: 20px 16px;
-            border-top: 1px solid var(--sidebar-border);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            background: var(--surface);
+            padding: 14px 12px 16px;
+            border-top: 1px solid rgba(204,0,0,0.07);
+            display: flex; flex-direction: column; gap: 4px;
+            background: linear-gradient(135deg, #FFF8F8, #F9F0F0);
         }
-
         .sidebar-footer-btn {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            border-radius: var(--r-sm);
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--body);
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 12px; border-radius: var(--r-md);
+            font-size: 13px; font-weight: 600; color: var(--body);
             transition: all var(--t-fast);
-            cursor: pointer;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            font-family: var(--font);
+            cursor: pointer; border: none; background: none;
+            width: 100%; text-align: left; font-family: var(--font);
+            text-decoration: none;
         }
-        
         .sidebar-footer-btn svg {
-            width: 16px;
-            height: 16px;
-            stroke: currentColor;
-            stroke-width: 2.5;
-            fill: none;
+            width: 15px; height: 15px;
+            stroke: currentColor; stroke-width: 2.2; fill: none; flex-shrink: 0;
         }
+        .sidebar-footer-btn:hover { color: var(--ink); background: rgba(0,0,0,0.04); }
+        .sidebar-footer-btn.logout:hover { color: var(--danger); background: var(--danger-bg); }
 
-        .sidebar-footer-btn:hover {
-            color: var(--ink);
-            background: var(--hairline-soft);
-        }
-
-        .sidebar-footer-btn.logout:hover {
-            color: var(--danger);
-            background: var(--danger-bg);
-        }
-
-        /* Right Side Content Frame */
+        /* ================================================================
+           MAIN CONTENT AREA
+           ================================================================ */
         .admin-main {
-            flex: 1;
-            min-width: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            z-index: 10;
+            flex: 1; min-width: 0; min-height: 100vh;
+            display: flex; flex-direction: column;
+            position: relative; z-index: 10;
         }
 
-        /* Top Header Navigation for Admin Panel (Desktop/Mobile) */
+        /* ── Top Header Bar ── */
         .admin-header {
-            height: 72px;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--hairline-soft);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 40px;
-            position: sticky;
-            top: 0;
-            z-index: 900;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.01);
+            height: var(--header-h);
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border-bottom: 1px solid rgba(204,0,0,0.07);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 36px;
+            position: sticky; top: 0; z-index: 900;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.8);
         }
-        
         .admin-header-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--muted);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-family: var(--font);
+            font-size: 14px; font-weight: 600; color: var(--muted);
+            display: flex; align-items: center; gap: 8px;
         }
+        .admin-header-title strong { color: var(--ink); font-weight: 800; }
+        .admin-header-right { display: flex; align-items: center; gap: 16px; }
 
-        .admin-header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        /* Burger Menu for Mobile */
+        /* Burger menu */
         .mobile-toggle {
-            display: none;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--ink);
-            padding: 8px;
-            border-radius: var(--r-sm);
-            transition: background var(--t-fast);
+            display: none; background: none; border: none;
+            cursor: pointer; color: var(--ink); padding: 8px;
+            border-radius: var(--r-sm); transition: background var(--t-fast);
         }
-        
-        .mobile-toggle:hover {
-            background: var(--surface-md);
-        }
+        .mobile-toggle:hover { background: var(--surface-md); }
 
-        /* Content Container Wrap */
+        /* ── Page Content ── */
         .admin-content {
-            padding: 40px;
-            flex: 1;
-            width: 100%;
-            min-width: 0;
-            box-sizing: border-box;
-            position: relative;
-            z-index: 10;
+            padding: 36px 40px; flex: 1; width: 100%;
+            min-width: 0; box-sizing: border-box;
         }
 
-        /* Responsive Breakpoints */
+        /* ── Live Clock Badge ── */
+        .header-clock {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12.5px; font-weight: 600; color: var(--muted);
+            padding: 5px 12px; border-radius: var(--r-full);
+            background: var(--surface);
+            border: 1.5px solid var(--hairline);
+        }
+        .header-clock-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--success);
+            animation: pulse-green 2s infinite;
+        }
+
+        /* ── Notification Bell ── */
+        .header-bell {
+            position: relative; width: 38px; height: 38px;
+            background: var(--surface); border: 1.5px solid var(--hairline);
+            border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--muted); transition: all var(--t-base) var(--ease-bounce);
+        }
+        .header-bell:hover {
+            background: var(--primary-light); border-color: var(--primary-muted);
+            color: var(--primary); transform: scale(1.08);
+        }
+        .header-bell svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+        /* Sidebar overlay for mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.38);
+            backdrop-filter: blur(4px);
+            z-index: 950;
+            animation: fadeIn 0.22s ease;
+        }
+        body.sidebar-open .sidebar-overlay { display: block; }
+
+        /* ── Responsive ── */
         @media (max-width: 1024px) {
             .admin-sidebar {
+                position: fixed; left: 0; top: 0; bottom: 0;
                 transform: translateX(-100%);
+                transition: transform var(--t-base) var(--ease-out);
+                z-index: 1000;
             }
-            
-            body.sidebar-open .admin-sidebar {
-                transform: translateX(0);
-            }
-
-            .admin-main {
-                margin-left: 0;
-            }
-
-            .admin-header {
-                padding: 0 20px;
-            }
-
-            .mobile-toggle {
-                display: block;
-            }
-
-            .admin-content {
-                padding: 24px 16px;
-            }
-            
-            /* Background Overlay when Sidebar is open on Mobile */
-            .sidebar-overlay {
-                display: none;
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.4);
-                backdrop-filter: blur(4px);
-                z-index: 950;
-                animation: fadeIn 0.25s ease;
-            }
-            
-            body.sidebar-open .sidebar-overlay {
-                display: block;
-            }
+            body.sidebar-open .admin-sidebar { transform: translateX(0); }
+            .admin-header { padding: 0 20px; }
+            .mobile-toggle { display: block; }
+            .admin-content { padding: 24px 16px; }
+            .header-clock { display: none; }
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        @media (max-width: 640px) {
+            .admin-content { padding: 16px 12px; }
         }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
-
-    <!-- Ambient glowing backgrounds -->
-    <div class="ambient-glow glow-1 no-print"></div>
-    <div class="ambient-glow glow-2 no-print"></div>
-
+@php
+    $unreadNotifications = [];
+    if (Auth::check()) {
+        $unreadNotifications = \App\Models\Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->latest()
+            ->take(5)
+            ->get();
+    }
+@endphp
     <!-- Mobile Sidebar Overlay -->
     <div class="sidebar-overlay no-print" onclick="toggleSidebar(false)"></div>
 
     <!-- ── LEFT SIDEBAR ── -->
     <aside class="admin-sidebar no-print">
-        <!-- Brand Logo Header -->
+        <!-- Brand -->
         <div class="sidebar-brand">
             <a href="{{ route('catalog.index') }}" class="sidebar-brand-link">
-                <svg width="28" height="28" viewBox="0 0 32 32">
+                <svg width="26" height="26" viewBox="0 0 32 32">
                     <path d="M16 1C21 1 24.5 4.5 24.5 9.5C24.5 13.5 21.5 17.5 16 23C10.5 17.5 7.5 13.5 7.5 9.5C7.5 4.5 11 1 16 1ZM16 11.5C17.1 11.5 18 10.6 18 9.5C18 8.4 17.1 7.5 16 7.5C14.9 7.5 14 8.4 14 9.5C14 10.6 14.9 11.5 16 11.5Z"/>
                 </svg>
-                <span>KDKMP Admin</span>
+                <div>
+                    <div class="sidebar-brand-name">KDKMP</div>
+                    <div class="sidebar-brand-sub">Panel Admin</div>
+                </div>
             </a>
             <div class="status-pill">
                 <span class="pulse-dot"></span>
@@ -456,7 +380,7 @@
             </div>
         </div>
 
-        <!-- Profile Info -->
+        <!-- User Profile -->
         <div class="sidebar-user">
             <div class="sidebar-avatar">
                 {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
@@ -464,16 +388,14 @@
             <div class="sidebar-user-info">
                 <span class="sidebar-user-name">{{ auth()->user()->name }}</span>
                 <span class="sidebar-user-role">{{ auth()->user()->role }}</span>
-                <span style="font-size: 10px; color: var(--muted); margin-top: 4px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
-                    📍 {{ auth()->user()->branch->name }}
-                </span>
+                <span class="sidebar-user-branch">📍 {{ auth()->user()->branch->name }}</span>
             </div>
         </div>
 
-        <!-- Sidebar Navigation Menu -->
+        <!-- Navigation Menu -->
         <nav class="sidebar-menu">
             <span class="sidebar-menu-title">Menu Utama</span>
-            
+
             <a href="{{ route('staff.dashboard') }}" class="sidebar-link {{ Request::routeIs('staff.dashboard') ? 'active' : '' }}">
                 <div class="sidebar-link-left">
                     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
@@ -483,92 +405,100 @@
 
             <a href="{{ route('staff.analytics') }}" class="sidebar-link {{ Request::routeIs('staff.analytics') ? 'active' : '' }}">
                 <div class="sidebar-link-left">
-                        <svg viewBox="0 0 24 24"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20V14"></path></svg>
-                        <span>Analitik Penjualan</span>
-                    </div>
-                </a>
+                    <svg viewBox="0 0 24 24"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20V14"></path></svg>
+                    <span>Analitik Penjualan</span>
+                </div>
+            </a>
 
-                <a href="{{ route('staff.pos') }}" class="sidebar-link pos-special {{ Request::routeIs('staff.pos') ? 'active' : '' }}">
-                    <div class="sidebar-link-left">
-                        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                        <span>🏪 POS Kasir</span>
-                    </div>
-                </a>
+            <a href="{{ route('staff.pos') }}" class="sidebar-link pos-special {{ Request::routeIs('staff.pos') ? 'active' : '' }}">
+                <div class="sidebar-link-left">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                    <span>🏪 POS Kasir</span>
+                </div>
+            </a>
 
-                <span class="sidebar-menu-title" style="margin-top: 14px;">Operasional Toko</span>
+            <span class="sidebar-menu-title" style="margin-top: 10px;">Operasional Toko</span>
 
-                <a href="{{ route('staff.products') }}" class="sidebar-link {{ Request::routeIs('staff.products') ? 'active' : '' }}">
-                    <div class="sidebar-link-left">
-                        <svg viewBox="0 0 24 24"><path d="M12.89 2.24L2 8l10.89 5.76L22 8zM2 17l10.89 5.76L22 17M2 12l10.89 5.76L22 12"></path></svg>
-                        <span>Kelola Inventaris</span>
-                    </div>
-                </a>
+            <a href="{{ route('staff.products') }}" class="sidebar-link {{ Request::routeIs('staff.products') ? 'active' : '' }}">
+                <div class="sidebar-link-left">
+                    <svg viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                    <span>Kelola Inventaris</span>
+                </div>
+            </a>
 
-                <a href="{{ route('staff.orders') }}" class="sidebar-link {{ Request::routeIs('staff.orders') ? 'active' : '' }}">
-                    <div class="sidebar-link-left">
-                        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-                        <span>Pesanan Gerai</span>
-                    </div>
-                    @php $pendingOrders = \App\Models\Order::where('payment_status', 'pending')->count(); @endphp
-                    @if($pendingOrders > 0)
-                        <span class="sidebar-badge">{{ $pendingOrders }}</span>
-                    @endif
-                </a>
+            <a href="{{ route('staff.orders') }}" class="sidebar-link {{ Request::routeIs('staff.orders') ? 'active' : '' }}">
+                <div class="sidebar-link-left">
+                    <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                    <span>Pesanan Gerai</span>
+                </div>
+                @php $pendingOrders = \App\Models\Order::where('payment_status', 'pending')->count(); @endphp
+                @if($pendingOrders > 0)
+                    <span class="sidebar-badge">{{ $pendingOrders }}</span>
+                @endif
+            </a>
 
-                <a href="{{ route('staff.crops') }}" class="sidebar-link {{ Request::routeIs('staff.crops') ? 'active' : '' }}">
-                    <div class="sidebar-link-left">
-                        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
-                        <span>Hasil Bumi Tani</span>
-                    </div>
-                    @php $pendingCrops = \App\Models\CropAbsorption::where('status', 'pending')->count(); @endphp
-                    @if($pendingCrops > 0)
-                        <span class="sidebar-badge">{{ $pendingCrops }}</span>
-                    @endif
-                </a>
+            <a href="{{ route('staff.crops') }}" class="sidebar-link {{ Request::routeIs('staff.crops') ? 'active' : '' }}">
+                <div class="sidebar-link-left">
+                    <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12c0-2.76 1.12-5.26 2.93-7.07"></path><path d="M12 6v6l4 2"></path></svg>
+                    <span>Hasil Bumi Tani</span>
+                </div>
+                @php $pendingCrops = \App\Models\CropAbsorption::where('status', 'pending')->count(); @endphp
+                @if($pendingCrops > 0)
+                    <span class="sidebar-badge">{{ $pendingCrops }}</span>
+                @endif
+            </a>
 
-                <span class="sidebar-menu-title" style="margin-top: 14px;">Keuangan & Sistem</span>
+            <span class="sidebar-menu-title" style="margin-top: 10px;">Keuangan & Laporan</span>
 
-                <a href="{{ route('staff.loans') }}" class="sidebar-link {{ Request::routeIs('staff.loans') ? 'active' : '' }}">
-                    <div class="sidebar-link-left">
-                        <svg viewBox="0 0 24 24"><path d="M3 22h18M6 6h12M4 10h3v10H4zm7 0h3v10h-3zm7 0h3v10h-3zM12 2L2 6h20z"></path></svg>
-                        <span>Simpan Pinjam</span>
-                    </div>
-                    @php $pendingLoans = \App\Models\Loan::where('status', 'pending')->count(); @endphp
-                    @if($pendingLoans > 0)
-                        <span class="sidebar-badge">{{ $pendingLoans }}</span>
-                    @endif
-                </a>
+            <a href="{{ route('staff.loans') }}" class="sidebar-link {{ Request::routeIs('staff.loans') ? 'active' : '' }}">
+                <div class="sidebar-link-left">
+                    <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    <span>Simpan Pinjam</span>
+                </div>
+                @php $pendingLoans = \App\Models\Loan::where('status', 'pending')->count(); @endphp
+                @if($pendingLoans > 0)
+                    <span class="sidebar-badge">{{ $pendingLoans }}</span>
+                @endif
+            </a>
 
-                <a href="{{ route('staff.purchase-orders') }}" class="sidebar-link {{ Request::routeIs('staff.purchase-orders') ? 'active' : '' }}">
-                    <div class="sidebar-link-left">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                        <span>Procurement (PO)</span>
-                    </div>
-                </a>
+            <a href="{{ route('staff.shu') }}" class="sidebar-link {{ Request::routeIs('staff.shu') ? 'active' : '' }}">
+                <div class="sidebar-link-left">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"></path></svg>
+                    <span>Laporan SHU</span>
+                </div>
+            </a>
 
-                <a href="{{ route('staff.members') }}" class="sidebar-link {{ Request::routeIs('staff.members') ? 'active' : '' }}">
-                    <div class="sidebar-link-left">
-                        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                        <span>Daftar Anggota</span>
-                    </div>
-                </a>
+            <a href="{{ route('staff.purchase-orders') }}" class="sidebar-link {{ Request::routeIs('staff.purchase-orders') ? 'active' : '' }}">
+                <div class="sidebar-link-left">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    <span>Procurement (PO)</span>
+                </div>
+            </a>
 
-                <a href="{{ route('staff.config') }}" class="sidebar-link {{ Request::routeIs('staff.config') ? 'active' : '' }}">
-                    <div class="sidebar-link-left">
-                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                        <span>Konfigurasi</span>
-                    </div>
-                </a>
-            </nav>
-        </div>
+            <span class="sidebar-menu-title" style="margin-top: 10px;">Manajemen Sistem</span>
+
+            <a href="{{ route('staff.members') }}" class="sidebar-link {{ Request::routeIs('staff.members') ? 'active' : '' }}">
+                <div class="sidebar-link-left">
+                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    <span>Daftar Anggota</span>
+                </div>
+            </a>
+
+            <a href="{{ route('staff.config') }}" class="sidebar-link {{ Request::routeIs('staff.config') ? 'active' : '' }}">
+                <div class="sidebar-link-left">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9"></path></svg>
+                    <span>Konfigurasi Sistem</span>
+                </div>
+            </a>
+        </nav>
 
         <!-- Sidebar Footer -->
         <div class="sidebar-footer">
             <a href="{{ route('catalog.index') }}" class="sidebar-footer-btn">
-                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                 <span>Lihat Toko Publik</span>
             </a>
-            <form action="{{ route('admin.logout') }}" method="POST" id="sidebar-logout-form">
+            <form action="{{ route('admin.logout') }}" method="POST" id="sidebar-logout-form" style="width:100%;">
                 @csrf
                 <button type="submit" class="sidebar-footer-btn logout">
                     <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
@@ -578,37 +508,70 @@
         </div>
     </aside>
 
-    <!-- ── RIGHT MAIN WRAPPER ── -->
+    <!-- ── RIGHT MAIN AREA ── -->
     <div class="admin-main">
-        
-        <!-- Header Bar -->
+
+        <!-- Top Header Bar -->
         <header class="admin-header">
             <div style="display: flex; align-items: center; gap: 14px;">
                 <button class="mobile-toggle no-print" onclick="toggleSidebar(true)" aria-label="Toggle Sidebar">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                         <line x1="3" y1="12" x2="21" y2="12"></line>
                         <line x1="3" y1="6" x2="21" y2="6"></line>
                         <line x1="3" y1="18" x2="21" y2="18"></line>
                     </svg>
                 </button>
                 <div class="admin-header-title">
-                    <span>Aplikasi Desa</span>
-                    <span>/</span>
-                    <strong style="color: var(--ink);">Panel Manajemen</strong>
+                    <span>KDKMP</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    <strong>@yield('page-title', 'Panel Manajemen')</strong>
                 </div>
             </div>
-            
+
             <div class="admin-header-right">
-                <div style="font-size: 13px; color: var(--muted); font-weight: 500;" class="no-print">
-                    {{ date('d M Y') }} &nbsp;·&nbsp; <span id="header-time">{{ date('H:i') }}</span>
+                <div class="header-clock no-print">
+                    <span class="header-clock-dot"></span>
+                    <span>{{ date('d M Y') }}</span>
+                    <span>·</span>
+                    <span id="header-time">{{ date('H:i') }}</span>
                 </div>
-                <div class="avatar-circle" style="background: linear-gradient(135deg, #ff385c, #6c3de0); cursor: pointer;" data-tooltip="User profile">
+                <!-- Notifications Bell Dropdown -->
+                <div class="notification-dropdown-wrap no-print" style="margin-right: 4px;">
+                    <button class="notification-btn" aria-label="Notifikasi" onclick="toggleNotificationDropdown(event)">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        @if(count($unreadNotifications) > 0)
+                            <span class="notification-badge">{{ count($unreadNotifications) }}</span>
+                        @endif
+                    </button>
+                    <div class="notification-dropdown" id="notification-dropdown-panel" style="right: -40px;">
+                        <div class="notification-header">
+                            <h4>Notifikasi Terbaru</h4>
+                            @if(count($unreadNotifications) > 0)
+                                <button onclick="markAllNotificationsAsRead(event)">Tandai Semua Dibaca</button>
+                            @endif
+                        </div>
+                        <div class="notification-body">
+                            @forelse($unreadNotifications as $n)
+                                <div class="notification-item unread">
+                                    <div class="notification-item-title">{{ $n->title }}</div>
+                                    <p class="notification-item-desc">{{ $n->message }}</p>
+                                    <span class="notification-item-time">{{ $n->created_at->diffForHumans() }}</span>
+                                </div>
+                            @empty
+                                <div class="notification-empty">Tidak ada notifikasi baru.</div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+                <div class="avatar-circle" style="cursor: pointer;" data-tooltip="{{ auth()->user()->name }}">
                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                 </div>
             </div>
         </header>
 
-        <!-- Main Content Area -->
+        <!-- Main Content -->
         <main class="admin-content">
             @yield('content')
         </main>
@@ -621,7 +584,7 @@
             <h3 class="swal-title" id="swal-modal-title">Judul</h3>
             <p class="swal-text" id="swal-modal-text">Keterangan pesan dialog.</p>
             <div class="swal-buttons">
-                <button type="button" class="button-primary" style="height: 44px; padding: 0 32px; width: auto; border-radius: 100px; font-size: 14px;" onclick="closeSweetAlert()">
+                <button type="button" class="btn btn-primary btn-pill" style="height: 44px; padding: 0 32px; font-size: 14px;" onclick="closeSweetAlert()">
                     OK, Mengerti
                 </button>
             </div>
@@ -634,26 +597,23 @@
     <script>
     // ── Mobile Sidebar Toggle ──────────────────────────────────────
     function toggleSidebar(open) {
-        if (open) {
-            document.body.classList.add('sidebar-open');
-        } else {
-            document.body.classList.remove('sidebar-open');
-        }
+        document.body.classList.toggle('sidebar-open', open);
     }
-    
-    // Live Clock Helper
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') toggleSidebar(false);
+    });
+
+    // ── Live Clock ─────────────────────────────────────────────────
     function updateClock() {
-        const timeEl = document.getElementById('header-time');
-        if (timeEl) {
+        const el = document.getElementById('header-time');
+        if (el) {
             const now = new Date();
-            const h = String(now.getHours()).padStart(2, '0');
-            const m = String(now.getMinutes()).padStart(2, '0');
-            timeEl.textContent = `${h}:${m}`;
+            el.textContent = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
         }
     }
     setInterval(updateClock, 30000);
 
-    // ── SweetAlert System ──────────────────────────────────────────
+    // ── SweetAlert ─────────────────────────────────────────────────
     let swalCallback = null;
 
     window.showSweetAlert = function(title, text, type = 'success', callback = null) {
@@ -676,19 +636,16 @@
     };
 
     window.closeSweetAlert = function() {
-        const overlay = document.getElementById('custom-swal-overlay');
-        overlay.classList.remove('active');
+        document.getElementById('custom-swal-overlay').classList.remove('active');
         if (swalCallback) { swalCallback(); swalCallback = null; }
     };
 
     function handleOverlayClick(e) {
         if (e.target === e.currentTarget) closeSweetAlert();
     }
-
-    // Keyboard close
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSweetAlert(); });
 
-    // ── Laravel session alerts ─────────────────────────────────────
+    // ── Session Alerts ─────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', function() {
         @if(session('success'))
             window.showSweetAlert('Berhasil! 🎉', '{{ session('success') }}', 'success');
@@ -699,50 +656,31 @@
         @endif
     });
 
-    // ── Scroll-Reveal (IntersectionObserver with Entrance & Exit) ──
+    // ── Scroll-Reveal ──────────────────────────────────────────────
     const revealObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('revealed');
-            } else {
-                entry.target.classList.remove('revealed');
-            }
+            entry.target.classList.toggle('revealed', entry.isIntersecting);
         });
     }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
 
-    document.querySelectorAll('.reveal, .reveal-up, .reveal-left, .reveal-right, .reveal-scale, .reveal-rotate').forEach(el => {
+    document.querySelectorAll('.reveal, .reveal-up, .reveal-left, .reveal-right, .reveal-scale').forEach(el => {
         revealObserver.observe(el);
     });
 
-    // ── 3D Mouse Tilt on Product Cards ────────────────────────────
-    document.querySelectorAll('.property-card, .stat-card, .dashboard-nav-card').forEach(card => {
+    // ── 3D Tilt on Cards ──────────────────────────────────────────
+    document.querySelectorAll('.stat-card, .dashboard-nav-card').forEach(card => {
         card.addEventListener('mousemove', (e) => {
-            const rect   = card.getBoundingClientRect();
-            const cx     = rect.left + rect.width / 2;
-            const cy     = rect.top  + rect.height / 2;
-            const dx     = (e.clientX - cx) / (rect.width  / 2);
-            const dy     = (e.clientY - cy) / (rect.height / 2);
-            const rotX   = (-dy * 6).toFixed(2);
-            const rotY   = (dx  * 6).toFixed(2);
-            card.style.transform =
-                `translateY(-6px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.01)`;
-        });
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = '';
-        });
-        card.addEventListener('mousedown', () => {
-            card.style.transform = 'scale(0.98) translateY(-2px)';
-        });
-        card.addEventListener('mouseup', (e) => {
             const rect = card.getBoundingClientRect();
-            const dx = (e.clientX - rect.left - rect.width/2) / (rect.width/2);
-            const dy = (e.clientY - rect.top  - rect.height/2) / (rect.height/2);
-            card.style.transform =
-                `translateY(-6px) rotateX(${(-dy*6).toFixed(2)}deg) rotateY(${(dx*6).toFixed(2)}deg) scale(1.01)`;
+            const dx   = (e.clientX - rect.left - rect.width  / 2) / (rect.width  / 2);
+            const dy   = (e.clientY - rect.top  - rect.height / 2) / (rect.height / 2);
+            card.style.transform = `translateY(-5px) rotateX(${(-dy * 5).toFixed(2)}deg) rotateY(${(dx * 5).toFixed(2)}deg) scale(1.01)`;
         });
+        card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+        card.addEventListener('mousedown',  () => { card.style.transform = 'scale(0.98)'; });
+        card.addEventListener('mouseup',    () => { card.style.transform = ''; });
     });
 
-    // ── Ripple Effect on Buttons ──────────────────────────────────
+    // ── Ripple Effect ─────────────────────────────────────────────
     function createRipple(e) {
         const btn  = e.currentTarget;
         const rect = btn.getBoundingClientRect();
@@ -751,156 +689,155 @@
         const y    = e.clientY - rect.top  - r / 2;
         const rip  = document.createElement('span');
         rip.className = 'ripple';
-        Object.assign(rip.style, {
-            width: r + 'px', height: r + 'px',
-            left: x + 'px', top: y + 'px'
-        });
-        btn.style.position = 'relative';
-        btn.style.overflow = 'hidden';
+        Object.assign(rip.style, { width: r + 'px', height: r + 'px', left: x + 'px', top: y + 'px' });
         btn.appendChild(rip);
-        setTimeout(() => rip.remove(), 700);
+        setTimeout(() => rip.remove(), 600);
     }
-    document.querySelectorAll('.button-primary, .button-secondary, .quick-buy-btn, .search-orb')
-        .forEach(btn => btn.addEventListener('click', createRipple));
+    document.querySelectorAll('.btn, .button-primary, .button-secondary').forEach(btn => {
+        btn.addEventListener('click', createRipple);
+    });
 
     // ── Page Exit Transition ──────────────────────────────────────
     document.querySelectorAll('a[href]:not([href^="#"]):not([href^="mailto"]):not([target])').forEach(link => {
         link.addEventListener('click', function(e) {
             const href = this.getAttribute('href');
             if (!href || href.startsWith('#') || href.startsWith('javascript') || this.closest('form')) return;
-            // Only animate for same-origin links
             try {
                 const url = new URL(href, window.location.origin);
                 if (url.origin !== window.location.origin) return;
             } catch { return; }
             e.preventDefault();
-            document.body.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+            document.body.style.transition = 'opacity 0.18s ease, transform 0.18s ease';
             document.body.style.opacity = '0';
             document.body.style.transform = 'translateY(-4px)';
-            setTimeout(() => { window.location.href = href; }, 210);
+            setTimeout(() => { window.location.href = href; }, 190);
         });
     });
 
-    // ── Stat Counter Animation ────────────────────────────────────
+    // ── Counter Animation ─────────────────────────────────────────
     function animateCounter(el) {
-        const target = parseFloat(el.dataset.target || el.textContent.replace(/[^0-9.]/g, ''));
-        const prefix = el.dataset.prefix || '';
-        const suffix = el.dataset.suffix || '';
+        const target   = parseFloat(el.dataset.target || el.textContent.replace(/[^0-9.]/g, ''));
+        const prefix   = el.dataset.prefix || '';
+        const suffix   = el.dataset.suffix || '';
         const duration = 1000;
-        const start = performance.now();
-        const startVal = 0;
+        const start    = performance.now();
         function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
         function step(now) {
-            const progress = Math.min((now - start) / duration, 1);
-            const current = Math.round(easeOut(progress) * target);
-            el.textContent = prefix + current.toLocaleString('id-ID') + suffix;
-            if (progress < 1) requestAnimationFrame(step);
+            const p = Math.min((now - start) / duration, 1);
+            const v = Math.round(easeOut(p) * target);
+            el.textContent = prefix + v.toLocaleString('id-ID') + suffix;
+            if (p < 1) requestAnimationFrame(step);
             else el.textContent = prefix + target.toLocaleString('id-ID') + suffix;
         }
         requestAnimationFrame(step);
     }
-
-    const counterObserver = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                animateCounter(entry.target);
-                counterObserver.unobserve(entry.target);
-            }
+    const counterObs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) { animateCounter(e.target); counterObs.unobserve(e.target); }
         });
     }, { threshold: 0.5 });
-    document.querySelectorAll('[data-counter]').forEach(el => counterObserver.observe(el));
-
-    // ── Body enter animation ──────────────────────────────────────
-    document.body.style.opacity = '0';
-    document.body.style.transform = 'translateY(4px)';
-    document.body.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            document.body.style.opacity = '1';
-            document.body.style.transform = 'translateY(0)';
-        });
-    });
+    document.querySelectorAll('[data-counter]').forEach(el => counterObs.observe(el));
     </script>
 
-    <!-- Custom SweetAlert Overlay -->
-    <div class="swal-overlay" id="custom-swal-overlay" onclick="handleOverlayClick(event)">
-        <div class="swal-modal" id="swal-modal-box">
-            <div class="swal-icon" id="swal-modal-icon">✓</div>
-            <h3 class="swal-title" id="swal-modal-title">Judul</h3>
-            <p class="swal-text" id="swal-modal-text">Keterangan pesan dialog.</p>
-            <div class="swal-buttons">
-                <button type="button" class="btn btn-primary" style="height: 44px; padding: 0 32px; width: auto; border-radius: 100px; font-size: 14px;" onclick="closeSweetAlert()">
-                    OK, Mengerti
-                </button>
-            </div>
-        </div>
-    </div>
-
     @if(session()->has('sms_notification'))
-        <!-- Phone WhatsApp/SMS Notification Simulator Widget -->
-        <div id="phone-sms-widget" class="no-print" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; max-width: 320px; width: 100%; transform: translateY(150%); opacity: 0; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.6s ease; font-family: var(--font);">
-            <div style="background: rgba(26, 26, 26, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); color: white; border-radius: var(--r-md); border: 1.5px solid rgba(255, 255, 255, 0.15); box-shadow: var(--shadow-xl); overflow: hidden;">
-                <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.05);">
-                    <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: #10b981; letter-spacing: 0.5px; text-transform: uppercase;">
-                        <span style="font-size: 14px;">💬</span> WhatsApp Desa
+        <!-- SMS/WhatsApp Notification Widget -->
+        <div id="phone-sms-widget" class="no-print" style="position:fixed;bottom:24px;right:24px;z-index:9999;max-width:320px;width:100%;transform:translateY(150%);opacity:0;transition:transform 0.6s cubic-bezier(0.34,1.56,0.64,1),opacity 0.6s ease;font-family:var(--font);">
+            <div style="background:rgba(13,13,13,0.96);backdrop-filter:blur(16px);color:white;border-radius:var(--r-lg);border:1.5px solid rgba(255,255,255,0.1);box-shadow:var(--shadow-2xl);overflow:hidden;">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);">
+                    <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#25D366;letter-spacing:0.5px;text-transform:uppercase;">
+                        <span style="font-size:14px;">💬</span> WhatsApp Desa
                     </div>
-                    <div style="font-size: 10px; color: rgba(255, 255, 255, 0.5); font-weight: 600;">Baru saja</div>
+                    <div style="font-size:10px;color:rgba(255,255,255,0.4);font-weight:600;">Baru saja</div>
                 </div>
-                <div style="padding: 14px; display: flex; flex-direction: column; gap: 6px;">
-                    <h4 style="font-size: 13px; font-weight: 700; color: white; margin: 0;">{{ session('sms_notification.title') }}</h4>
-                    <p style="font-size: 11px; color: rgba(255, 255, 255, 0.85); line-height: 1.5; margin: 0;">{{ session('sms_notification.message') }}</p>
+                <div style="padding:14px;display:flex;flex-direction:column;gap:6px;">
+                    <h4 style="font-size:13px;font-weight:700;color:white;margin:0;">{{ session('sms_notification.title') }}</h4>
+                    <p style="font-size:11.5px;color:rgba(255,255,255,0.8);line-height:1.5;margin:0;">{{ session('sms_notification.message') }}</p>
                 </div>
-                <div onclick="dismissSMSWidget()" style="text-align: center; padding: 8px; font-size: 10px; color: rgba(255, 255, 255, 0.5); cursor: pointer; border-top: 1px solid rgba(255, 255, 255, 0.05); font-weight: 600;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255, 255, 255, 0.5)'">
-                    Sentuh untuk menutup
+                <div onclick="dismissSMSWidget()" style="text-align:center;padding:8px;font-size:10px;color:rgba(255,255,255,0.4);cursor:pointer;border-top:1px solid rgba(255,255,255,0.05);font-weight:700;transition:color 0.15s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">
+                    Ketuk untuk menutup
                 </div>
             </div>
         </div>
-
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const widget = document.getElementById('phone-sms-widget');
-                
                 try {
-                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    
-                    function playChime(freq, delay, duration) {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    [880, 1046.5].forEach((f, i) => {
                         setTimeout(() => {
-                            const osc = audioCtx.createOscillator();
-                            const gain = audioCtx.createGain();
-                            osc.type = 'sine';
-                            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                            gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-                            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-                            osc.connect(gain);
-                            gain.connect(audioCtx.destination);
-                            osc.start();
-                            osc.stop(audioCtx.currentTime + duration);
-                        }, delay);
-                    }
-                    
-                    playChime(880, 200, 0.15);
-                    playChime(1046.5, 320, 0.25);
-                } catch (e) {}
-
-                setTimeout(() => {
-                    widget.style.transform = 'translateY(0)';
-                    widget.style.opacity = '1';
-                }, 600);
-
-                setTimeout(() => {
-                    dismissSMSWidget();
-                }, 8500);
+                            const o = ctx.createOscillator(), g = ctx.createGain();
+                            o.type = 'sine'; o.frequency.value = f;
+                            g.gain.setValueAtTime(0.1, ctx.currentTime);
+                            g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+                            o.connect(g); g.connect(ctx.destination);
+                            o.start(); o.stop(ctx.currentTime + 0.2);
+                        }, 200 + i * 120);
+                    });
+                } catch(e) {}
+                setTimeout(() => { widget.style.transform = 'translateY(0)'; widget.style.opacity = '1'; }, 600);
+                setTimeout(dismissSMSWidget, 8500);
             });
-
             function dismissSMSWidget() {
-                const widget = document.getElementById('phone-sms-widget');
-                if (widget) {
-                    widget.style.transform = 'translateY(150%)';
-                    widget.style.opacity = '0';
-                    setTimeout(() => widget.remove(), 600);
-                }
+                const w = document.getElementById('phone-sms-widget');
+                if (w) { w.style.transform = 'translateY(150%)'; w.style.opacity = '0'; setTimeout(() => w.remove(), 600); }
             }
         </script>
     @endif
+
+    <!-- Notification Scripts -->
+    <script>
+        function toggleNotificationDropdown(event) {
+            event.stopPropagation();
+            const panel = document.getElementById('notification-dropdown-panel');
+            if (panel) {
+                panel.classList.toggle('active');
+            }
+        }
+
+        function markAllNotificationsAsRead(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            fetch('{{ route("notifications.mark-all-read") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const badges = document.querySelectorAll('.notification-badge');
+                    badges.forEach(b => b.remove());
+                    
+                    const unreadItems = document.querySelectorAll('.notification-item.unread');
+                    unreadItems.forEach(item => {
+                        item.classList.remove('unread');
+                        item.classList.add('read');
+                        item.style.borderLeft = 'none';
+                    });
+                    
+                    const clearBtn = event.target;
+                    if (clearBtn) clearBtn.remove();
+                    
+                    window.showSweetAlert('Berhasil', 'Semua notifikasi telah ditandai dibaca.', 'success');
+                }
+            })
+            .catch(err => {
+                console.error('Error marking notifications read:', err);
+            });
+        }
+
+        document.addEventListener('click', function(event) {
+            const panel = document.getElementById('notification-dropdown-panel');
+            if (panel && panel.classList.contains('active')) {
+                if (!event.target.closest('.notification-dropdown-wrap')) {
+                    panel.classList.remove('active');
+                }
+            }
+        });
+    </script>
 </body>
 </html>

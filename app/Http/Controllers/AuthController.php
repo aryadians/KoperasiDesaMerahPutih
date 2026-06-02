@@ -184,4 +184,22 @@ class AuthController extends Controller
 
         return redirect()->route('login')->with('success', 'Kata sandi Anda berhasil diperbarui! Silakan masuk.');
     }
+
+    /**
+     * Mark all notifications as read for the authenticated user.
+     */
+    public function markAllNotificationsRead(Request $request)
+    {
+        if (Auth::check()) {
+            \App\Models\Notification::where('user_id', Auth::id())
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
+        }
+        
+        if ($request->ajax()) {
+            return response()->json(['success' => true]);
+        }
+        
+        return back()->with('success', 'Semua notifikasi ditandai sebagai dibaca.');
+    }
 }

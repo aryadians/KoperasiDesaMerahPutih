@@ -1,6 +1,9 @@
 @extends('layouts.admin')
 
 @section('title', 'Procurement & Purchase Orders (PO) — KDKMP Digital')
+@section('page-title', 'Procurement (PO)')
+
+@section('content')
 
 <style>
     /* View-Specific 3D Polish Styles */
@@ -108,12 +111,12 @@
 </style>
 
 {{-- ═══════════════════════ HEADER ═══════════════════════ --}}
-<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+<div class="reveal" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
     <div>
-        <h1 style="font-size: 32px; font-weight: 800; letter-spacing: -0.5px; color: var(--ink); margin-bottom: 6px;">
-            📦 Procurement &amp; Purchase Orders
+        <h1 style="font-size: 26px; font-weight: 800; letter-spacing: -0.5px; color: var(--ink); margin: 0;">
+            📦 Procurement &amp; <span style="color: var(--primary);">Purchase Orders</span>
         </h1>
-        <p style="color: var(--muted); font-size: 15px;">
+        <p style="color: var(--muted); font-size: 13.5px; margin-top: 4px;">
             Pemesanan inventaris sembako grosir ke supplier dan estimasi margin laba ritel.
         </p>
     </div>

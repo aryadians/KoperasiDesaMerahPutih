@@ -38,7 +38,7 @@ class CropAbsorptionService
 
             $totalPayout = $quantity * $pricePerUnit;
 
-            return CropAbsorption::create([
+            $absorption = CropAbsorption::create([
                 'branch_id' => $member->user->branch_id,
                 'member_id' => $memberId,
                 'product_name' => $productName,
@@ -48,6 +48,17 @@ class CropAbsorptionService
                 'status' => 'pending',
                 'absorption_date' => Carbon::now(),
             ]);
+
+            $notificationService = resolve(\App\Services\NotificationService::class);
+            $notificationService->createNotification(
+                $member->user_id,
+                '🌾 Penawaran Panen Diajukan',
+                "Penawaran hasil tani {$productName} sebesar {$quantity} kg dengan nilai Rp " . number_format($totalPayout, 0, ',', '.') . " telah diajukan.",
+                'crop',
+                $absorption->id
+            );
+
+            return $absorption;
         });
     }
 
@@ -94,17 +105,31 @@ class CropAbsorptionService
                     
                     $nextInstallmentNum = \App\Models\LoanPayment::where('loan_id', $activeLoan->id)->count() + 1;
                     
-                    // Deduct up to the monthly tagihan or the total panen payout
-                    $deduction = min($tagihanMonthly, $absorption->total_payout);
+                    // Deduct up to the monthly tagihan, total panen payout, or the remaining debt of active loan
+                    $totalPrincipalApproved = $activeLoan->amount_approved;
+                    $totalExpected = $totalPrincipalApproved * $interestMultiplier;
+                    $totalPaidSoFar = \App\Models\LoanPayment::where('loan_id', $activeLoan->id)->sum('amount_paid') ?? 0.00;
+                    $remainingDebt = max(0.00, $totalExpected - $totalPaidSoFar);
+
+                    if ($remainingDebt > 0.01) {
+                        $deduction = min($tagihanMonthly, $absorption->total_payout, $remainingDebt);
+                    } else {
+                        $deduction = 0.00;
+                    }
                     $netPayout = $absorption->total_payout - $deduction;
 
                     $absorption->deducted_loan_payment = $deduction;
                     $absorption->net_payout = $netPayout;
-                    $absorption->notes = "Potongan otomatis Rp " . number_format($deduction, 0, ',', '.') . " untuk cicilan pinjaman ke-{$nextInstallmentNum} ({$activeLoan->loan_code}).";
-
-                    // Record the loan payment
-                    $loanService = resolve(\App\Services\LoanService::class);
-                    $loanService->recordPayment($activeLoan->id, $deduction, 0.00, $nextInstallmentNum);
+                    
+                    if ($deduction > 0) {
+                        $absorption->notes = "Potongan otomatis Rp " . number_format($deduction, 0, ',', '.') . " untuk cicilan pinjaman ke-{$nextInstallmentNum} ({$activeLoan->loan_code}).";
+                        
+                        // Record the loan payment
+                        $loanService = resolve(\App\Services\LoanService::class);
+                        $loanService->recordPayment($activeLoan->id, $deduction, 0.00, $nextInstallmentNum);
+                    } else {
+                        $absorption->notes = "Tidak ada potongan cicilan pinjaman karena pinjaman hampir lunas atau sisa tagihan Rp 0.";
+                    }
                 } else {
                     $absorption->deducted_loan_payment = 0.00;
                     $absorption->net_payout = $absorption->total_payout;
@@ -132,13 +157,24 @@ class CropAbsorptionService
                 }
                 $smsMessage .= "Sisa bersih Rp " . number_format($netPayout, 0, ',', '.') . " disetor ke Saldo Sukarela Anda.";
 
-                // Send WhatsApp notification using NotificationService
                 $absorption->load('member.user');
                 $notificationService = resolve(\App\Services\NotificationService::class);
-                $notificationService->sendMemberNotification(
-                    $absorption->member,
+                $notificationService->createNotification(
+                    $absorption->member->user_id,
                     $smsTitle,
-                    $smsMessage
+                    $smsMessage,
+                    'crop',
+                    $absorption->id
+                );
+            } elseif ($status === 'received' && $oldStatus !== 'received') {
+                $absorption->load('member.user');
+                $notificationService = resolve(\App\Services\NotificationService::class);
+                $notificationService->createNotification(
+                    $absorption->member->user_id,
+                    '🌾 Hasil Panen Diterima Koperasi',
+                    "Hasil tani {$absorption->product_name} Anda telah diterima di timbangan gerai koperasi. Menunggu proses pencairan pembayaran.",
+                    'crop',
+                    $absorption->id
                 );
             } else {
                 $absorption->save();

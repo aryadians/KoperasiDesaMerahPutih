@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'KDKMP — POS Kasir Gerai Offline')
+@section('page-title', 'POS Kasir')
 
 @section('content')
 
@@ -525,14 +526,15 @@
 <!-- POS Top Header Banner -->
 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;" class="no-print">
     <div>
-        <h1 style="font-size: 24px; font-weight: 800; color: var(--ink); display: flex; align-items: center; gap: 10px;">
-            <span>🏪</span> POS Kasir Gerai Offline
+        <h1 style="font-size: 22px; font-weight: 800; color: var(--ink); display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+            <span style="font-size: 20px;">🏪</span> POS Kasir
+            <span class="badge badge-primary" style="font-size: 11px;">Offline Mode</span>
         </h1>
-        <p style="font-size: 13px; color: var(--muted); margin-top: 2px;">
-            Kelola transaksi warga desa secara tatap muka dengan cepat. Gunakan pintasan keyboard <span class="kbd-badge">F1</span> s.d. <span class="kbd-badge">F4</span>.
+        <p style="font-size: 12.5px; color: var(--muted); margin: 0;">
+            Transaksi tatap muka warga desa &mdash; Pintasan: <span class="kbd-badge">F1</span> Cari &nbsp;<span class="kbd-badge">F2</span> Bayar &nbsp;<span class="kbd-badge">F3</span> Pas &nbsp;<span class="kbd-badge">F4</span> Reset
         </p>
     </div>
-    <div class="status-pill" style="background: var(--success-bg); color: var(--success); border: 1.5px solid var(--success-border); padding: 6px 14px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+    <div class="status-pill" style="background: var(--success-bg); color: var(--success); border: 1.5px solid var(--success-border); padding: 6px 16px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; border-radius: 100px;">
         <span class="pulse-dot"></span>
         <span>Kasir: <strong>{{ auth()->user()->name }}</strong></span>
     </div>

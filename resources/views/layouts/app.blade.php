@@ -9,30 +9,31 @@
     <!-- Design & Styling -->
     <link rel="stylesheet" href="{{ asset('css/airbnb.css') }}">
     <link rel="stylesheet" href="{{ asset('css/print.css') }}" media="print">
+    <meta name="description" content="@yield('description', 'Koperasi Desa Merah Putih — Platform Digital Desa untuk Belanja, Simpan Pinjam, dan Agro.')">
     <style>
-        @media (max-width: 1024px) {
-            .navbar-search { display: none !important; }
-        }
-        .navbar-search:focus-within {
-            border-color: var(--ink) !important;
-            background: var(--canvas) !important;
-        }
-        .navbar-search button:hover {
-            color: var(--ink) !important;
-        }
+        @media (max-width: 1024px) { .navbar-search { display: none !important; } }
     </style>
 </head>
 <body>
+@php
+    $unreadNotifications = [];
+    if (Auth::check()) {
+        $unreadNotifications = \App\Models\Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->latest()
+            ->take(5)
+            ->get();
+    }
+@endphp
 
     <!-- Header Navigation (DESIGN.md top-nav) -->
     <header class="top-nav">
         <div class="container nav-container">
-            <!-- Brand Logo -->
             <a href="{{ route('home') }}" class="logo">
-                <svg width="32" height="32" viewBox="0 0 32 32">
+                <svg width="30" height="30" viewBox="0 0 32 32">
                     <path d="M16 1C21 1 24.5 4.5 24.5 9.5C24.5 13.5 21.5 17.5 16 23C10.5 17.5 7.5 13.5 7.5 9.5C7.5 4.5 11 1 16 1ZM16 11.5C17.1 11.5 18 10.6 18 9.5C18 8.4 17.1 7.5 16 7.5C14.9 7.5 14 8.4 14 9.5C14 10.6 14.9 11.5 16 11.5Z"/>
                 </svg>
-                <span>KDKMP Desa</span>
+                <span>KDKMP <span class="logo-text-secondary">Desa</span></span>
             </a>
 
             <!-- Village Switcher -->
@@ -109,6 +110,39 @@
 
             <!-- User Menu & Shopping Cart (Right Side) -->
             <div class="nav-right">
+                @auth
+                    <!-- Notifications Bell Dropdown -->
+                    <div class="notification-dropdown-wrap no-print">
+                        <button class="notification-btn" aria-label="Notifikasi" onclick="toggleNotificationDropdown(event)">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                            @if(count($unreadNotifications) > 0)
+                                <span class="notification-badge">{{ count($unreadNotifications) }}</span>
+                            @endif
+                        </button>
+                        <div class="notification-dropdown" id="notification-dropdown-panel">
+                            <div class="notification-header">
+                                <h4>Notifikasi Terbaru</h4>
+                                @if(count($unreadNotifications) > 0)
+                                    <button onclick="markAllNotificationsAsRead(event)">Tandai Semua Dibaca</button>
+                                @endif
+                            </div>
+                            <div class="notification-body">
+                                @forelse($unreadNotifications as $n)
+                                    <div class="notification-item unread">
+                                        <div class="notification-item-title">{{ $n->title }}</div>
+                                        <p class="notification-item-desc">{{ $n->message }}</p>
+                                        <span class="notification-item-time">{{ $n->created_at->diffForHumans() }}</span>
+                                    </div>
+                                @empty
+                                    <div class="notification-empty">Tidak ada notifikasi baru.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                @endauth
+
                 <a href="{{ route('cart.index') }}" class="cart-icon-wrap" aria-label="Keranjang Belanja" data-tooltip="Keranjang Belanja">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="9" cy="21" r="1"></circle>
@@ -127,28 +161,28 @@
                         {{-- STAFF: show admin panel link + admin logout --}}
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <a href="{{ route('staff.dashboard') }}" class="user-menu-pill">
-                                <span style="font-size: 14px; font-weight: 500;">{{ auth()->user()->name }}</span>
-                                <div class="avatar-circle" style="background: linear-gradient(135deg, #ff385c, #6c3de0);">
+                                <span>{{ auth()->user()->name }}</span>
+                                <div class="avatar-circle">
                                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                                 </div>
                             </a>
                             <form action="{{ route('admin.logout') }}" method="POST" style="display: inline;">
                                 @csrf
-                                <button type="submit" style="background: none; border: none; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer;">Logout</button>
+                                <button type="submit" class="btn btn-sm btn-ghost btn-pill">Keluar</button>
                             </form>
                         </div>
                     @else
                         {{-- ANGGOTA: show member dashboard link + member logout --}}
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <a href="{{ route('member.dashboard') }}" class="user-menu-pill">
-                                <span style="font-size: 14px; font-weight: 500;">{{ auth()->user()->name }}</span>
+                                <span>{{ auth()->user()->name }}</span>
                                 <div class="avatar-circle">
                                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                                 </div>
                             </a>
                             <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                                 @csrf
-                                <button type="submit" style="background: none; border: none; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer;">Logout</button>
+                                <button type="submit" class="btn btn-sm btn-ghost btn-pill">Keluar</button>
                             </form>
                         </div>
                     @endif
@@ -214,14 +248,13 @@
         </div>
     </footer>
 
-    <!-- Custom SweetAlert Overlay -->
     <div class="swal-overlay" id="custom-swal-overlay" onclick="handleOverlayClick(event)">
         <div class="swal-modal" id="swal-modal-box">
             <div class="swal-icon" id="swal-modal-icon">✓</div>
             <h3 class="swal-title" id="swal-modal-title">Judul</h3>
             <p class="swal-text" id="swal-modal-text">Keterangan pesan dialog.</p>
             <div class="swal-buttons">
-                <button type="button" class="button-primary" style="height: 44px; padding: 0 32px; width: auto; border-radius: 100px; font-size: 14px;" onclick="closeSweetAlert()">
+                <button type="button" class="btn btn-primary btn-pill" style="height: 44px; padding: 0 32px; font-size: 14px;" onclick="closeSweetAlert()">
                     OK, Mengerti
                 </button>
             </div>
@@ -531,5 +564,61 @@
             @endauth
         </div>
     </nav>
+
+    <!-- Notification Scripts -->
+    <script>
+        function toggleNotificationDropdown(event) {
+            event.stopPropagation();
+            const panel = document.getElementById('notification-dropdown-panel');
+            if (panel) {
+                panel.classList.toggle('active');
+            }
+        }
+
+        function markAllNotificationsAsRead(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            fetch('{{ route("notifications.mark-all-read") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const badges = document.querySelectorAll('.notification-badge');
+                    badges.forEach(b => b.remove());
+                    
+                    const unreadItems = document.querySelectorAll('.notification-item.unread');
+                    unreadItems.forEach(item => {
+                        item.classList.remove('unread');
+                        item.classList.add('read');
+                        item.style.borderLeft = 'none';
+                    });
+                    
+                    const clearBtn = event.target;
+                    if (clearBtn) clearBtn.remove();
+                    
+                    window.showSweetAlert('Berhasil', 'Semua notifikasi telah ditandai dibaca.', 'success');
+                }
+            })
+            .catch(err => {
+                console.error('Error marking notifications read:', err);
+            });
+        }
+
+        document.addEventListener('click', function(event) {
+            const panel = document.getElementById('notification-dropdown-panel');
+            if (panel && panel.classList.contains('active')) {
+                if (!event.target.closest('.notification-dropdown-wrap')) {
+                    panel.classList.remove('active');
+                }
+            }
+        });
+    </script>
 </body>
 </html>

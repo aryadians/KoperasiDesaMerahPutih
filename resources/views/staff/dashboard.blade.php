@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Dashboard Administrasi — KDKMP Digital')
+@section('page-title', 'Dashboard')
 
 @section('content')
 
@@ -47,52 +48,37 @@
         transform: translateY(0);
     }
 
-    /* Stat Cards Custom Shadows and Backgrounds */
+    /* Stat Cards — Merah Putih Identity */
     .stat-card.sales {
-        border-color: rgba(16, 185, 129, 0.15) !important;
-        background: linear-gradient(135deg, var(--canvas), #f0fdf4) !important;
+        border-color: rgba(5, 150, 105, 0.12) !important;
+        background: linear-gradient(135deg, #ffffff, #f0fdf8) !important;
     }
-    .stat-card.sales:hover {
-        box-shadow: 0 14px 28px rgba(16, 185, 129, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
-        border-color: rgba(16, 185, 129, 0.25) !important;
-    }
-    .stat-card.sales::after {
-        background: linear-gradient(90deg, #10b981, #34d399) !important;
-    }
+    .stat-card.sales::before { background: linear-gradient(90deg, var(--success), #34D399) !important; }
+    .stat-card.sales:hover { border-color: rgba(5, 150, 105, 0.22) !important; }
 
     .stat-card.crops {
-        border-color: rgba(59, 130, 246, 0.15) !important;
-        background: linear-gradient(135deg, var(--canvas), #eff6ff) !important;
+        border-color: rgba(212, 160, 23, 0.15) !important;
+        background: linear-gradient(135deg, #ffffff, #FFFBEB) !important;
     }
-    .stat-card.crops:hover {
-        box-shadow: 0 14px 28px rgba(59, 130, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
-        border-color: rgba(59, 130, 246, 0.25) !important;
-    }
-    .stat-card.crops::after {
-        background: linear-gradient(90deg, #3b82f6, #60a5fa) !important;
-    }
+    .stat-card.crops::before { background: linear-gradient(90deg, var(--gold), #F0CC70) !important; }
+    .stat-card.crops:hover { border-color: rgba(212, 160, 23, 0.25) !important; }
 
     .stat-card.loans {
-        border-color: rgba(239, 68, 68, 0.15) !important;
-        background: linear-gradient(135deg, var(--canvas), #fef2f2) !important;
+        border-color: rgba(204, 0, 0, 0.12) !important;
+        background: linear-gradient(135deg, #ffffff, var(--primary-light)) !important;
     }
-    .stat-card.loans:hover {
-        box-shadow: 0 14px 28px rgba(239, 68, 68, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
-        border-color: rgba(239, 68, 68, 0.25) !important;
-    }
-    .stat-card.loans::after {
-        background: linear-gradient(90deg, var(--primary), #f43f5e) !important;
-    }
+    .stat-card.loans::before { background: linear-gradient(90deg, var(--primary), #FF6666) !important; }
+    .stat-card.loans:hover { border-color: rgba(204, 0, 0, 0.22) !important; }
 
     /* Nav Cards Accents */
-    .dashboard-nav-card.inv:hover { border-color: rgba(245, 158, 11, 0.4) !important; }
-    .dashboard-nav-card.inv::before { background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), transparent 60%) !important; }
-    .dashboard-nav-card.ord:hover { border-color: rgba(239, 68, 68, 0.4) !important; }
-    .dashboard-nav-card.ord::before { background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), transparent 60%) !important; }
-    .dashboard-nav-card.crp:hover { border-color: rgba(16, 185, 129, 0.4) !important; }
-    .dashboard-nav-card.crp::before { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), transparent 60%) !important; }
-    .dashboard-nav-card.lns:hover { border-color: rgba(59, 130, 246, 0.4) !important; }
-    .dashboard-nav-card.lns::before { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), transparent 60%) !important; }
+    .dashboard-nav-card.inv:hover { border-color: var(--gold-border) !important; }
+    .dashboard-nav-card.inv::before { background: linear-gradient(135deg, var(--gold-light), transparent 60%) !important; }
+    .dashboard-nav-card.ord:hover { border-color: var(--primary-muted) !important; }
+    .dashboard-nav-card.ord::before { background: linear-gradient(135deg, var(--primary-light), transparent 60%) !important; }
+    .dashboard-nav-card.crp:hover { border-color: var(--success-border) !important; }
+    .dashboard-nav-card.crp::before { background: linear-gradient(135deg, var(--success-bg), transparent 60%) !important; }
+    .dashboard-nav-card.lns:hover { border-color: var(--info-border) !important; }
+    .dashboard-nav-card.lns::before { background: linear-gradient(135deg, var(--info-bg), transparent 60%) !important; }
 
     /* Split Columns Premium Styling */
     .low-stock-card {
@@ -201,30 +187,30 @@
 </style>
 
 {{-- ═══════════════════════ HERO HEADER ═══════════════════════ --}}
-<div class="reveal" style="margin-bottom: 36px;">
-    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+<div class="reveal" style="margin-bottom: 32px;">
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
         <div>
-            <div class="pulse-ring" style="font-size: 12px; font-weight: 600; color: var(--success); margin-bottom: 10px; letter-spacing: 0.3px;">
+            <div class="pulse-ring" style="font-size: 11.5px; font-weight: 700; color: var(--success); margin-bottom: 10px; letter-spacing: 0.4px; text-transform: uppercase;">
                 Sistem Aktif
             </div>
-            <h1 style="font-size: 32px; font-weight: 800; letter-spacing: -0.5px; color: var(--ink); margin-bottom: 6px;">
-                Dashboard Administrasi
+            <h1 style="font-size: 28px; font-weight: 800; letter-spacing: -0.6px; color: var(--ink); margin-bottom: 6px; line-height: 1.2;">
+                Dashboard <span style="color: var(--primary);">KDKMP</span>
             </h1>
-            <p style="color: var(--muted); font-size: 15px;">
+            <p style="color: var(--muted); font-size: 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 Selamat bekerja, <strong style="color: var(--ink);">{{ ucfirst(auth()->user()->name) }}</strong>
-                &nbsp;·&nbsp; <span style="background: var(--surface-strong); padding: 2px 10px; border-radius: 100px; font-size: 12px; font-weight: 600;">{{ ucfirst(auth()->user()->role) }}</span>
+                <span class="badge badge-primary">{{ ucfirst(auth()->user()->role) }}</span>
             </p>
         </div>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <a href="{{ route('staff.products') }}" class="btn-3d-secondary" style="width: auto; height: 42px; padding: 0 20px; font-size: 14px; border-radius: 100px;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <a href="{{ route('staff.products') }}" class="btn btn-md btn-secondary btn-pill">
                 📦 Inventaris
             </a>
-            <a href="{{ route('staff.orders') }}" class="btn-3d-primary" style="width: auto; height: 42px; padding: 0 20px; font-size: 14px; border-radius: 100px;">
-                🛍 Kelola Pesanan
+            <a href="{{ route('staff.pos') }}" class="btn btn-md btn-primary btn-pill">
+                🏪 Buka Kasir
             </a>
         </div>
     </div>
-    <div style="height: 1px; background: var(--hairline-soft); margin-top: 24px;"></div>
+    <div style="height: 1px; background: linear-gradient(90deg, var(--primary-light), var(--hairline-soft), transparent); margin-top: 20px;"></div>
 </div>
 
 {{-- ═══════════════════════ STAT CARDS ═══════════════════════ --}}
@@ -369,7 +355,7 @@
                     Hitung estimasi pembagian Sisa Hasil Usaha (SHU) tahunan untuk anggota aktif secara merata berdasarkan poin loyalitas transaksi.
                 </p>
             </div>
-            <a href="{{ route('staff.shu') }}" class="btn-3d-primary" style="font-size: 14px; height: 44px; border-radius: 100px; width: 100%;">
+            <a href="{{ route('staff.shu') }}" class="btn btn-primary btn-pill btn-full btn-md">
                 Buka Kalkulator SHU →
             </a>
         </div>
@@ -396,10 +382,10 @@
                 </div>
             </div>
 
-            <form action="{{ route('staff.autodebet') }}" method="POST" onsubmit="this.querySelector('button').disabled=true; this.querySelector('button').innerText='Memproses...';" style="margin: 0;">
+            <form action="{{ route('staff.autodebet') }}" method="POST" onsubmit="this.querySelector('button').disabled=true; this.querySelector('button').textContent='Memproses...';" style="margin: 0;">
                 @csrf
-                <button type="submit" class="autodebet-btn">
-                    Jalankan Autodebet ➔
+                <button type="submit" class="btn btn-success btn-pill btn-full btn-md">
+                    🔄 Jalankan Autodebet
                 </button>
             </form>
 
@@ -424,14 +410,18 @@
         </div>
 
         {{-- Quick links --}}
-        <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 6px;">
             <a href="{{ route('staff.loans') }}" class="quick-link-item">
                 <span>🏦 Manajemen Pinjaman</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </a>
             <a href="{{ route('staff.crops') }}" class="quick-link-item">
                 <span>🌾 Penyerapan Tani</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+            <a href="{{ route('staff.members') }}" class="quick-link-item">
+                <span>👥 Daftar Anggota</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </a>
         </div>
     </div>

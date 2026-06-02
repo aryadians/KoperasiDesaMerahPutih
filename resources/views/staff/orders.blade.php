@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Kelola Pesanan Gerai - KDKMP')
+@section('title', 'Kelola Pesanan Gerai — KDKMP')
+@section('page-title', 'Pesanan Gerai')
 
 @section('content')
 
@@ -86,14 +87,14 @@
     }
 </style>
 
-<div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+<div class="reveal" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
     <div>
-        <h1 style="font-size: 28px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.5px;">Kelola Semua Pesanan Gerai</h1>
-        <p style="color: var(--muted); font-size: 14px; margin-top: 4px;">Kelola riwayat belanja sembako warga dan pengiriman logistik desa.</p>
+        <h1 style="font-size: 26px; font-weight: 800; color: var(--ink); margin: 0; letter-spacing: -0.5px;">Pesanan <span style="color: var(--primary);">Gerai</span></h1>
+        <p style="color: var(--muted); font-size: 13.5px; margin-top: 4px;">Kelola riwayat belanja sembako warga dan pengiriman logistik desa.</p>
     </div>
     <div style="display: flex; gap: 8px;">
-        <button onclick="exportOrders('csv')" class="btn-3d-secondary" style="font-size: 12px; height: 36px; padding: 0 14px; border-radius: 100px;">📥 Export CSV</button>
-        <button onclick="exportOrders('pdf')" class="btn-3d-secondary" style="font-size: 12px; height: 36px; padding: 0 14px; border-radius: 100px;">📄 Export PDF</button>
+        <button onclick="exportOrders('csv')" class="btn btn-sm btn-secondary btn-pill">📥 Export CSV</button>
+        <button onclick="exportOrders('pdf')" class="btn btn-sm btn-secondary btn-pill">📄 Export PDF</button>
     </div>
 </div>
 

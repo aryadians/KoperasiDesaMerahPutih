@@ -52,7 +52,7 @@ class LoanService
 
             $loanCode = 'LN-' . strtoupper(uniqid());
 
-            return Loan::create([
+            $loan = Loan::create([
                 'branch_id' => $member->user->branch_id,
                 'member_id' => $memberId,
                 'loan_code' => $loanCode,
@@ -62,6 +62,17 @@ class LoanService
                 'tenor_months' => $tenorMonths,
                 'status' => 'draft',
             ]);
+
+            $notificationService = resolve(\App\Services\NotificationService::class);
+            $notificationService->createNotification(
+                $member->user_id,
+                '📝 Pengajuan Pinjaman Diajukan',
+                "Pengajuan pinjaman Anda ({$loan->loan_code}) senilai Rp " . number_format($amountRequested, 0, ',', '.') . " sedang diproses.",
+                'loan',
+                $loan->id
+            );
+
+            return $loan;
         });
     }
 
@@ -93,17 +104,24 @@ class LoanService
             $loan->status = $status;
             $loan->save();
 
-            // Send notification for approved or active statuses
+            $loan->load('member.user');
+            $notificationService = resolve(\App\Services\NotificationService::class);
+
             if (in_array($status, ['approved', 'active'])) {
-                $loan->load('member.user');
-                $notificationService = resolve(\App\Services\NotificationService::class);
-                
                 $title = $status === 'approved' ? '💸 Pengajuan Pinjaman Disetujui' : '💰 Pinjaman Dicairkan';
                 $message = $status === 'approved' 
                     ? "Pengajuan pinjaman Anda ({$loan->loan_code}) telah disetujui sebesar Rp " . number_format($loan->amount_approved, 0, ',', '.') . " dengan tenor {$loan->tenor_months} bulan."
                     : "Dana pinjaman Anda ({$loan->loan_code}) sebesar Rp " . number_format($loan->amount_approved, 0, ',', '.') . " telah dicairkan ke rekening Anda. Silakan cek saldo Anda.";
 
-                $notificationService->sendMemberNotification($loan->member, $title, $message);
+                $notificationService->createNotification($loan->member->user_id, $title, $message, 'loan', $loan->id);
+            } elseif ($status === 'rejected') {
+                $notificationService->createNotification(
+                    $loan->member->user_id,
+                    '❌ Pengajuan Pinjaman Ditolak',
+                    "Pengajuan pinjaman Anda ({$loan->loan_code}) ditolak oleh pengurus.",
+                    'loan',
+                    $loan->id
+                );
             }
 
             return $loan;
@@ -136,6 +154,25 @@ class LoanService
                 throw new Exception("Pinjaman tidak aktif atau sudah lunas.");
             }
 
+            // 1. Validate payment sequence: must match count() + 1
+            $nextInstallmentNum = LoanPayment::where('loan_id', $loanId)->count() + 1;
+            if ($installmentNumber !== $nextInstallmentNum) {
+                throw new Exception("Urutan angsuran tidak valid. Angsuran berikutnya yang harus dibayar adalah ke-{$nextInstallmentNum}.");
+            }
+
+            // 2. Validate bounds: cannot pay more than the total remaining debt
+            $totalPrincipalApproved = $loan->amount_approved;
+            $interestMultiplier = 1 + ($loan->interest_rate / 100);
+            $totalExpected = $totalPrincipalApproved * $interestMultiplier;
+
+            $totalPaidSoFar = LoanPayment::where('loan_id', $loanId)->sum('amount_paid') ?? 0.00;
+            $remainingDebt = max(0.00, $totalExpected - $totalPaidSoFar);
+
+            // Using tiny tolerance for float comparisons (0.01)
+            if ($amountPaid > $remainingDebt + 0.01) {
+                throw new Exception("Nominal pembayaran Rp " . number_format($amountPaid, 2, ',', '.') . " melebihi sisa tagihan Rp " . number_format($remainingDebt, 2, ',', '.') . ".");
+            }
+
             $payment = LoanPayment::create([
                 'loan_id' => $loanId,
                 'amount_paid' => $amountPaid,
@@ -144,18 +181,24 @@ class LoanService
                 'payment_date' => Carbon::now(),
             ]);
 
-            // Check if loan is paid off (optional check: if installment_number equals tenor_months or payments cover everything)
-            // For simplicity, if we reached the final installment or total paid matches total expected, we mark it paid_off.
-            $totalPrincipalApproved = $loan->amount_approved;
-            $interestMultiplier = 1 + ($loan->interest_rate / 100);
-            $totalExpected = $totalPrincipalApproved * $interestMultiplier;
+            // Check if loan is paid off
+            $totalPaid = $totalPaidSoFar + $amountPaid;
 
-            $totalPaid = LoanPayment::where('loan_id', $loanId)->sum('amount_paid');
-
-            if ($totalPaid >= $totalExpected || $installmentNumber >= $loan->tenor_months) {
+            if ($totalPaid >= $totalExpected - 0.01 || $installmentNumber >= $loan->tenor_months) {
                 $loan->status = 'paid_off';
                 $loan->save();
             }
+
+            // 3. Dispatch Notification
+            $loan->load('member.user');
+            $notificationService = resolve(\App\Services\NotificationService::class);
+            $notificationService->createNotification(
+                $loan->member->user_id,
+                '💰 Angsuran Pinjaman Diterima',
+                "Pembayaran angsuran ke-{$installmentNumber} untuk pinjaman {$loan->loan_code} sebesar Rp " . number_format($amountPaid, 0, ',', '.') . " berhasil dicatat.",
+                'loan',
+                $loan->id
+            );
 
             return $payment;
         });

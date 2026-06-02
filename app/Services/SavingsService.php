@@ -50,6 +50,16 @@ class SavingsService
                 'notes' => $notes ?? "Setoran simpanan {$type}",
             ]);
 
+            // Notify member
+            $notificationService = resolve(\App\Services\NotificationService::class);
+            $notificationService->createNotification(
+                $member->user_id,
+                '💰 Setoran Tabungan Diterima',
+                "Setoran simpanan " . strtoupper($type) . " sebesar Rp " . number_format($amount, 0, ',', '.') . " berhasil masuk.",
+                'saving',
+                $saving->id
+            );
+
             return $saving;
         });
     }
@@ -96,6 +106,16 @@ class SavingsService
                 'transaction_date' => Carbon::now(),
                 'notes' => $notes ?? "Debet simpanan {$type}",
             ]);
+
+            // Notify member
+            $notificationService = resolve(\App\Services\NotificationService::class);
+            $notificationService->createNotification(
+                $member->user_id,
+                '💸 Penarikan/Debet Tabungan',
+                "Penarikan simpanan " . strtoupper($type) . " sebesar Rp " . number_format($amount, 0, ',', '.') . " berhasil diproses.",
+                'saving',
+                $saving->id
+            );
 
             return $saving;
         });

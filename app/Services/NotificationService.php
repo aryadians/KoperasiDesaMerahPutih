@@ -118,4 +118,35 @@ class NotificationService
 
         return $result['success'] ?? false;
     }
+
+    /**
+     * Create a database notification record and optionally send a WhatsApp message.
+     *
+     * @param int $userId
+     * @param string $title
+     * @param string $message
+     * @param string $type 'order'|'loan'|'crop'|'saving'
+     * @param int|null $relatedId
+     * @return \App\Models\Notification
+     */
+    public function createNotification(int $userId, string $title, string $message, string $type, ?int $relatedId = null)
+    {
+        // 1. Create database record
+        $notification = \App\Models\Notification::create([
+            'user_id' => $userId,
+            'title' => $title,
+            'message' => $message,
+            'type' => $type,
+            'related_id' => $relatedId,
+            'is_read' => false,
+        ]);
+
+        // 2. If the user is a member, trigger WhatsApp and flash to session
+        $member = Member::where('user_id', $userId)->first();
+        if ($member) {
+            $this->sendMemberNotification($member, $title, $message);
+        }
+
+        return $notification;
+    }
 }
