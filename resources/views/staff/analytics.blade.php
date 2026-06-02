@@ -50,23 +50,6 @@
         transform: translateY(0);
     }
 
-    .analytics-card {
-        background: #ffffff;
-        border: 1px solid rgba(0, 0, 0, 0.06) !important;
-        border-radius: var(--r-lg);
-        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05),
-                    0 1px 2px rgba(0, 0, 0, 0.02),
-                    inset 0 1px 0 #ffffff !important;
-        padding: 24px;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        position: relative;
-        overflow: hidden;
-    }
-    .analytics-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff !important;
-    }
-
     .chart-filter-btn {
         padding: 8px 20px;
         font-size: 13.5px;
@@ -254,7 +237,7 @@
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;" class="split-layout">
     
     {{-- Chart 1: Ritel & Agro --}}
-    <div class="analytics-card chart-panel" id="panel-retail-agro">
+    <div class="admin-card chart-panel" id="panel-retail-agro">
         <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
             <span>Omset Ritel vs Penyerapan Tani (Rupiah)</span>
             <span style="font-size: 12px; font-weight: 500; color: var(--muted);">Tren 12 Bulan Terakhir</span>
@@ -265,7 +248,7 @@
     </div>
   
     {{-- Chart 2: Kredit & Simpanan --}}
-    <div class="analytics-card chart-panel" id="panel-financial">
+    <div class="admin-card chart-panel" id="panel-financial">
         <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
             <span>Kredit Mikro Terdistribusi vs Tabungan Warga</span>
             <span style="font-size: 12px; font-weight: 500; color: var(--muted);">Tren 12 Bulan Terakhir</span>
@@ -276,7 +259,7 @@
     </div>
 
     {{-- Chart 3: Cashflow Summary --}}
-    <div class="analytics-card chart-panel" id="panel-cashflow">
+    <div class="admin-card chart-panel" id="panel-cashflow">
         <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
             <span>Perputaran Arus Kas (Inflow vs Outflow)</span>
             <span style="font-size: 12px; font-weight: 500; color: var(--muted);">Tren 12 Bulan Terakhir</span>
@@ -287,7 +270,7 @@
     </div>
 
     {{-- Chart 4: Category Distribution --}}
-    <div class="analytics-card chart-panel" id="panel-category-sales">
+    <div class="admin-card chart-panel" id="panel-category-sales">
         <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
             <span>Distribusi Penjualan Ritel Sembako per Kategori</span>
             <span style="font-size: 12px; font-weight: 500; color: var(--muted);">Proporsi Berjalan</span>
@@ -303,7 +286,7 @@
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 36px;" class="split-layout">
     
     {{-- Top Products --}}
-    <div class="analytics-card">
+    <div class="admin-card">
         <h3 style="font-size: 17px; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
             <span>🛍️ Top 5 Produk Terlaris</span>
             <span class="mini-badge badge-primary">Ritel</span>
@@ -337,7 +320,7 @@
     </div>
 
     {{-- Top Loan Members --}}
-    <div class="analytics-card">
+    <div class="admin-card">
         <h3 style="font-size: 17px; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
             <span>🏦 5 Anggota Outstanding Kredit Terbesar</span>
             <span class="mini-badge badge-warning">Finansial</span>
@@ -373,7 +356,7 @@
 </div>
  
 {{-- ═══════════════════════ DETAILED REPORT TABLE ═══════════════════════ --}}
-<div class="analytics-card" style="margin-bottom: 36px;">
+<div class="admin-card" style="margin-bottom: 36px;">
     <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">📅 Tabel Rincian Keuangan Bulanan (Tahun {{ $year }})</h3>
     <table class="clean-table" style="margin-top: 0;">
         <thead>

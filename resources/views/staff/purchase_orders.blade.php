@@ -50,35 +50,6 @@
         transform: translateY(0);
     }
 
-    .po-card {
-        background: #ffffff;
-        border: 1px solid rgba(0, 0, 0, 0.06) !important;
-        border-radius: var(--r-lg);
-        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05),
-                    0 1px 2px rgba(0, 0, 0, 0.02),
-                    inset 0 1px 0 #ffffff !important;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .po-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff !important;
-    }
-
-    .po-form-card {
-        background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
-        border: 1px solid rgba(0, 0, 0, 0.06) !important;
-        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05),
-                    0 1px 2px rgba(0, 0, 0, 0.02),
-                    inset 0 1px 0 #ffffff !important;
-        border-radius: var(--r-lg);
-        padding: 24px;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .po-form-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff !important;
-    }
-
     /* Form Input Polish */
     .form-group label {
         font-size: 11px;
@@ -129,7 +100,7 @@
     
     {{-- PO list table --}}
     <div class="main-column">
-        <div class="po-card card-flush" style="overflow: hidden;">
+        <div class="admin-card card-flush" style="overflow: hidden; padding: 0;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--hairline-soft); background: linear-gradient(to bottom, var(--surface-soft), var(--surface)); border-top-left-radius: var(--r-lg); border-top-right-radius: var(--r-lg);">
                 <h3 style="font-size: 15px; font-weight: 800; margin: 0; color: var(--ink); letter-spacing: -0.3px; display: flex; align-items: center; gap: 6px;">
                     <span style="animation: emoji-bounce 2s ease-in-out infinite;">📋</span> Daftar Permintaan Pembelian Grosir (PO)
@@ -238,7 +209,7 @@
 
     {{-- Create PO Form --}}
     <div class="sticky-rail" id="create-po-card">
-        <div class="po-form-card">
+        <div class="admin-card">
             <h3 style="font-size: 16px; font-weight: 800; border-bottom: 1px solid var(--hairline-soft); padding-bottom: 12px; margin-bottom: 20px; color: var(--ink);">
                 <span style="font-size: 18px; animation: emoji-bounce 2.5s infinite;">📦</span> Buat Purchase Order
             </h3>
@@ -341,3 +312,4 @@
 </script>
 
 @endsection
+endsection

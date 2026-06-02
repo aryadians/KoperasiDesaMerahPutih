@@ -81,59 +81,6 @@
     .dashboard-nav-card.lns::before { background: linear-gradient(135deg, var(--info-bg), transparent 60%) !important; }
 
     /* Split Columns Premium Styling */
-    .low-stock-card {
-        background: #ffffff;
-        border: 1px solid rgba(220, 38, 38, 0.15) !important;
-        box-shadow: 0 10px 30px -10px rgba(220, 38, 38, 0.05),
-                    0 1px 2px rgba(0, 0, 0, 0.02),
-                    inset 0 1px 0 #ffffff !important;
-        border-radius: var(--r-lg);
-        overflow: hidden;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .low-stock-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 16px 36px -12px rgba(220, 38, 38, 0.12),
-                    0 2px 4px rgba(0, 0, 0, 0.02),
-                    inset 0 1px 0 #ffffff !important;
-    }
-
-    .shu-card {
-        background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
-        border: 1px solid rgba(0, 0, 0, 0.06) !important;
-        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05),
-                    0 1px 2px rgba(0, 0, 0, 0.02),
-                    inset 0 1px 0 #ffffff !important;
-        border-radius: var(--r-lg);
-        padding: 24px;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-    .shu-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.08),
-                    0 2px 4px rgba(0, 0, 0, 0.02),
-                    inset 0 1px 0 #ffffff !important;
-    }
-
-    .autodebet-card {
-        background: linear-gradient(135deg, var(--success-bg), #f0fdf4) !important;
-        border: 1px solid var(--success-border) !important;
-        box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.08),
-                    0 1px 2px rgba(0, 0, 0, 0.01),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
-        border-radius: var(--r-lg);
-        padding: 24px;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .autodebet-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 16px 36px -12px rgba(16, 185, 129, 0.15),
-                    0 2px 4px rgba(0, 0, 0, 0.01),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
-    }
 
     .autodebet-btn {
         background: linear-gradient(135deg, var(--success), #165c42) !important;
@@ -292,7 +239,7 @@
 
     {{-- Low Stock Alert --}}
     <div class="main-column reveal-left">
-        <div class="low-stock-card">
+        <div class="admin-card">
             <div style="padding: 18px 24px; background: linear-gradient(135deg, #fdf2f2, #fef6f6); border-bottom: 1px solid #fde8e8; display: flex; align-items: center; gap: 10px;">
                 <span style="font-size: 20px; animation: badge-float 2s ease-in-out infinite;">⚠️</span>
                 <div>
@@ -347,7 +294,7 @@
 
     {{-- SHU Calculator --}}
     <div class="sticky-rail reveal-right">
-        <div class="shu-card">
+        <div class="admin-card">
             <div>
                 <div style="font-size: 32px; margin-bottom: 12px; animation: emoji-bounce 3s ease-in-out infinite;">📊</div>
                 <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Kalkulator SHU</h3>
@@ -361,7 +308,7 @@
         </div>
 
         {{-- Autodebet Setoran Wajib --}}
-        <div class="autodebet-card" style="margin-top: 20px;">
+        <div class="admin-card" style="margin-top: 20px;">
             <div>
                 <div style="font-size: 32px; margin-bottom: 12px; animation: emoji-bounce 3s ease-in-out infinite;">🔄</div>
                 <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 6px; color: var(--success);">Autodebet Setoran Wajib</h3>
