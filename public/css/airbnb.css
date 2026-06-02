@@ -379,21 +379,23 @@ header.top-nav .nav-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    color: var(--body);
-    background: linear-gradient(135deg, var(--surface), #ffffff);
-    border: 1.5px solid var(--hairline);
-    box-shadow: var(--shadow-xs), var(--shadow-top);
-    transition: all var(--t-base) var(--ease-bounce);
+    color: var(--ink);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04), inset 0 1px 0 #ffffff;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .cart-icon-wrap:hover {
-    background: var(--primary-light);
-    border-color: var(--primary-muted);
+    background: #ffffff;
     color: var(--primary);
-    transform: translateY(-2px) scale(1.08);
-    box-shadow: var(--shadow-md), 0 0 0 3px var(--primary-light);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 24px rgba(225, 29, 72, 0.15), inset 0 1px 0 #ffffff;
+    border-color: rgba(225, 29, 72, 0.2);
 }
 .cart-badge {
     position: absolute;
@@ -915,13 +917,22 @@ header.top-nav .nav-container {
 @media (max-width: 480px) { .grid-3 { grid-template-columns: 1fr; } }
 
 .property-card {
-    display: flex; flex-direction: column; gap: 10px;
-    border-radius: var(--r-lg); overflow: visible;
+    display: flex; flex-direction: column; gap: 14px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: var(--r-xl);
+    padding: 14px;
     cursor: pointer;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.04), inset 0 1px 0 #ffffff;
     transform-style: preserve-3d;
-    transition: transform var(--t-slow), box-shadow var(--t-slow);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     animation: card-fade-in 0.55s var(--ease-out) both;
     height: 100%;
+}
+.property-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 20px 40px -12px rgba(0,0,0,0.1), inset 0 1px 0 #ffffff;
+    border-color: rgba(0, 0, 0, 0.08);
 }
 @keyframes card-fade-in {
     from { opacity: 0; transform: translateY(22px) scale(0.96); }
@@ -938,66 +949,80 @@ header.top-nav .nav-container {
 
 .property-card-photo {
     width: 100%; aspect-ratio: 1;
-    border-radius: var(--r-lg);
+    border-radius: var(--r-md);
     overflow: hidden; position: relative;
-    background: var(--surface-md);
+    background: var(--surface-soft);
     flex-shrink: 0;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.03);
 }
 .property-card-photo img {
     width: 100%; height: 100%;
     object-fit: cover;
-    transition: transform 0.55s var(--ease-out);
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
 }
-.property-card:hover .property-card-photo img { transform: scale(1.07); }
+.property-card:hover .property-card-photo img { transform: scale(1.08); }
 
 .guest-favorite-badge {
     position: absolute; top: 10px; left: 10px;
     background: rgba(255,255,255,0.92);
     color: var(--ink); font-size: 10.5px; font-weight: 700;
-    padding: 3px 10px; border-radius: var(--r-full);
-    box-shadow: var(--shadow-sm);
+    padding: 4px 10px; border-radius: var(--r-full);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
 }
 .local-badge {
     position: absolute; top: 10px; right: 10px;
     background: linear-gradient(135deg, var(--success), #047857);
-    color: white; font-size: 10px; font-weight: 700;
-    padding: 3px 10px; border-radius: var(--r-full);
-    box-shadow: 0 2px 8px rgba(5,150,105,0.3);
+    color: white; font-size: 10.5px; font-weight: 800;
+    padding: 4px 10px; border-radius: var(--r-full);
+    box-shadow: 0 4px 12px rgba(5,150,105,0.3);
 }
 .member-price-badge {
     position: absolute; bottom: 10px; left: 10px;
     background: linear-gradient(135deg, var(--primary), var(--primary-mid));
-    color: white; font-size: 10px; font-weight: 700;
-    padding: 3px 10px; border-radius: var(--r-full);
+    color: white; font-size: 10.5px; font-weight: 800;
+    padding: 4px 12px; border-radius: var(--r-full);
     box-shadow: var(--shadow-primary);
 }
 
-.property-card-meta { display: flex; flex-direction: column; gap: 3px; padding: 0 2px; flex-grow: 1; }
+.property-card-meta { display: flex; flex-direction: column; gap: 4px; padding: 0 4px; flex-grow: 1; }
 .property-card-title {
-    font-size: 14px; font-weight: 700; color: var(--ink);
-    display: flex; justify-content: space-between; align-items: flex-start; gap: 4px;
-    line-height: 1.35;
+    font-size: 15px; font-weight: 800; color: var(--ink);
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 6px;
+    line-height: 1.35; letter-spacing: -0.2px;
 }
 .property-card-description {
-    font-size: 12.5px; color: var(--muted);
+    font-size: 13px; color: var(--muted);
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     line-height: 1.45;
 }
-.property-card-price { font-size: 15px; font-weight: 800; color: var(--ink); margin-top: 4px; }
-.price-strike { text-decoration: line-through; font-weight: 400; color: var(--muted-light); font-size: 12px; margin-left: 4px; }
-.member-tag { color: var(--primary); font-size: 11px; font-weight: 700; }
+.property-card-price { font-size: 16px; font-weight: 800; color: var(--ink); margin-top: 6px; display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px; }
+.price-strike { text-decoration: line-through; font-weight: 500; color: var(--muted-light); font-size: 12px; margin-left: 2px; }
+.member-tag { color: var(--primary); font-size: 11.5px; font-weight: 800; margin-left: 2px; }
 
 /* Quick Buy Button */
 .quick-buy-btn {
-    width: 100%; height: 36px;
+    width: 100%; height: 40px; margin-top: auto;
     border-radius: var(--r-full);
-    border: 1.5px solid var(--hairline);
-    background: var(--canvas);
-    color: var(--ink); font-size: 13px; font-weight: 600;
+    border: 1.5px solid var(--hairline-soft);
+    background: linear-gradient(to bottom, #ffffff, #f8fafc);
+    color: var(--ink); font-size: 13.5px; font-weight: 700;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.quick-buy-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(225, 29, 72, 0.12), inset 0 1px 0 #ffffff;
+    background: #ffffff;
+}
+.quick-buy-btn:active {
+    transform: translateY(0);
+}
     text-decoration: none;
     transition: all var(--t-base) var(--ease-bounce);
     position: relative; overflow: hidden;
