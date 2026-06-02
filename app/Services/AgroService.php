@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\MemberLand;
+use App\Models\Commodity;
 use Carbon\Carbon;
 
 class AgroService
@@ -12,23 +13,11 @@ class AgroService
      */
     public function getHarvestForecast(MemberLand $land)
     {
-        $yieldPerM2 = 0;
-        $growthDays = 0;
+        $commodity = Commodity::where('name', $land->commodity_type)->first();
 
-        // Simplified yield and growth data
-        switch (strtolower($land->commodity_type)) {
-            case 'padi':
-                $yieldPerM2 = 0.5; // 0.5kg per m2
-                $growthDays = 100;
-                break;
-            case 'jagung':
-                $yieldPerM2 = 0.8;
-                $growthDays = 90;
-                break;
-            default:
-                $yieldPerM2 = 0.3;
-                $growthDays = 120;
-        }
+        // Fallback defaults if commodity not found in DB
+        $yieldPerM2 = $commodity ? $commodity->yield_per_m2 : 0.3;
+        $growthDays = $commodity ? $commodity->growth_days : 120;
 
         $estimatedYield = $land->area_m2 * $yieldPerM2;
         $harvestDate = $land->last_planting_date 
@@ -42,3 +31,4 @@ class AgroService
         ];
     }
 }
+

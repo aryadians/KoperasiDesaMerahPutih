@@ -26,21 +26,29 @@ class Member extends Model
     }
 
     /**
-     * Get the dynamic tier based on points.
+     * Recalculate and save the member's tier based on current points.
      */
-    public function getCalculatedTierAttribute()
+    public function recalculateTier()
     {
-        if ($this->total_poin > 5000) return 'platinum';
-        if ($this->total_poin > 1000) return 'gold';
-        return 'silver';
+        $newTier = 'silver';
+        if ($this->total_poin > 5000) {
+            $newTier = 'platinum';
+        } elseif ($this->total_poin > 1000) {
+            $newTier = 'gold';
+        }
+
+        if ($this->tier !== $newTier) {
+            $this->tier = $newTier;
+            $this->save();
+        }
     }
 
     /**
-     * Get discount multiplier for retail purchases.
+     * Get discount multiplier for retail purchases based on database tier.
      */
     public function getTierDiscountMultiplierAttribute()
     {
-        switch ($this->calculated_tier) {
+        switch ($this->tier) {
             case 'platinum': return 0.10; // 10% discount
             case 'gold': return 0.05;     // 5% discount
             default: return 0.00;

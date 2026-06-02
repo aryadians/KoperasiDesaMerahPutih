@@ -113,6 +113,17 @@ class TransactionService
             // Deduct promo bundle and tebus discounts from total amount
             $totalAmount = $totalAmount - $totalBundleDiscount - $totalTebusDiscount;
 
+            // 2.5 Apply Loyalty Tier Discount
+            $tierDiscount = 0.00;
+            if ($isMember) {
+                $member = Member::where('user_id', $userId)->first();
+                if ($member) {
+                    $multiplier = $member->tier_discount_multiplier;
+                    $tierDiscount = $totalAmount * $multiplier;
+                }
+            }
+            $totalAmount = max(0, $totalAmount - $tierDiscount);
+
             // 3. Apply Voucher Coupon
             $voucherDiscount = 0.00;
             if ($voucherCode) {
@@ -204,6 +215,7 @@ class TransactionService
                 if ($member) {
                     $member->total_poin += $pointsEarned;
                     $member->save();
+                    $member->recalculateTier();
                 }
             }
 
@@ -280,6 +292,7 @@ class TransactionService
                 if ($member) {
                     $member->total_poin = max(0, $member->total_poin - $order->points_earned);
                     $member->save();
+                    $member->recalculateTier();
                 }
             }
 
