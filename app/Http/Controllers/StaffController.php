@@ -61,38 +61,47 @@ class StaffController extends Controller
     public function dashboard()
     {
         $branchId = auth()->user()->branch_id;
+        
+        // Cache heavy metrics for 10 minutes
+        $cacheKey = "staff_dashboard_metrics_{$branchId}_" . date('Ym');
+        $metrics = \Illuminate\Support\Facades\Cache::remember($cacheKey, 60 * 10, function () use ($branchId) {
+            $totalSales = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->sum('total_amount');
+            $totalCropPayout = CropAbsorption::where('branch_id', $branchId)->where('status', 'paid')->sum('total_payout');
+            $activeLoansVolume = Loan::where('branch_id', $branchId)->where('status', 'active')->sum('amount_approved');
+            
+            $activeMembers = Member::where('status_aktif', true)->whereHas('user', function($q) use ($branchId) {
+                $q->where('branch_id', $branchId);
+            })->get();
+            
+            $paidCount = 0;
+            $unpaidCount = 0;
+            foreach ($activeMembers as $m) {
+                $hasPaid = MemberSaving::where('member_id', $m->id)
+                    ->where('type', 'wajib')
+                    ->where('amount', '>', 0)
+                    ->whereMonth('transaction_date', date('m'))
+                    ->whereYear('transaction_date', date('Y'))
+                    ->exists();
+                if ($hasPaid) {
+                    $paidCount++;
+                } else {
+                    $unpaidCount++;
+                }
+            }
+
+            return compact('totalSales', 'totalCropPayout', 'activeLoansVolume', 'paidCount', 'unpaidCount');
+        });
+
+        // Extract cached metrics
+        extract($metrics);
+
+        // Non-cached real-time data
         $pendingOrdersCount = Order::where('branch_id', $branchId)->where('payment_status', 'pending')->count();
         $pendingCropsCount = CropAbsorption::where('branch_id', $branchId)->where('status', 'pending')->count();
         $pendingLoansCount = Loan::where('branch_id', $branchId)->where('status', 'draft')->count();
         
         $lowStockProducts = Product::where('branch_id', $branchId)->where('current_stock', '<', 5)->get();
-
-        // Statistics
-        $totalSales = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->sum('total_amount');
-        $totalCropPayout = CropAbsorption::where('branch_id', $branchId)->where('status', 'paid')->sum('total_payout');
-        $activeLoansVolume = Loan::where('branch_id', $branchId)->where('status', 'active')->sum('amount_approved');
-
-        // Iuran Wajib and Autodebet stats
         $iuranWajibNominal = (float) (SystemConfig::where('key', 'IURAN_WAJIB_NOMINAL')->first()->value ?? 50000.00);
-        $activeMembers = Member::where('status_aktif', true)->whereHas('user', function($q) use ($branchId) {
-            $q->where('branch_id', $branchId);
-        })->get();
-        
-        $paidCount = 0;
-        $unpaidCount = 0;
-        foreach ($activeMembers as $m) {
-            $hasPaid = MemberSaving::where('member_id', $m->id)
-                ->where('type', 'wajib')
-                ->where('amount', '>', 0)
-                ->whereMonth('transaction_date', date('m'))
-                ->whereYear('transaction_date', date('Y'))
-                ->exists();
-            if ($hasPaid) {
-                $paidCount++;
-            } else {
-                $unpaidCount++;
-            }
-        }
 
         $autodebetLogs = MemberSaving::with('member.user')
             ->whereHas('member.user', function($q) use ($branchId) {
@@ -1181,107 +1190,126 @@ class StaffController extends Controller
         $branchId = auth()->user()->branch_id;
         $year     = date('Y');
 
-        // KPI totals
-        $salesToday    = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->whereDate('created_at', \Carbon\Carbon::today())->sum('total_amount');
-        $totalSales    = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->sum('total_amount');
-        $totalCrops    = CropAbsorption::where('branch_id', $branchId)->where('status', 'paid')->sum('total_payout');
-        $totalLoans    = Loan::where('branch_id', $branchId)->whereIn('status', ['active', 'paid_off'])->sum('amount_approved');
-        $totalSavings  = MemberSaving::whereHas('member.user', fn($q) => $q->where('branch_id', $branchId))->where('amount', '>', 0)->sum('amount');
-        $activeMembers = Member::where('status_aktif', true)->whereHas('user', fn($q) => $q->where('branch_id', $branchId))->count();
-        $totalProducts = Product::where('branch_id', $branchId)->count();
-        $avgOrderValue = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->avg('total_amount') ?? 0;
+        // Cache key based on branch and year, expires in 15 minutes
+        $cacheKey = "analytics_data_{$branchId}_{$year}";
 
-        // Optimized Trend Data Gathering (Replacing 12 separate queries with grouped aggregates)
-        $salesRaw = Order::where('branch_id', $branchId)
-            ->where('payment_status', 'paid')
-            ->whereYear('created_at', $year)
-            ->selectRaw('MONTH(created_at) as month, SUM(total_amount) as total')
-            ->groupBy('month')
-            ->pluck('total', 'month');
+        // Use Cache::remember to cache the complex analytics data
+        $data = \Illuminate\Support\Facades\Cache::remember($cacheKey, 60 * 15, function () use ($branchId, $year) {
+            // KPI totals
+            $totalSales    = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->sum('total_amount');
+            $totalCrops    = CropAbsorption::where('branch_id', $branchId)->where('status', 'paid')->sum('total_payout');
+            $totalLoans    = Loan::where('branch_id', $branchId)->whereIn('status', ['active', 'paid_off'])->sum('amount_approved');
+            $totalSavings  = MemberSaving::whereHas('member.user', fn($q) => $q->where('branch_id', $branchId))->where('amount', '>', 0)->sum('amount');
+            $activeMembers = Member::where('status_aktif', true)->whereHas('user', fn($q) => $q->where('branch_id', $branchId))->count();
+            $totalProducts = Product::where('branch_id', $branchId)->count();
+            $avgOrderValue = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->avg('total_amount') ?? 0;
 
-        $savingsRaw = MemberSaving::whereHas('member.user', fn($q) => $q->where('branch_id', $branchId))
-            ->where('amount', '>', 0)
-            ->whereYear('transaction_date', $year)
-            ->selectRaw('MONTH(transaction_date) as month, SUM(amount) as total')
-            ->groupBy('month')
-            ->pluck('total', 'month');
+            // Optimized Trend Data Gathering (Replacing 12 separate queries with grouped aggregates)
+            $salesRaw = Order::where('branch_id', $branchId)
+                ->where('payment_status', 'paid')
+                ->whereYear('created_at', $year)
+                ->selectRaw('MONTH(created_at) as month, SUM(total_amount) as total')
+                ->groupBy('month')
+                ->pluck('total', 'month');
 
-        $loanPaymentsRaw = LoanPayment::whereHas('loan', fn($q) => $q->where('branch_id', $branchId))
-            ->whereYear('payment_date', $year)
-            ->selectRaw('MONTH(payment_date) as month, SUM(amount_paid) as total')
-            ->groupBy('month')
-            ->pluck('total', 'month');
+            $savingsRaw = MemberSaving::whereHas('member.user', fn($q) => $q->where('branch_id', $branchId))
+                ->where('amount', '>', 0)
+                ->whereYear('transaction_date', $year)
+                ->selectRaw('MONTH(transaction_date) as month, SUM(amount) as total')
+                ->groupBy('month')
+                ->pluck('total', 'month');
 
-        $cropsRaw = CropAbsorption::where('branch_id', $branchId)
-            ->where('status', 'paid')
-            ->whereYear('created_at', $year)
-            ->selectRaw('MONTH(created_at) as month, SUM(total_payout) as total')
-            ->groupBy('month')
-            ->pluck('total', 'month');
+            $loanPaymentsRaw = LoanPayment::whereHas('loan', fn($q) => $q->where('branch_id', $branchId))
+                ->whereYear('payment_date', $year)
+                ->selectRaw('MONTH(payment_date) as month, SUM(amount_paid) as total')
+                ->groupBy('month')
+                ->pluck('total', 'month');
 
-        $loansRaw = Loan::where('branch_id', $branchId)
-            ->whereIn('status', ['active', 'paid_off'])
-            ->whereYear('created_at', $year)
-            ->selectRaw('MONTH(created_at) as month, SUM(amount_approved) as total')
-            ->groupBy('month')
-            ->pluck('total', 'month');
+            $cropsRaw = CropAbsorption::where('branch_id', $branchId)
+                ->where('status', 'paid')
+                ->whereYear('created_at', $year)
+                ->selectRaw('MONTH(created_at) as month, SUM(total_payout) as total')
+                ->groupBy('month')
+                ->pluck('total', 'month');
 
-        $poRaw = PurchaseOrder::whereHas('product', fn($q) => $q->where('branch_id', $branchId))
-            ->where('status', 'received')
-            ->whereYear('created_at', $year)
-            ->selectRaw('MONTH(created_at) as month, SUM(total_cost) as total')
-            ->groupBy('month')
-            ->pluck('total', 'month');
+            $loansRaw = Loan::where('branch_id', $branchId)
+                ->whereIn('status', ['active', 'paid_off'])
+                ->whereYear('created_at', $year)
+                ->selectRaw('MONTH(created_at) as month, SUM(amount_approved) as total')
+                ->groupBy('month')
+                ->pluck('total', 'month');
 
-        // 12-month time-series formatting
-        $labels         = [];
-        $salesTrend     = [];
-        $cropTrend      = [];
-        $loanTrend      = [];
-        $savingsTrend   = [];
-        $cashflowInflow  = [];
-        $cashflowOutflow = [];
-        
-        for ($m = 1; $m <= 12; $m++) {
-            $labels[] = \Carbon\Carbon::createFromDate($year, $m, 1)->format('M');
+            $poRaw = PurchaseOrder::whereHas('product', fn($q) => $q->where('branch_id', $branchId))
+                ->where('status', 'received')
+                ->whereYear('created_at', $year)
+                ->selectRaw('MONTH(created_at) as month, SUM(total_cost) as total')
+                ->groupBy('month')
+                ->pluck('total', 'month');
+
+            // 12-month time-series formatting
+            $labels         = [];
+            $salesTrend     = [];
+            $cropTrend      = [];
+            $loanTrend      = [];
+            $savingsTrend   = [];
+            $cashflowInflow  = [];
+            $cashflowOutflow = [];
             
-            $salesVal   = (float) ($salesRaw[$m] ?? 0);
-            $savingsVal = (float) ($savingsRaw[$m] ?? 0);
-            $lpVal      = (float) ($loanPaymentsRaw[$m] ?? 0);
-            $cropsVal   = (float) ($cropsRaw[$m] ?? 0);
-            $loansVal   = (float) ($loansRaw[$m] ?? 0);
-            $poVal      = (float) ($poRaw[$m] ?? 0);
+            for ($m = 1; $m <= 12; $m++) {
+                $labels[] = \Carbon\Carbon::createFromDate($year, $m, 1)->format('M');
+                
+                $salesVal   = (float) ($salesRaw[$m] ?? 0);
+                $savingsVal = (float) ($savingsRaw[$m] ?? 0);
+                $lpVal      = (float) ($loanPaymentsRaw[$m] ?? 0);
+                $cropsVal   = (float) ($cropsRaw[$m] ?? 0);
+                $loansVal   = (float) ($loansRaw[$m] ?? 0);
+                $poVal      = (float) ($poRaw[$m] ?? 0);
 
-            $salesTrend[]     = $salesVal;
-            $cropTrend[]      = $cropsVal;
-            $loanTrend[]      = $loansVal;
-            $savingsTrend[]   = $savingsVal;
-            $cashflowInflow[]  = $salesVal + $savingsVal + $lpVal;
-            $cashflowOutflow[] = $cropsVal + $loansVal + $poVal;
-        }
+                $salesTrend[]     = $salesVal;
+                $cropTrend[]      = $cropsVal;
+                $loanTrend[]      = $loansVal;
+                $savingsTrend[]   = $savingsVal;
+                $cashflowInflow[]  = $salesVal + $savingsVal + $lpVal;
+                $cashflowOutflow[] = $cropsVal + $loansVal + $poVal;
+            }
 
-        // SHU Forecast: total active member points * 5,000 IDR (multiplier example)
-        $totalPoints = Member::where('status_aktif', true)->whereHas('user', fn($q) => $q->where('branch_id', $branchId))->sum('total_poin');
-        $shuForecast = $totalPoints * 5000;
+            // SHU Forecast: total active member points * 5,000 IDR (multiplier example)
+            $totalPoints = Member::where('status_aktif', true)->whereHas('user', fn($q) => $q->where('branch_id', $branchId))->sum('total_poin');
+            $shuForecast = $totalPoints * 5000;
 
-        // Top 5 best-selling products
-        $topProducts = OrderItem::with('product')
-            ->whereHas('order', fn($q) => $q->where('branch_id', $branchId)->where('payment_status', 'paid'))
-            ->selectRaw('product_id, SUM(quantity) as total_qty, SUM(subtotal) as total_revenue')
-            ->groupBy('product_id')
-            ->orderByDesc('total_qty')
-            ->take(5)
-            ->get();
+            // Top 5 best-selling products
+            $topProducts = OrderItem::with('product')
+                ->whereHas('order', fn($q) => $q->where('branch_id', $branchId)->where('payment_status', 'paid'))
+                ->selectRaw('product_id, SUM(quantity) as total_qty, SUM(subtotal) as total_revenue')
+                ->groupBy('product_id')
+                ->orderByDesc('total_qty')
+                ->take(5)
+                ->get();
 
-        // Top 5 members by loan volume
-        $topLoanMembers = Loan::with('member.user')
-            ->where('branch_id', $branchId)
-            ->whereIn('status', ['active', 'paid_off'])
-            ->selectRaw('member_id, SUM(amount_approved) as total_loans, COUNT(*) as loan_count')
-            ->groupBy('member_id')
-            ->orderByDesc('total_loans')
-            ->take(5)
-            ->get();
+            // Top 5 members by active loan volume
+            $topLoanMembers = Loan::with('member.user')
+                ->where('branch_id', $branchId)
+                ->where('status', 'active')
+                ->selectRaw('member_id, SUM(amount_approved) as total_loans')
+                ->groupBy('member_id')
+                ->orderByDesc('total_loans')
+                ->take(5)
+                ->get();
+
+            return compact(
+                'totalSales', 'totalCrops', 'totalLoans', 'totalSavings', 
+                'activeMembers', 'totalProducts', 'avgOrderValue',
+                'labels', 'salesTrend', 'cropTrend', 'loanTrend', 'savingsTrend', 
+                'cashflowInflow', 'cashflowOutflow', 'shuForecast',
+                'topProducts', 'topLoanMembers'
+            );
+        });
+
+        // Extract cached data
+        extract($data);
+
+        // Get non-cached live data
+        $salesToday = Order::where('branch_id', $branchId)->where('payment_status', 'paid')->whereDate('created_at', \Carbon\Carbon::today())->sum('total_amount');
 
         return view('staff.analytics', compact(
             'salesToday', 'totalSales', 'totalCrops', 'totalLoans', 'totalSavings',
