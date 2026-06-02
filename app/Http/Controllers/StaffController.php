@@ -15,6 +15,7 @@ use App\Models\PurchaseOrder;
 use App\Models\LoanPayment;
 use App\Models\OrderItem;
 use App\Models\Branch;
+use App\Models\ActivityLog;
 use App\Services\TransactionService;
 use App\Services\CropAbsorptionService;
 use App\Services\LoanService;
@@ -195,6 +196,9 @@ class StaffController extends Controller
         }
         try {
             $this->cropService->updateStatus($id, $status, $request->input('scale_image'));
+
+            ActivityLog::log('update_crop_status', 'CropAbsorption', $id, ['status' => $status]);
+
             return back()->with('success', 'Status penyerapan hasil tani berhasil diperbarui.');
         } catch (Exception $e) {
             return back()->withErrors(['error' => 'Gagal memperbarui status penyerapan: ' . $e->getMessage()]);
@@ -220,6 +224,12 @@ class StaffController extends Controller
         try {
             $amountApproved = $request->input('amount_approved');
             $this->loanService->updateStatus($id, $status, $amountApproved);
+            
+            ActivityLog::log('update_loan_status', 'Loan', $id, [
+                'status' => $status,
+                'amount_approved' => $amountApproved
+            ]);
+
             return back()->with('success', 'Status pinjaman berhasil diperbarui.');
         } catch (Exception $e) {
             return back()->withErrors(['error' => 'Gagal memperbarui status pinjaman: ' . $e->getMessage()]);
@@ -756,6 +766,12 @@ class StaffController extends Controller
                 }
             }
             DB::commit();
+
+            ActivityLog::log('run_autodebet', null, null, [
+                'success_count' => $successCount,
+                'fail_count' => $failCount,
+                'amount_per_member' => $amount
+            ]);
 
             // Dispatch WhatsApp notifications
             $notificationService = resolve(NotificationService::class);
