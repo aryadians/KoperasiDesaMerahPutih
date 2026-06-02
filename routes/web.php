@@ -15,6 +15,11 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+// PWA Offline fallback
+Route::get('/offline', function () {
+    return view('offline');
+})->name('offline');
+
 // =====================================================================
 // ADMIN / STAFF LOGIN — Panel khusus admin, pengurus, kasir, staf
 // URL: /admin/login
@@ -99,42 +104,69 @@ Route::middleware('auth')->group(function () {
     // ── STAFF / MANAGEMENT ROUTES ──────────────────────────────────
     Route::prefix('staff')->name('staff.')->group(function () {
         Route::get('/dashboard', [StaffController::class, 'dashboard'])->name('dashboard');
+
+        // Analytics — semua staff bisa lihat
         Route::get('/analytics', [StaffController::class, 'analytics'])->name('analytics');
         Route::get('/analytics/rat/pdf', [StaffController::class, 'exportRATReportPdf'])->name('analytics.rat-pdf');
-        
-        // POS Kasir Offline
+
+        // Export laporan keuangan — admin & pengurus saja
+        Route::middleware('role:admin,pengurus')->group(function () {
+            Route::get('/reports/financial/pdf', [StaffController::class, 'exportFinancialPdf'])->name('reports.financial-pdf');
+            Route::get('/reports/financial/excel', [StaffController::class, 'exportFinancialExcel'])->name('reports.financial-excel');
+            Route::get('/reports/loans/pdf', [StaffController::class, 'exportLoansPdf'])->name('reports.loans-pdf');
+            Route::get('/reports/loans/excel', [StaffController::class, 'exportLoansExcel'])->name('reports.loans-excel');
+            Route::get('/reports/crops/pdf', [StaffController::class, 'exportCropsPdf'])->name('reports.crops-pdf');
+            Route::get('/reports/crops/excel', [StaffController::class, 'exportCropsExcel'])->name('reports.crops-excel');
+            Route::get('/reports/savings/pdf', [StaffController::class, 'exportSavingsPdf'])->name('reports.savings-pdf');
+            Route::get('/reports/savings/excel', [StaffController::class, 'exportSavingsExcel'])->name('reports.savings-excel');
+        });
+
+        // POS Kasir — kasir, pengurus, admin
         Route::get('/pos', [StaffController::class, 'pos'])->name('pos');
         Route::post('/pos/checkout', [StaffController::class, 'posCheckout'])->name('pos.checkout');
         Route::get('/pos/member/{nik}', [StaffController::class, 'posLookupMember'])->name('pos.member');
         Route::get('/pos/receipt/{id}/pdf', [StaffController::class, 'downloadReceiptPdf'])->name('pos.receipt-pdf');
         Route::post('/autodebet', [StaffController::class, 'runAutodebet'])->name('autodebet');
 
-        // System Config Panel
-        Route::get('/config', [StaffController::class, 'config'])->name('config');
-        Route::post('/config', [StaffController::class, 'updateConfig'])->name('config.update');
+        // System Config Panel — admin only
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/config', [StaffController::class, 'config'])->name('config');
+            Route::post('/config', [StaffController::class, 'updateConfig'])->name('config.update');
+        });
 
-        // Procurement / Purchase Orders
-        Route::get('/purchase-orders', [\App\Http\Controllers\PurchaseOrderController::class, 'index'])->name('purchase-orders');
-        Route::post('/purchase-orders', [\App\Http\Controllers\PurchaseOrderController::class, 'store'])->name('purchase-orders.store');
-        Route::post('/purchase-orders/{id}/status/{status}', [\App\Http\Controllers\PurchaseOrderController::class, 'updateStatus'])->name('purchase-orders.update-status');
+        // Procurement / Purchase Orders — pengurus & admin
+        Route::middleware('role:admin,pengurus')->group(function () {
+            Route::get('/purchase-orders', [\App\Http\Controllers\PurchaseOrderController::class, 'index'])->name('purchase-orders');
+            Route::post('/purchase-orders', [\App\Http\Controllers\PurchaseOrderController::class, 'store'])->name('purchase-orders.store');
+            Route::post('/purchase-orders/{id}/status/{status}', [\App\Http\Controllers\PurchaseOrderController::class, 'updateStatus'])->name('purchase-orders.update-status');
+        });
 
-        // Order management
+        // Order management — semua staff
         Route::get('/orders/export', [StaffController::class, 'exportOrders'])->name('orders.export');
         Route::get('/orders', [StaffController::class, 'orders'])->name('orders');
         Route::post('/orders/{id}/{status}', [StaffController::class, 'updateOrderStatus'])->name('orders.update');
 
-        // Crop absorption (Pengurus Agro)
-        Route::get('/crops', [StaffController::class, 'crops'])->name('crops');
-        Route::post('/crops/{id}/{status}', [StaffController::class, 'updateCropStatus'])->name('crops.update');
+        // Crop absorption — pengurus & admin
+        Route::middleware('role:admin,pengurus')->group(function () {
+            Route::get('/crops', [StaffController::class, 'crops'])->name('crops');
+            Route::post('/crops/{id}/{status}', [StaffController::class, 'updateCropStatus'])->name('crops.update');
+            Route::get('/crops/{id}/receipt/pdf', [StaffController::class, 'downloadCropReceiptPdf'])->name('crops.receipt-pdf');
+        });
 
-        // Loan underwriting & repayment (Pengurus Finansial)
-        Route::get('/loans', [StaffController::class, 'loans'])->name('loans');
-        Route::post('/loans/{id}/{status}', [StaffController::class, 'updateLoanStatus'])->name('loans.update');
-        Route::post('/loans/payment', [StaffController::class, 'recordLoanPayment'])->name('loans.payment');
+        // Loan underwriting & repayment — pengurus & admin
+        Route::middleware('role:admin,pengurus')->group(function () {
+            Route::get('/loans', [StaffController::class, 'loans'])->name('loans');
+            Route::post('/loans/{id}/{status}', [StaffController::class, 'updateLoanStatus'])->name('loans.update');
+            Route::post('/loans/payment', [StaffController::class, 'recordLoanPayment'])->name('loans.payment');
+            Route::get('/loans/payment/{id}/receipt/pdf', [StaffController::class, 'downloadLoanReceiptPdf'])->name('loans.receipt-pdf');
+        });
 
-        // Product inventory (Admin)
-        Route::get('/products/export', [StaffController::class, 'exportProducts'])->name('products.export');
-        Route::post('/products/bulk-delete', [StaffController::class, 'bulkDeleteProducts'])->name('products.bulk-delete');
+        // Product inventory — admin only
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/products/export', [StaffController::class, 'exportProducts'])->name('products.export');
+            Route::post('/products/bulk-delete', [StaffController::class, 'bulkDeleteProducts'])->name('products.bulk-delete');
+            Route::post('/products/bulk-import', [StaffController::class, 'bulkImportProducts'])->name('products.bulk-import');
+        });
         Route::get('/products', [StaffController::class, 'products'])->name('products');
         Route::post('/products', [StaffController::class, 'storeProduct'])->name('products.store');
         Route::post('/products/{id}/update', [StaffController::class, 'updateProduct'])->name('products.update');
@@ -142,15 +174,25 @@ Route::middleware('auth')->group(function () {
         Route::post('/products/{id}/mutate-branch', [StaffController::class, 'mutateBranchStock'])->name('products.mutate-branch');
         Route::post('/products/{id}/delete', [StaffController::class, 'deleteProduct'])->name('products.delete');
 
-        // Member management (Admin/Staff)
-        Route::get('/members/export', [StaffController::class, 'exportMembers'])->name('members.export');
-        Route::post('/members/bulk-delete', [StaffController::class, 'bulkDeleteMembers'])->name('members.bulk-delete');
-        Route::get('/members', [StaffController::class, 'members'])->name('members');
-        Route::post('/members', [StaffController::class, 'storeMember'])->name('members.store');
-        Route::post('/members/{id}/update', [StaffController::class, 'updateMember'])->name('members.update');
-        Route::post('/members/{id}/delete', [StaffController::class, 'deleteMember'])->name('members.delete');
+        // Member management — admin only
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/members/export', [StaffController::class, 'exportMembers'])->name('members.export');
+            Route::post('/members/bulk-delete', [StaffController::class, 'bulkDeleteMembers'])->name('members.bulk-delete');
+            Route::get('/members', [StaffController::class, 'members'])->name('members');
+            Route::post('/members', [StaffController::class, 'storeMember'])->name('members.store');
+            Route::post('/members/{id}/update', [StaffController::class, 'updateMember'])->name('members.update');
+            Route::post('/members/{id}/delete', [StaffController::class, 'deleteMember'])->name('members.delete');
+        });
 
-        // SHU Dividend Calculator
-        Route::get('/shu', [StaffController::class, 'shu'])->name('shu');
+        // Savings receipt PDF — pengurus & admin
+        Route::middleware('role:admin,pengurus')->group(function () {
+            Route::get('/savings/{id}/receipt/pdf', [StaffController::class, 'downloadSavingReceiptPdf'])->name('savings.receipt-pdf');
+        });
+
+        // SHU Dividend Calculator — admin only
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/shu', [StaffController::class, 'shu'])->name('shu');
+        });
     });
+
 });

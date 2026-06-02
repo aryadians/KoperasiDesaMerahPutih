@@ -12,6 +12,13 @@
     <link rel="stylesheet" href="{{ asset('css/airbnb.css') }}">
     <link rel="stylesheet" href="{{ asset('css/print.css') }}" media="print">
 
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#C0392B">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <style>
         /* ── Admin Layout Variables ── */
         :root {
@@ -419,12 +426,14 @@
 
             <span class="sidebar-menu-title" style="margin-top: 10px;">Operasional Toko</span>
 
+            @if(in_array(auth()->user()->role, ['admin']))
             <a href="{{ route('staff.products') }}" class="sidebar-link {{ Request::routeIs('staff.products') ? 'active' : '' }}">
                 <div class="sidebar-link-left">
                     <svg viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
                     <span>Kelola Inventaris</span>
                 </div>
             </a>
+            @endif
 
             <a href="{{ route('staff.orders') }}" class="sidebar-link {{ Request::routeIs('staff.orders') ? 'active' : '' }}">
                 <div class="sidebar-link-left">
@@ -437,6 +446,7 @@
                 @endif
             </a>
 
+            @if(in_array(auth()->user()->role, ['admin', 'pengurus']))
             <a href="{{ route('staff.crops') }}" class="sidebar-link {{ Request::routeIs('staff.crops') ? 'active' : '' }}">
                 <div class="sidebar-link-left">
                     <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12c0-2.76 1.12-5.26 2.93-7.07"></path><path d="M12 6v6l4 2"></path></svg>
@@ -447,7 +457,9 @@
                     <span class="sidebar-badge">{{ $pendingCrops }}</span>
                 @endif
             </a>
+            @endif
 
+            @if(in_array(auth()->user()->role, ['admin', 'pengurus']))
             <span class="sidebar-menu-title" style="margin-top: 10px;">Keuangan & Laporan</span>
 
             <a href="{{ route('staff.loans') }}" class="sidebar-link {{ Request::routeIs('staff.loans') ? 'active' : '' }}">
@@ -461,20 +473,15 @@
                 @endif
             </a>
 
-            <a href="{{ route('staff.shu') }}" class="sidebar-link {{ Request::routeIs('staff.shu') ? 'active' : '' }}">
-                <div class="sidebar-link-left">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"></path></svg>
-                    <span>Laporan SHU</span>
-                </div>
-            </a>
-
             <a href="{{ route('staff.purchase-orders') }}" class="sidebar-link {{ Request::routeIs('staff.purchase-orders') ? 'active' : '' }}">
                 <div class="sidebar-link-left">
                     <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
                     <span>Procurement (PO)</span>
                 </div>
             </a>
+            @endif
 
+            @if(in_array(auth()->user()->role, ['admin']))
             <span class="sidebar-menu-title" style="margin-top: 10px;">Manajemen Sistem</span>
 
             <a href="{{ route('staff.members') }}" class="sidebar-link {{ Request::routeIs('staff.members') ? 'active' : '' }}">
@@ -484,12 +491,20 @@
                 </div>
             </a>
 
+            <a href="{{ route('staff.shu') }}" class="sidebar-link {{ Request::routeIs('staff.shu') ? 'active' : '' }}">
+                <div class="sidebar-link-left">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"></path></svg>
+                    <span>Laporan SHU</span>
+                </div>
+            </a>
+
             <a href="{{ route('staff.config') }}" class="sidebar-link {{ Request::routeIs('staff.config') ? 'active' : '' }}">
                 <div class="sidebar-link-left">
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9"></path></svg>
                     <span>Konfigurasi Sistem</span>
                 </div>
             </a>
+            @endif
         </nav>
 
         <!-- Sidebar Footer -->
@@ -838,6 +853,21 @@
                 }
             }
         });
+    </script>
+
+    {{-- PWA Service Worker Registration --}}
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                    .then(function(registration) {
+                        // SW registered successfully — no console.log in production
+                    })
+                    .catch(function() {
+                        // SW registration failed — app still works without it
+                    });
+            });
+        }
     </script>
 </body>
 </html>

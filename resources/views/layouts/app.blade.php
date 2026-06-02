@@ -10,6 +10,14 @@
     <link rel="stylesheet" href="{{ asset('css/airbnb.css') }}">
     <link rel="stylesheet" href="{{ asset('css/print.css') }}" media="print">
     <meta name="description" content="@yield('description', 'Koperasi Desa Merah Putih — Platform Digital Desa untuk Belanja, Simpan Pinjam, dan Agro.')">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#C0392B">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <style>
         @media (max-width: 1024px) { .navbar-search { display: none !important; } }
     </style>
@@ -619,6 +627,17 @@
                 }
             }
         });
+    </script>
+
+    {{-- PWA Service Worker Registration --}}
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                    .then(function() {})
+                    .catch(function() {});
+            });
+        }
     </script>
 </body>
 </html>

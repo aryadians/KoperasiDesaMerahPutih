@@ -1,0 +1,44 @@
+{
+    "name": "KDKMP — Koperasi Desa Merah Putih",
+    "short_name": "KDKMP",
+    "description": "Sistem Digital Koperasi Desa Merah Putih — Retail, Simpan Pinjam, dan Agro",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#C0392B",
+    "theme_color": "#C0392B",
+    "lang": "id",
+    "dir": "ltr",
+    "categories": ["finance", "shopping", "productivity"],
+    "icons": [
+        {
+            "src": "/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "POS Kasir",
+            "short_name": "POS",
+            "description": "Buka panel kasir",
+            "url": "/staff/pos",
+            "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Katalog Produk",
+            "short_name": "Katalog",
+            "description": "Lihat katalog produk gerai",
+            "url": "/catalog",
+            "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+        }
+    ]
+}

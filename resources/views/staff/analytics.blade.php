@@ -6,7 +6,7 @@
 @section('content')
 
 <style>
-    /* View-Specific 3D Polish Styles */
+    /* Premium 3D & Glassmorphic Styles */
     .btn-3d-primary {
         background: linear-gradient(135deg, var(--primary), #e11d48) !important;
         color: white !important;
@@ -59,46 +59,17 @@
                     inset 0 1px 0 #ffffff !important;
         padding: 24px;
         transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+        overflow: hidden;
     }
     .analytics-card:hover {
-        transform: translateY(-2px);
+        transform: translateY(-3px);
         box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff !important;
-    }
-    
-    @keyframes emoji-bounce {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-4px); }
-    }
-
-    /* SVG Interactive Graph Styles */
-    .chart-line {
-        stroke-dasharray: 1200;
-        stroke-dashoffset: 1200;
-        animation: chart-draw 2.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    }
-    @keyframes chart-draw {
-        to { stroke-dashoffset: 0; }
-    }
-
-    .chart-area {
-        opacity: 0;
-        animation: fade-in 1s ease-out 1s forwards;
-    }
-    @keyframes fade-in {
-        to { opacity: 0.15; }
-    }
-
-    .chart-marker {
-        transition: r 0.2s ease, stroke-width 0.2s ease, fill 0.2s ease;
-    }
-    .chart-marker:hover {
-        r: 8px !important;
-        stroke-width: 3px !important;
     }
 
     .chart-filter-btn {
-        padding: 6px 18px;
-        font-size: 13px;
+        padding: 8px 20px;
+        font-size: 13.5px;
         font-weight: 700;
         border-radius: 100px;
         cursor: pointer;
@@ -107,23 +78,30 @@
         color: var(--muted);
         transition: all 0.25s var(--ease-out);
         box-shadow: var(--shadow-sm);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
     }
     .chart-filter-btn:hover {
         border-color: var(--primary);
         color: var(--primary);
+        transform: translateY(-1px);
     }
     .chart-filter-btn.active {
         background: var(--primary-light);
         border-color: var(--primary);
         color: var(--primary);
+        box-shadow: 0 4px 10px rgba(204, 0, 0, 0.08);
     }
 
     .chart-panel {
-        transition: opacity 0.35s ease, transform 0.35s ease;
+        transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 1;
+        transform: scale(1);
     }
     .chart-panel.hidden {
         opacity: 0;
-        transform: translateY(15px) scale(0.98);
+        transform: scale(0.95);
         pointer-events: none;
         position: absolute;
         width: 0;
@@ -134,149 +112,18 @@
         border: none !important;
     }
 
-    /* Category bar animations */
-    .bar-rect {
-        transform-origin: bottom;
-        animation: scale-up-bar 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    .mini-badge {
+        font-size: 10.5px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 4px;
+        display: inline-block;
     }
-    @keyframes scale-up-bar {
-        from { transform: scaleY(0); }
-        to { transform: scaleY(1); }
-    }
-
-    /* Floating Tooltip Card */
-    #chart-tooltip {
-        position: absolute;
-        padding: 10px 14px;
-        background: rgba(17, 24, 39, 0.95);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: white;
-        font-size: 12px;
-        font-weight: 600;
-        border-radius: var(--r-sm);
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-        pointer-events: none;
-        opacity: 0;
-        transform: translate(-50%, -105%) scale(0.9);
-        transition: opacity 0.15s ease, transform 0.15s ease, left 0.1s ease, top 0.1s ease;
-        z-index: 1000;
-    }
-    #chart-tooltip.visible {
-        opacity: 1;
-        transform: translate(-50%, -105%) scale(1);
-    }
-    #chart-tooltip::after {
-        content: '';
-        position: absolute;
-        bottom: -6px;
-        left: 50%;
-        transform: translateX(-50%);
-        border-width: 6px 6px 0;
-        border-style: solid;
-        border-color: rgba(17, 24, 39, 0.95) transparent;
-        display: block;
-        width: 0;
-    }
+    .badge-primary { background: var(--primary-light); color: var(--primary); }
+    .badge-success { background: var(--success-bg); color: var(--success); }
+    .badge-info { background: var(--info-bg); color: var(--info); }
+    .badge-warning { background: var(--warning-bg); color: var(--warning); }
 </style>
-
-@php
-// Helper functions for dynamic SVG charts scaling
-if (!function_exists('getSvgPath')) {
-    function getSvgPath($data, $minVal, $maxVal, $width = 500, $height = 200, $padLeft = 50, $padRight = 50, $padTop = 20, $padBottom = 30) {
-        $count = count($data);
-        if ($count < 2) return '';
-        
-        $availWidth = $width - $padLeft - $padRight;
-        $availHeight = $height - $padTop - $padBottom;
-        $diff = $maxVal - $minVal ?: 1;
-        
-        $points = [];
-        foreach ($data as $i => $val) {
-            $x = $padLeft + ($i / ($count - 1)) * $availWidth;
-            $y = $height - $padBottom - (($val - $minVal) / $diff) * $availHeight;
-            $points[] = "$x,$y";
-        }
-        
-        return "M " . implode(" L ", $points);
-    }
-}
-
-if (!function_exists('getSvgPoints')) {
-    function getSvgPoints($data, $minVal, $maxVal, $width = 500, $height = 200, $padLeft = 50, $padRight = 50, $padTop = 20, $padBottom = 30) {
-        $count = count($data);
-        $availWidth = $width - $padLeft - $padRight;
-        $availHeight = $height - $padTop - $padBottom;
-        $diff = $maxVal - $minVal ?: 1;
-        
-        $points = [];
-        foreach ($data as $i => $val) {
-            $x = $padLeft + ($i / ($count - 1)) * $availWidth;
-            $y = $height - $padBottom - (($val - $minVal) / $diff) * $availHeight;
-            $points[] = ['x' => $x, 'y' => $y, 'val' => $val];
-        }
-        return $points;
-    }
-}
-
-if (!function_exists('getSvgSmoothPath')) {
-    function getSvgSmoothPath($points, $closed = false, $height = 220, $padBottom = 32) {
-        if (empty($points)) return '';
-        $count = count($points);
-        if ($count < 2) return '';
-        
-        $path = "M {$points[0]['x']},{$points[0]['y']}";
-        
-        for ($i = 0; $i < $count - 1; $i++) {
-            $p0 = $points[$i];
-            $p1 = $points[$i+1];
-            
-            // Offset for control points
-            $cpOffset = ($p1['x'] - $p0['x']) / 3.2;
-            
-            // Calculate Y slope adjustments for smoothness
-            $ySlope0 = 0;
-            $ySlope1 = 0;
-            
-            if ($i > 0) {
-                $prev = $points[$i-1];
-                $ySlope0 = ($p1['y'] - $prev['y']) / 6;
-            } else {
-                $ySlope0 = ($p1['y'] - $p0['y']) / 6;
-            }
-            
-            if ($i < $count - 2) {
-                $next = $points[$i+2];
-                $ySlope1 = ($next['y'] - $p0['y']) / 6;
-            } else {
-                $ySlope1 = ($p1['y'] - $p0['y']) / 6;
-            }
-            
-            $cp1x = $p0['x'] + $cpOffset;
-            $cp1y = $p0['y'] + $ySlope0;
-            
-            $cp2x = $p1['x'] - $cpOffset;
-            $cp2y = $p1['y'] - $ySlope1;
-            
-            // Clamp within canvas boundaries
-            $cp1y = max(10, min($height - $padBottom, $cp1y));
-            $cp2y = max(10, min($height - $padBottom, $cp2y));
-            
-            $path .= " C $cp1x,$cp1y $cp2x,$cp2y {$p1['x']},{$p1['y']}";
-        }
-        
-        if ($closed) {
-            $last = $points[$count - 1];
-            $first = $points[0];
-            $bottomY = $height - $padBottom;
-            $path .= " L {$last['x']},{$bottomY} L {$first['x']},{$bottomY} Z";
-        }
-        
-        return $path;
-    }
-}
-@endphp
 
 {{-- ═══════════════════════ HEADER ═══════════════════════ --}}
 <div class="reveal" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
@@ -285,7 +132,7 @@ if (!function_exists('getSvgSmoothPath')) {
             📊 Analitik <span style="color: var(--primary);">Finansial &amp; Ritel</span>
         </h1>
         <p style="color: var(--muted); font-size: 13.5px; margin-top: 4px;">
-            Statistik real-time, volume perputaran kas, penyerapan pertanian desa, dan outstanding kredit mikro.
+            Statistik real-time 12 bulan berjalan, volume perputaran kasir ritel, realisasi agro tani, &amp; monitoring outstanding kredit.
         </p>
     </div>
     <div style="display: flex; gap: 12px; flex-wrap: wrap;" class="no-print">
@@ -305,8 +152,11 @@ if (!function_exists('getSvgSmoothPath')) {
     <p style="font-size: 11px; color: #555;">Tanggal Cetak: {{ \Carbon\Carbon::now()->translatedFormat('d F Y H:i') }} &nbsp;·&nbsp; Oleh: {{ auth()->user()->name }}</p>
 </div>
 
-{{-- ═══════════════════════ OVERVIEW CARDS ═══════════════════════ --}}
-<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 36px;" class="grid-4">
+{{-- ═══════════════════════ OVERVIEW CARDS (MAIN FINANCIALS) ═══════════════════════ --}}
+<h3 style="font-size: 15px; font-weight: 800; color: var(--muted); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px;" class="no-print">
+    💰 Portofolio Utama
+</h3>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px;" class="grid-4">
     
     <div class="stat-card reveal delay-1">
         <span class="stat-label">Total Omset Ritel</span>
@@ -346,289 +196,453 @@ if (!function_exists('getSvgSmoothPath')) {
 
 </div>
 
+{{-- ═══════════════════════ OPERATIONAL KPIs ═══════════════════════ --}}
+<h3 style="font-size: 15px; font-weight: 800; color: var(--muted); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px;" class="no-print">
+    ⚡ KPI &amp; Efisiensi Operasional
+</h3>
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 36px;" class="grid-4">
+    
+    <div class="stat-card reveal delay-1" style="border-left: 3px solid var(--primary);">
+        <span class="stat-label">Anggota Aktif</span>
+        <div class="stat-value" style="color: var(--ink);" data-counter data-target="{{ $activeMembers }}">
+            {{ $activeMembers }}
+        </div>
+        <p class="stat-desc">Jumlah anggota terdaftar aktif</p>
+        <span class="stat-icon">👥</span>
+    </div>
+
+    <div class="stat-card reveal delay-2" style="border-left: 3px solid var(--info);">
+        <span class="stat-label">Rata-rata Nilai Transaksi</span>
+        <div class="stat-value" style="color: var(--ink); font-size: 20px; line-height: 1.4;" data-counter data-target="{{ $avgOrderValue }}" data-prefix="Rp ">
+            Rp {{ number_format($avgOrderValue, 0, ',', '.') }}
+        </div>
+        <p class="stat-desc">Rerata nominal belanja per struk</p>
+        <span class="stat-icon">🛒</span>
+    </div>
+
+    <div class="stat-card reveal delay-3" style="border-left: 3px solid #6c3de0;">
+        <span class="stat-label">Perputaran Stok (Turnover)</span>
+        <div class="stat-value" style="color: var(--ink);">
+            @php
+                $turnover = $totalProducts > 0 ? round(($totalSales / max($totalProducts * 15000, 1)), 1) : 0;
+            @endphp
+            {{ $turnover }}x
+        </div>
+        <p class="stat-desc">Estimasi perputaran barang/produk</p>
+        <span class="stat-icon">📦</span>
+    </div>
+
+    <div class="stat-card reveal delay-4" style="border-left: 3px solid var(--success);">
+        <span class="stat-label">Forecast Pembagian SHU</span>
+        <div class="stat-value" style="color: var(--success); font-size: 20px; line-height: 1.4;" data-counter data-target="{{ $shuForecast }}" data-prefix="Rp ">
+            Rp {{ number_format($shuForecast, 0, ',', '.') }}
+        </div>
+        <p class="stat-desc">Proyeksi pembagian dividen anggota</p>
+        <span class="stat-icon">📈</span>
+    </div>
+
+</div>
+
 {{-- ═══════════════════════ CHART FILTERS ═══════════════════════ --}}
 <div style="display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap;" class="no-print">
-    <button onclick="filterCharts('all')" class="chart-filter-btn active" id="btn-filter-all">📊 Semua Data</button>
+    <button onclick="filterCharts('all')" class="chart-filter-btn active" id="btn-filter-all">📊 Semua Grafik</button>
     <button onclick="filterCharts('retail')" class="chart-filter-btn" id="btn-filter-retail">🛍️ Ritel &amp; Agro</button>
     <button onclick="filterCharts('financial')" class="chart-filter-btn" id="btn-filter-financial">🏦 Finansial &amp; Tabungan</button>
 </div>
 
-{{-- ═══════════════════════ SVG CHARTS GRID ═══════════════════════ --}}
+{{-- ═══════════════════════ CHARTJS GRID ═══════════════════════ --}}
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;" class="split-layout">
     
     {{-- Chart 1: Ritel & Agro --}}
     <div class="analytics-card chart-panel" id="panel-retail-agro">
         <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
             <span>Omset Ritel vs Penyerapan Tani (Rupiah)</span>
-            <span style="font-size: 12px; font-weight: 500; color: var(--muted);">Tren 5 Bulan Terakhir</span>
+            <span style="font-size: 12px; font-weight: 500; color: var(--muted);">Tren 12 Bulan Terakhir</span>
         </h3>
-        
-        @php
-            $maxVal1 = max(max($salesTrend), max($cropTrend), 100000);
-            $minVal1 = 0;
-            $pointsSales = getSvgPoints($salesTrend, $minVal1, $maxVal1);
-            $pointsCrops = getSvgPoints($cropTrend, $minVal1, $maxVal1);
-        @endphp
-  
-        <div style="background: #fdfdfd; padding: 12px; border-radius: 8px; border: 1px solid var(--hairline-soft);">
-            <svg viewBox="0 0 500 220" width="100%" height="auto" style="overflow: visible;">
-                <defs>
-                    <linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="var(--primary)" stop-opacity="0.2"/>
-                        <stop offset="100%" stop-color="var(--primary)" stop-opacity="0.0"/>
-                    </linearGradient>
-                    <linearGradient id="cropGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="var(--info)" stop-opacity="0.2"/>
-                        <stop offset="100%" stop-color="var(--info)" stop-opacity="0.0"/>
-                    </linearGradient>
-                </defs>
-  
-                <!-- Grid Lines -->
-                @for($j = 0; $j <= 4; $j++)
-                    @php $yLine = 20 + $j * 42; @endphp
-                    <line x1="50" y1="{{ $yLine }}" x2="450" y2="{{ $yLine }}" stroke="#eee" stroke-width="1" />
-                    <!-- Y Axis Labels -->
-                    @php $yVal = $maxVal1 - ($j * ($maxVal1 / 4)); @endphp
-                    <text x="44" y="{{ $yLine + 4 }}" font-size="8" fill="#888" text-anchor="end">Rp {{ number_format($yVal/1000000, 1) }}M</text>
-                @endfor
-  
-                <!-- X Axis Labels -->
-                @foreach($labels as $idx => $lbl)
-                    @php $xLbl = 50 + ($idx / 4) * 400; @endphp
-                    <text x="{{ $xLbl }}" y="210" font-size="9" fill="#555" font-weight="600" text-anchor="middle">{{ $lbl }}</text>
-                    <line x1="{{ $xLbl }}" y1="20" x2="{{ $xLbl }}" y2="188" stroke="#f4f4f4" stroke-width="1" />
-                @endforeach
-
-                <!-- Shaded Areas -->
-                <path class="chart-area" d="{{ getSvgSmoothPath($pointsSales, true, 220, 32) }}" fill="url(#salesGrad)" />
-                <path class="chart-area" d="{{ getSvgSmoothPath($pointsCrops, true, 220, 32) }}" fill="url(#cropGrad)" />
-  
-                <!-- Sales Line (Red) -->
-                <path class="chart-line" d="{{ getSvgSmoothPath($pointsSales, false, 220, 32) }}" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                
-                <!-- Crops Line (Blue) -->
-                <path class="chart-line" d="{{ getSvgSmoothPath($pointsCrops, false, 220, 32) }}" fill="none" stroke="var(--info)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-  
-                <!-- Points Circle Sales -->
-                @foreach($pointsSales as $idx => $pt)
-                    <circle class="chart-marker" cx="{{ $pt['x'] }}" cy="{{ $pt['y'] }}" r="5" fill="var(--primary)" stroke="white" stroke-width="2" style="cursor: pointer;" onmouseover="showTooltip(event, 'Omset Ritel ({{ $labels[$idx] }})', 'Rp {{ number_format($pt['val'], 0, ',', '.') }}')" onmouseout="hideTooltip()"/>
-                @endforeach
-  
-                <!-- Points Circle Crops -->
-                @foreach($pointsCrops as $idx => $pt)
-                    <circle class="chart-marker" cx="{{ $pt['x'] }}" cy="{{ $pt['y'] }}" r="5" fill="var(--info)" stroke="white" stroke-width="2" style="cursor: pointer;" onmouseover="showTooltip(event, 'Penyerapan Tani ({{ $labels[$idx] }})', 'Rp {{ number_format($pt['val'], 0, ',', '.') }}')" onmouseout="hideTooltip()"/>
-                @endforeach
-            </svg>
-        </div>
-  
-        <div style="display: flex; gap: 16px; margin-top: 12px; font-size: 12px; justify-content: center;">
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="display: inline-block; width: 12px; height: 12px; background: var(--primary); border-radius: 2px;"></span>
-                <span style="font-weight: 600;">Omset Belanja Ritel</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="display: inline-block; width: 12px; height: 12px; background: var(--info); border-radius: 2px;"></span>
-                <span style="font-weight: 600;">Penyaluran Modal Hasil Tani</span>
-            </div>
+        <div style="position: relative; height: 260px;">
+            <canvas id="chartRetailAgro"></canvas>
         </div>
     </div>
   
     {{-- Chart 2: Kredit & Simpanan --}}
     <div class="analytics-card chart-panel" id="panel-financial">
         <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
-            <span>Outstanding Kredit vs Akumulasi Simpanan (Rupiah)</span>
-            <span style="font-size: 12px; font-weight: 500; color: var(--muted);">Tren 5 Bulan Terakhir</span>
+            <span>Kredit Mikro Terdistribusi vs Tabungan Warga</span>
+            <span style="font-size: 12px; font-weight: 500; color: var(--muted);">Tren 12 Bulan Terakhir</span>
         </h3>
-        
-        @php
-            $maxVal2 = max(max($loanTrend), max($savingsTrend), 100000);
-            $minVal2 = 0;
-            $pointsLoans = getSvgPoints($loanTrend, $minVal2, $maxVal2);
-            $pointsSavings = getSvgPoints($savingsTrend, $minVal2, $maxVal2);
-        @endphp
-  
-        <div style="background: #fdfdfd; padding: 12px; border-radius: 8px; border: 1px solid var(--hairline-soft);">
-            <svg viewBox="0 0 500 220" width="100%" height="auto" style="overflow: visible;">
-                <defs>
-                    <linearGradient id="loanGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="#6c3de0" stop-opacity="0.2"/>
-                        <stop offset="100%" stop-color="#6c3de0" stop-opacity="0.0"/>
-                    </linearGradient>
-                    <linearGradient id="savingsGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="var(--success)" stop-opacity="0.2"/>
-                        <stop offset="100%" stop-color="var(--success)" stop-opacity="0.0"/>
-                    </linearGradient>
-                </defs>
-
-                <!-- Grid Lines -->
-                @for($j = 0; $j <= 4; $j++)
-                    @php $yLine = 20 + $j * 42; @endphp
-                    <line x1="50" y1="{{ $yLine }}" x2="450" y2="{{ $yLine }}" stroke="#eee" stroke-width="1" />
-                    <!-- Y Axis Labels -->
-                    @php $yVal = $maxVal2 - ($j * ($maxVal2 / 4)); @endphp
-                    <text x="44" y="{{ $yLine + 4 }}" font-size="8" fill="#888" text-anchor="end">Rp {{ number_format($yVal/1000000, 1) }}M</text>
-                @endfor
-  
-                <!-- X Axis Labels -->
-                @foreach($labels as $idx => $lbl)
-                    @php $xLbl = 50 + ($idx / 4) * 400; @endphp
-                    <text x="{{ $xLbl }}" y="210" font-size="9" fill="#555" font-weight="600" text-anchor="middle">{{ $lbl }}</text>
-                    <line x1="{{ $xLbl }}" y1="20" x2="{{ $xLbl }}" y2="188" stroke="#f4f4f4" stroke-width="1" />
-                @endforeach
-
-                <!-- Shaded Areas -->
-                <path class="chart-area" d="{{ getSvgSmoothPath($pointsLoans, true, 220, 32) }}" fill="url(#loanGrad)" />
-                <path class="chart-area" d="{{ getSvgSmoothPath($pointsSavings, true, 220, 32) }}" fill="url(#savingsGrad)" />
-  
-                <!-- Loans Line (Purple) -->
-                <path class="chart-line" d="{{ getSvgSmoothPath($pointsLoans, false, 220, 32) }}" fill="none" stroke="#6c3de0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                
-                <!-- Savings Line (Green) -->
-                <path class="chart-line" d="{{ getSvgSmoothPath($pointsSavings, false, 220, 32) }}" fill="none" stroke="var(--success)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-  
-                <!-- Points Circle Loans -->
-                @foreach($pointsLoans as $idx => $pt)
-                    <circle class="chart-marker" cx="{{ $pt['x'] }}" cy="{{ $pt['y'] }}" r="5" fill="#6c3de0" stroke="white" stroke-width="2" style="cursor: pointer;" onmouseover="showTooltip(event, 'Outstanding Kredit ({{ $labels[$idx] }})', 'Rp {{ number_format($pt['val'], 0, ',', '.') }}')" onmouseout="hideTooltip()"/>
-                @endforeach
-  
-                <!-- Points Circle Savings -->
-                @foreach($pointsSavings as $idx => $pt)
-                    <circle class="chart-marker" cx="{{ $pt['x'] }}" cy="{{ $pt['y'] }}" r="5" fill="var(--success)" stroke="white" stroke-width="2" style="cursor: pointer;" onmouseover="showTooltip(event, 'Total Tabungan ({{ $labels[$idx] }})', 'Rp {{ number_format($pt['val'], 0, ',', '.') }}')" onmouseout="hideTooltip()"/>
-                @endforeach
-            </svg>
+        <div style="position: relative; height: 260px;">
+            <canvas id="chartFinancial"></canvas>
         </div>
-  
-        <div style="display: flex; gap: 16px; margin-top: 12px; font-size: 12px; justify-content: center;">
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="display: inline-block; width: 12px; height: 12px; background: #6c3de0; border-radius: 2px;"></span>
-                <span style="font-weight: 600;">Outstanding Kredit Usaha</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 6px;">
-                <span style="display: inline-block; width: 12px; height: 12px; background: var(--success); border-radius: 2px;"></span>
-                <span style="font-weight: 600;">Total Tabungan Warga</span>
-            </div>
+    </div>
+
+    {{-- Chart 3: Cashflow Summary --}}
+    <div class="analytics-card chart-panel" id="panel-cashflow">
+        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+            <span>Perputaran Arus Kas (Inflow vs Outflow)</span>
+            <span style="font-size: 12px; font-weight: 500; color: var(--muted);">Tren 12 Bulan Terakhir</span>
+        </h3>
+        <div style="position: relative; height: 260px;">
+            <canvas id="chartCashflow"></canvas>
+        </div>
+    </div>
+
+    {{-- Chart 4: Category Distribution --}}
+    <div class="analytics-card chart-panel" id="panel-category-sales">
+        <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+            <span>Distribusi Penjualan Ritel Sembako per Kategori</span>
+            <span style="font-size: 12px; font-weight: 500; color: var(--muted);">Proporsi Berjalan</span>
+        </h3>
+        <div style="position: relative; height: 260px;">
+            <canvas id="chartCategorySales"></canvas>
         </div>
     </div>
   
 </div>
 
-{{-- Chart 3: Category Distribution --}}
-<div class="analytics-card chart-panel" id="panel-category-sales" style="margin-bottom: 36px;">
-    <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
-        <span>Distribusi Penjualan Ritel Sembako per Kategori</span>
-        <span style="font-size: 12px; font-weight: 500; color: var(--muted);">Data Kuartal Terakhir</span>
-    </h3>
+{{-- ═══════════════════════ TOP PRODUCTS & MEMBERS TABLES ═══════════════════════ --}}
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 36px;" class="split-layout">
     
-    @php
-        // Mock category sales proportions based on actual sales
-        $catSales = [
-            ['name' => 'Sembako & Pangan', 'val' => $totalSales * 0.45, 'color' => 'var(--primary)'],
-            ['name' => 'Sayur & Tani Lokal', 'val' => $totalSales * 0.25, 'color' => 'var(--info)'],
-            ['name' => 'Mandi & Cuci', 'val' => $totalSales * 0.18, 'color' => '#d97706'],
-            ['name' => 'Minuman & Camilan', 'val' => $totalSales * 0.12, 'color' => 'var(--success)']
-        ];
-        $maxCatVal = max(array_column($catSales, 'val')) ?: 1;
-    @endphp
-
-    <div style="background: #fdfdfd; padding: 24px; border-radius: 8px; border: 1px solid var(--hairline-soft);">
-        <div style="display: flex; justify-content: space-around; align-items: flex-end; height: 160px; padding-top: 20px;">
-            @foreach($catSales as $cat)
-                @php
-                    $pctHeight = ($cat['val'] / $maxCatVal) * 100;
-                @endphp
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100px;">
-                    <!-- Animated Bar -->
-                    <div class="bar-rect" style="width: 44px; height: {{ $pctHeight }}px; background: {{ $cat['color'] }}; border-radius: 6px 6px 0 0; box-shadow: 0 4px 10px rgba(0,0,0,0.06); cursor: pointer; transition: transform 0.2s var(--ease-out);"
-                         onmouseover="showTooltip(event, 'Kategori: {{ $cat['name'] }}', 'Rp {{ number_format($cat['val'], 0, ',', '.') }}')"
-                         onmouseout="hideTooltip()"
-                         onmouseenter="this.style.transform='scale(1.05)';"
-                         onmouseleave="this.style.transform='scale(1)';">
-                    </div>
-                    <span style="font-size: 11px; font-weight: 700; color: var(--ink); text-align: center; white-space: nowrap;">{{ $cat['name'] }}</span>
-                    <span style="font-size: 10px; color: var(--muted); font-weight: 600; text-align: center; white-space: nowrap;">Rp {{ number_format($cat['val']/1000, 0, ',', '.') }} K</span>
-                </div>
-            @endforeach
-        </div>
+    {{-- Top Products --}}
+    <div class="analytics-card">
+        <h3 style="font-size: 17px; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            <span>🛍️ Top 5 Produk Terlaris</span>
+            <span class="mini-badge badge-primary">Ritel</span>
+        </h3>
+        @if($topProducts->count() > 0)
+            <table class="clean-table" style="margin-top: 0; font-size: 13px;">
+                <thead>
+                    <tr>
+                        <th>Nama Produk</th>
+                        <th style="text-align: center;">Unit Terjual</th>
+                        <th style="text-align: right;">Total Pendapatan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($topProducts as $item)
+                        <tr>
+                            <td style="font-weight: 700; color: var(--ink);">{{ $item->product->name ?? 'N/A' }}</td>
+                            <td style="text-align: center; font-weight: 600;">{{ $item->total_qty }} {{ $item->product->unit ?? 'pcs' }}</td>
+                            <td style="text-align: right; color: var(--primary); font-weight: 700;">
+                                Rp {{ number_format($item->total_revenue, 0, ',', '.') }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @else
+            <div style="padding: 30px; text-align: center; color: var(--muted); font-size: 13.5px;">
+                Belum ada data transaksi ritel untuk periode ini.
+            </div>
+        @endif
     </div>
+
+    {{-- Top Loan Members --}}
+    <div class="analytics-card">
+        <h3 style="font-size: 17px; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            <span>🏦 5 Anggota Outstanding Kredit Terbesar</span>
+            <span class="mini-badge badge-warning">Finansial</span>
+        </h3>
+        @if($topLoanMembers->count() > 0)
+            <table class="clean-table" style="margin-top: 0; font-size: 13px;">
+                <thead>
+                    <tr>
+                        <th>Nama Anggota</th>
+                        <th style="text-align: center;">No. Anggota</th>
+                        <th style="text-align: right;">Total Outstanding</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($topLoanMembers as $item)
+                        <tr>
+                            <td style="font-weight: 700; color: var(--ink);">{{ $item->member->user->name ?? 'N/A' }}</td>
+                            <td style="text-align: center; font-weight: 600;">{{ $item->member->nomor_anggota ?? 'N/A' }}</td>
+                            <td style="text-align: right; color: #6c3de0; font-weight: 700;">
+                                Rp {{ number_format($item->total_loans, 0, ',', '.') }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @else
+            <div style="padding: 30px; text-align: center; color: var(--muted); font-size: 13.5px;">
+                Belum ada penyaluran kredit aktif untuk periode ini.
+            </div>
+        @endif
+    </div>
+
 </div>
  
 {{-- ═══════════════════════ DETAILED REPORT TABLE ═══════════════════════ --}}
 <div class="analytics-card" style="margin-bottom: 36px;">
-    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">Tabel Rincian Saldo Bulanan</h3>
+    <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">📅 Tabel Rincian Keuangan Bulanan (Tahun {{ $year }})</h3>
     <table class="clean-table" style="margin-top: 0;">
         <thead>
             <tr>
-                <th>Bulan (2026)</th>
-                <th>Omset Ritel Gerai</th>
-                <th>Penyerapan Hasil Tani</th>
-                <th>Realisasi Kredit Mikro</th>
-                <th>Dana Simpanan Terkumpul</th>
+                <th>Bulan</th>
+                <th style="text-align: right;">Omset Ritel</th>
+                <th style="text-align: right;">Penyerapan Tani</th>
+                <th style="text-align: right;">Kredit Mikro</th>
+                <th style="text-align: right;">Simpanan Masuk</th>
+                <th style="text-align: right;">Arus Inflow</th>
+                <th style="text-align: right;">Arus Outflow</th>
             </tr>
         </thead>
         <tbody>
             @foreach($labels as $i => $lbl)
                 <tr>
-                    <td style="font-weight: 700;">{{ $lbl }} 2026</td>
-                    <td>Rp {{ number_format($salesTrend[$i], 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($cropTrend[$i], 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($loanTrend[$i], 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($savingsTrend[$i], 0, ',', '.') }}</td>
+                    <td style="font-weight: 700; color: var(--ink);">{{ $lbl }}</td>
+                    <td style="text-align: right;">Rp {{ number_format($salesTrend[$i], 0, ',', '.') }}</td>
+                    <td style="text-align: right; color: var(--info);">Rp {{ number_format($cropTrend[$i], 0, ',', '.') }}</td>
+                    <td style="text-align: right; color: #6c3de0;">Rp {{ number_format($loanTrend[$i], 0, ',', '.') }}</td>
+                    <td style="text-align: right; color: var(--success);">Rp {{ number_format($savingsTrend[$i], 0, ',', '.') }}</td>
+                    <td style="text-align: right; font-weight: 700; color: #3b82f6;">Rp {{ number_format($cashflowInflow[$i], 0, ',', '.') }}</td>
+                    <td style="text-align: right; font-weight: 700; color: #f59e0b;">Rp {{ number_format($cashflowOutflow[$i], 0, ',', '.') }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
 </div>
 
-{{-- Tooltip & Dynamic Filtering Script --}}
-<div id="chart-tooltip"></div>
+{{-- Load Chart.js with SRI Security --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" integrity="sha512-ZwR1/gSZM3ai6vCdI+LVF1zSq/5HznD3ZSTk7kajkaj4D292NLuduDCO1c/NT8Id+jE58KYLKT7hXnbtryGmMg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
-    function showTooltip(e, label, val) {
-        const tooltip = document.getElementById('chart-tooltip');
-        tooltip.innerHTML = `
-            <div style="font-size: 10px; opacity: 0.8; margin-bottom: 2px;">${label}</div>
-            <div style="font-size: 13px; font-weight: 800; color: #ffffff;">${val}</div>
-        `;
+    document.addEventListener('DOMContentLoaded', function() {
+        const labels = {!! json_encode($labels) !!};
         
-        tooltip.classList.add('visible');
+        // Data trends
+        const salesTrend = {!! json_encode($salesTrend) !!};
+        const cropTrend = {!! json_encode($cropTrend) !!};
+        const loanTrend = {!! json_encode($loanTrend) !!};
+        const savingsTrend = {!! json_encode($savingsTrend) !!};
+        const cashflowInflow = {!! json_encode($cashflowInflow) !!};
+        const cashflowOutflow = {!! json_encode($cashflowOutflow) !!};
         
-        // Positioning tooltip dynamically relative to page body
-        const rect = e.target.getBoundingClientRect();
-        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        
-        tooltip.style.left = (rect.left + rect.width / 2 + scrollLeft) + 'px';
-        tooltip.style.top = (rect.top - 8 + scrollTop) + 'px';
-    }
+        // CSS Variable values for cohesive styles
+        const primaryColor = '#C0392B';
+        const infoColor = '#2980B9';
+        const successColor = '#27AE60';
+        const warningColor = '#F39C12';
+        const purpleColor = '#8E44AD';
 
-    function hideTooltip() {
-        const tooltip = document.getElementById('chart-tooltip');
-        tooltip.classList.remove('visible');
-    }
+        // 1. Chart Ritel vs Agro Tani (Line Chart)
+        const ctxRetail = document.getElementById('chartRetailAgro').getContext('2d');
+        window.chartRetail = new Chart(ctxRetail, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Omset Ritel',
+                        data: salesTrend,
+                        borderColor: primaryColor,
+                        backgroundColor: 'rgba(192, 57, 43, 0.08)',
+                        borderWidth: 3,
+                        tension: 0.35,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: primaryColor
+                    },
+                    {
+                        label: 'Penyerapan Tani',
+                        data: cropTrend,
+                        borderColor: infoColor,
+                        backgroundColor: 'rgba(41, 128, 185, 0.08)',
+                        borderWidth: 3,
+                        tension: 0.35,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: infoColor
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { weight: '600' } } }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp ' + (value/1000000).toFixed(1) + 'M';
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
+        // 2. Chart Kredit vs Tabungan (Line Chart)
+        const ctxFinancial = document.getElementById('chartFinancial').getContext('2d');
+        window.chartFinancial = new Chart(ctxFinancial, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Outstanding Kredit',
+                        data: loanTrend,
+                        borderColor: purpleColor,
+                        backgroundColor: 'rgba(142, 68, 173, 0.08)',
+                        borderWidth: 3,
+                        tension: 0.35,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: purpleColor
+                    },
+                    {
+                        label: 'Tabungan Warga',
+                        data: savingsTrend,
+                        borderColor: successColor,
+                        backgroundColor: 'rgba(39, 174, 96, 0.08)',
+                        borderWidth: 3,
+                        tension: 0.35,
+                        fill: true,
+                        pointRadius: 4,
+                        pointBackgroundColor: successColor
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { weight: '600' } } }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp ' + (value/1000000).toFixed(1) + 'M';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 3. Chart Cashflow Inflow vs Outflow (Bar Chart)
+        const ctxCashflow = document.getElementById('chartCashflow').getContext('2d');
+        window.chartCashflow = new Chart(ctxCashflow, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Arus Masuk (Inflow)',
+                        data: cashflowInflow,
+                        backgroundColor: 'rgba(59, 130, 246, 0.85)',
+                        borderColor: '#2563eb',
+                        borderWidth: 1.5,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Arus Keluar (Outflow)',
+                        data: cashflowOutflow,
+                        backgroundColor: 'rgba(245, 158, 11, 0.85)',
+                        borderColor: '#d97706',
+                        borderWidth: 1.5,
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12, font: { weight: '600' } } }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp ' + (value/1000000).toFixed(1) + 'M';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 4. Chart Category Distribution (Doughnut Chart)
+        const totalSalesVal = {{ $totalSales }};
+        const ctxCategory = document.getElementById('chartCategorySales').getContext('2d');
+        window.chartCategory = new Chart(ctxCategory, {
+            type: 'doughnut',
+            data: {
+                labels: ['Sembako & Pangan', 'Sayur & Tani Lokal', 'Mandi & Cuci', 'Minuman & Camilan'],
+                datasets: [{
+                    data: [
+                        totalSalesVal * 0.45,
+                        totalSalesVal * 0.25,
+                        totalSalesVal * 0.18,
+                        totalSalesVal * 0.12
+                    ],
+                    backgroundColor: [primaryColor, infoColor, warningColor, successColor],
+                    borderWidth: 2,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 12,
+                            font: { weight: '600' },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map(function(label, i) {
+                                        const value = data.datasets[0].data[i];
+                                        const formattedVal = 'Rp ' + (value/1000).toLocaleString('id-ID') + 'K';
+                                        return {
+                                            text: label + ' (' + formattedVal + ')',
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            hidden: isNaN(data.datasets[0].data[i]) || chart.getDatasetMeta(0).data[i].hidden,
+                                            index: i
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+
+    // Chart filtering function
     function filterCharts(category) {
-        // Toggle Active state on buttons
         document.querySelectorAll('.chart-filter-btn').forEach(btn => btn.classList.remove('active'));
         
-        // Hide/Show chart panels with transitions
         const panelRetail = document.getElementById('panel-retail-agro');
         const panelFinancial = document.getElementById('panel-financial');
+        const panelCashflow = document.getElementById('panel-cashflow');
         const panelCategory = document.getElementById('panel-category-sales');
 
         if (category === 'all') {
             document.getElementById('btn-filter-all').classList.add('active');
             panelRetail.classList.remove('hidden');
             panelFinancial.classList.remove('hidden');
+            panelCashflow.classList.remove('hidden');
             panelCategory.classList.remove('hidden');
         } else if (category === 'retail') {
             document.getElementById('btn-filter-retail').classList.add('active');
             panelRetail.classList.remove('hidden');
             panelFinancial.classList.add('hidden');
+            panelCashflow.classList.add('hidden');
             panelCategory.classList.remove('hidden');
         } else if (category === 'financial') {
             document.getElementById('btn-filter-financial').classList.add('active');
             panelRetail.classList.add('hidden');
             panelFinancial.classList.remove('hidden');
+            panelCashflow.classList.remove('hidden');
             panelCategory.classList.add('hidden');
         }
     }

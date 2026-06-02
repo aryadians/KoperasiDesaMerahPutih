@@ -24,7 +24,7 @@ class FinancialAutodebetTest extends TestCase
 
         // Setup staff user
         $this->staffUser = User::factory()->create([
-            'role' => 'pengurus',
+            'role' => 'admin',
             'branch_id' => 1,
             'status' => 'active',
         ]);
